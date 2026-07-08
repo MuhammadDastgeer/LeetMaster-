@@ -65,6 +65,66 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS blogs (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    author TEXT NOT NULL,
+    avatar TEXT NOT NULL,
+    category TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    likes INTEGER DEFAULT 0,
+    isUserBlog INTEGER DEFAULT 0
+  )
+`);
+
+// Insert default seed blogs if table is empty
+const blogsCheck = db.prepare("SELECT COUNT(*) as count FROM blogs");
+const { count: blogsCount } = blogsCheck.get() as { count: number };
+if (blogsCount === 0) {
+  const insertBlog = db.prepare(`
+    INSERT INTO blogs (id, title, content, author, avatar, category, timestamp, likes, isUserBlog)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  insertBlog.run(
+    'seed-blog-react-19',
+    'Unlocking React 19: Action Hooks & Concurrent Mastery',
+    'React 19 brings some of the most anticipated upgrades to full-stack and client-side applications. The star of the show is **Actions**—a new standard way to handle async mutations like form submissions. \n\n### 🔑 Action Hooks: `useActionState` and `useFormStatus`\nPreviously, managing loading states and error messages in forms required multiple `useState` properties. React 19 standardizes this with the custom `useActionState` hook:\n\n```tsx\nconst [state, formAction, isPending] = useActionState(\n  async (prevState, formData) => {\n    const response = await updateProfile(formData);\n    return response;\n  },\n  null\n);\n```\n\nAdditionally, the `useOptimistic` hook enables dynamic, fast-feeling updates by allowing developers to assume backend success and fallback seamlessly if a network error occurs.\n\n### 🚀 Seamless Server Components\nReact Server Components (RSC) are now fully integrated. This means components can run exclusively on the server, speeding up load times and reducing the client-side bundle significantly. \n\nBy leveraging these concepts, you can build extremely robust, snappy, and modern UI experiences that feel instant and handle errors gracefully.',
+    'Dastgeer (Admin)',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop',
+    'Web Development',
+    'July 08, 2026',
+    42,
+    0
+  );
+
+  insertBlog.run(
+    'seed-blog-ml-basics',
+    'Demystifying Machine Learning: Gradient Descent and Loss Functions',
+    'At the heart of almost every Machine Learning algorithm lies an optimization problem. How do we take a randomized set of weights and train them to predict house prices, translate languages, or recognize cats?\n\n### 📈 The Loss Function (Cost Function)\nTo improve, a model must first understand how wrong it is. We compute this error using a **Loss Function** (such as Mean Squared Error for regression):\n\n$$L(w, b) = \\frac{1}{N} \\sum_{i=1}^N (y_i - (w x_i + b))^2$$\n\nOur ultimate objective is to minimize this loss, shifting the weights to find the lowest possible value.\n\n### 🚀 Gradient Descent: Walking Down the Hill\nGradient Descent is an iterative optimization algorithm. It computes the derivative (the gradient) of the loss function with respect to each weight. By taking steps in the opposite direction of the gradient, we gradually walk down the "loss hill" toward the global minimum.\n\n```python\n# Basic gradient descent loop\nfor epoch in range(epochs):\n    y_pred = w * x + b\n    dw = -2 * mean(x * (y_true - y_pred))\n    db = -2 * mean(y_true - y_pred)\n    w -= learning_rate * dw\n    b -= learning_rate * db\n```\n\n### ⚠️ Learning Rates & Convergence\nChoosing the right **Learning Rate** (the step size) is critical. Too small, and the model trains too slowly. Too large, and it diverges, bouncing right out of the valley of minimal loss.',
+    'ML Coach',
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=128&auto=format&fit=crop',
+    'Programming Languages',
+    'July 07, 2026',
+    28,
+    0
+  );
+
+  insertBlog.run(
+    'seed-blog-sys-design',
+    'Mastering System Design: Caching Patterns and Strategies',
+    'As system architectures scale from hundreds to millions of active users, databases inevitably become the bottleneck. The single most effective tool to mitigate database stress and reduce latency is a well-designed **Caching Strategy**.\n\n### 🧱 Cache-Aside (Lazy Loading)\nIn the cache-aside pattern, the application queries the cache first. If there is a "cache miss," it fetches the record from the database and asynchronously writes it to the cache for future reads.\n\n- **Pros**: Only requests actually read are cached. High memory efficiency.\n- **Cons**: First read always incurs a cache miss (higher latency).\n\n### 🔄 Write-Through & Write-Behind\n- **Write-Through**: The application writes to the cache and the database simultaneously. The cache is always up to date.\n- **Write-Behind (Write-Back)**: The application writes exclusively to the cache, which then batches updates to the database asynchronously. This provides blazing fast write speeds, but runs the risk of data loss if the cache server crashes before flushing to disk.\n\n### ⚠️ Cache Invalidation & Eviction\nWhen memory fills up, the cache must evict entries using algorithms like **LRU** (Least Recently Used) or **LFU** (Least Frequently Used). Setting proper TTLs (Time-To-Live) ensures the cache doesn\'t serve stale data, maintaining system consistency.',
+    'System Architect',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=128&auto=format&fit=crop',
+    'Database',
+    'July 06, 2026',
+    35,
+    0
+  );
+}
+
 // Insert default seed profile if not exists
 const profileCheck = db.prepare("SELECT COUNT(*) as count FROM profiles WHERE id = 'default'");
 const { count: profileCount } = profileCheck.get() as { count: number };
@@ -649,6 +709,84 @@ app.post("/api/messages/:id/react", (req, res) => {
     updateStmt.run(JSON.stringify(reactions), id);
 
     res.json({ success: true, reactions });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET all blogs
+app.get("/api/blogs", (req, res) => {
+  try {
+    const stmt = db.prepare("SELECT * FROM blogs ORDER BY timestamp DESC");
+    const rows = stmt.all() as any[];
+    const parsedRows = rows.map(row => ({
+      ...row,
+      isUserBlog: row.isUserBlog === 1,
+      likes: Number(row.likes || 0)
+    }));
+    res.json({ success: true, blogs: parsedRows });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST a new blog
+app.post("/api/blogs", (req, res) => {
+  try {
+    const { title, content, category, author, avatar } = req.body;
+    if (!title || !content || !category) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    const blogId = `blog-${Date.now()}`;
+    const timestamp = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const insertStmt = db.prepare(`
+      INSERT INTO blogs (id, title, content, author, avatar, category, timestamp, likes, isUserBlog)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    insertStmt.run(
+      blogId,
+      title,
+      content,
+      author || "Dastgeer",
+      avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop",
+      category,
+      timestamp,
+      0,
+      1 // Created by current user, so isUserBlog = 1
+    );
+    
+    const getStmt = db.prepare("SELECT * FROM blogs WHERE id = ?");
+    const newBlog = getStmt.get(blogId) as any;
+    res.json({
+      success: true,
+      blog: {
+        ...newBlog,
+        isUserBlog: newBlog.isUserBlog === 1,
+        likes: Number(newBlog.likes || 0)
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST like a blog
+app.post("/api/blogs/:id/like", (req, res) => {
+  try {
+    const { id } = req.params;
+    const getStmt = db.prepare("SELECT likes FROM blogs WHERE id = ?");
+    const row = getStmt.get(id) as any;
+    if (!row) {
+      return res.status(404).json({ success: false, error: "Blog not found" });
+    }
+    const newLikes = (row.likes || 0) + 1;
+    const updateStmt = db.prepare("UPDATE blogs SET likes = ? WHERE id = ?");
+    updateStmt.run(newLikes, id);
+    res.json({ success: true, likes: newLikes });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }

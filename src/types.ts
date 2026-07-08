@@ -60,3 +60,15 @@ export interface EvaluationState {
   feedback: string;
   isSubmitted: boolean;
 }
+
+export interface Blog {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  avatar: string;
+  category: string;
+  timestamp: string;
+  likes: number;
+  isUserBlog: boolean;
+}

@@ -174,7 +174,8 @@ export default function App() {
     '/dsa-problems', '/dsaproblems',
     '/dsa-sheets', '/dsasheets',
     '/profile', '/professional-profile',
-    '/report-card', '/reportcard'
+    '/report-card', '/reportcard',
+    '/quiz-tab'
   ].includes(currentPath);
 
   if (isDashboardPath) {

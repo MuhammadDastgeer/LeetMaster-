@@ -1709,7 +1709,7 @@ export default function DsaProblems() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                   {sheets.map((sheet) => {
                     const isCompleted = sheet.solvedCount >= sheet.totalCount;
                     return (
@@ -1719,48 +1719,58 @@ export default function DsaProblems() {
                           setSelectedSheetId(sheet.id);
                           setSelectedProblemId(null);
                         }}
-                        className={`relative p-5 rounded-2xl border bg-white dark:bg-stone-900 transition-all duration-300 flex flex-col justify-between h-32 overflow-hidden cursor-pointer group select-none ${
-                          isCompleted 
-                            ? 'border-emerald-500/30 bg-emerald-500/[0.02] dark:bg-emerald-950/[0.02] hover:border-[#ff6b2b]/60' 
-                            : 'border-stone-200 dark:border-stone-800/80 hover:border-[#ff6b2b] hover:shadow-md'
-                        }`}
+                        className="group relative text-left p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-gradient-to-br from-[#faf8f5] via-[#f7f5f0] to-[#f2eee6] dark:from-[#1e1c18] dark:via-[#191815] dark:to-[#141311] overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:border-[#ff6b2b] hover:shadow-xl cursor-pointer block select-none"
                       >
-                        {/* Grid Pattern overlay */}
-                        <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#111111_1px,transparent_1px)] [background-size:12px_12px]" />
+                        {/* Inner Subtle Grid Pattern Overlay */}
+                        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#111111_1px,transparent_1px)] [background-size:16px_16px]" />
 
-                        <div className="relative z-10 flex flex-col justify-between h-full">
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="text-xs font-black text-stone-800 dark:text-stone-200 leading-snug line-clamp-2 group-hover:text-[#ff6b2b] transition-colors">
+                        {/* Content */}
+                        <div className="relative z-10 flex flex-col justify-between h-36">
+                          
+                          {/* Card Top Row */}
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 className="text-[15px] font-extrabold text-stone-900 dark:text-white leading-snug group-hover:text-[#ff6b2b] transition-colors line-clamp-2">
                               {sheet.name}
                             </h3>
-                            <span className={`text-[10px] font-mono font-bold ${isCompleted ? 'text-emerald-500' : 'text-stone-400 dark:text-stone-550'}`}>
-                              {sheet.solvedCount}/{sheet.totalCount}
-                            </span>
-                          </div>
-
-                          {/* Interactive progress tracker action */}
-                          <div className="flex items-center justify-between mt-4">
-                            <span className="text-[9px] font-bold text-stone-450 dark:text-stone-500 font-mono uppercase">
-                              By LeetMaster
-                            </span>
-
-                            {!isCompleted ? (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCompleteSheet(sheet.id);
-                                }}
-                                className="text-[9px] font-bold text-[#ff6b2b] hover:underline cursor-pointer focus:outline-none relative z-20"
-                              >
-                                Complete All
-                              </button>
-                            ) : (
-                              <span className="text-[9px] font-bold text-emerald-500 flex items-center gap-0.5 relative z-20">
-                                <Check className="w-3 h-3 stroke-[3]" /> Done
+                            
+                            {/* Solve count fraction */}
+                            <div className="flex items-baseline gap-0.5 flex-shrink-0 text-right">
+                              <span className="text-2xl font-black text-stone-900 dark:text-white font-mono leading-none">
+                                {sheet.solvedCount}
                               </span>
-                            )}
+                              <span className="text-xs font-bold text-stone-450 dark:text-stone-500 font-mono">
+                                /{sheet.totalCount}
+                              </span>
+                            </div>
                           </div>
+
+                          {/* Card Bottom Row */}
+                          <div className="flex items-end justify-between pt-4 border-t border-stone-200/50 dark:border-stone-800/50">
+                            <div>
+                              {!isCompleted ? (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCompleteSheet(sheet.id);
+                                  }}
+                                  className="text-[10px] font-bold text-[#ff6b2b] hover:underline cursor-pointer focus:outline-none relative z-20"
+                                >
+                                  Complete All
+                                </button>
+                              ) : (
+                                <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-0.5 relative z-20">
+                                  <Check className="w-3.5 h-3.5 stroke-[3]" /> Done
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Stylized LeetMaster Icon */}
+                            <div className="w-8 h-8 rounded-full bg-orange-100/80 dark:bg-orange-950/50 flex items-center justify-center text-[#ff6b2b] group-hover:bg-[#ff6b2b] group-hover:text-white transition-all duration-300">
+                              <Trophy className="w-4 h-4 fill-current" />
+                            </div>
+                          </div>
+
                         </div>
                       </div>
                     );

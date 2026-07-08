@@ -5,12 +5,15 @@ import {
   Calendar, Trophy, Award, Code, FileSpreadsheet, User, 
   ClipboardList, ArrowLeft, ArrowRight, Bell, Moon, Sun,
   Check, Star, Sparkles, MessageSquare, BookOpen, PenTool,
-  Plus, ExternalLink, ChevronRight, GraduationCap, Flame, AlertCircle
+  Plus, ExternalLink, ChevronRight, GraduationCap, Flame, AlertCircle,
+  Brain
 } from 'lucide-react';
 import TownHalls from './TownHalls';
 import ProfessionalProfile from './ProfessionalProfile';
 import DsaSheets from './DsaSheets';
 import DsaProblems from './DsaProblems';
+import Quiz from './Quiz';
+import Blogs from './Blogs';
 
 interface DashboardProps {
   darkMode: boolean;
@@ -44,7 +47,8 @@ const pathToTab: Record<string, string> = {
   '/profile': 'Professional Profile',
   '/professional-profile': 'Professional Profile',
   '/report-card': 'Report Card',
-  '/reportcard': 'Report Card'
+  '/reportcard': 'Report Card',
+  '/quiz-tab': 'Quiz'
 };
 
 const tabToPath: Record<string, string> = {
@@ -59,7 +63,8 @@ const tabToPath: Record<string, string> = {
   'DSA Problems': '/dsa-problems',
   'DSA Sheets': '/dsa-sheets',
   'Professional Profile': '/professional-profile',
-  'Report Card': '/report-card'
+  'Report Card': '/report-card',
+  'Quiz': '/quiz-tab'
 };
 
 export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBackToHome, currentPath }: DashboardProps) {
@@ -79,6 +84,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
     { name: 'My Hackathons', icon: Award, beta: true },
     { name: 'DSA Problems', icon: Code },
     { name: 'DSA Sheets', icon: FileSpreadsheet },
+    { name: 'Quiz', icon: Brain, beta: true },
     { name: 'Professional Profile', icon: User },
     { name: 'Report Card', icon: ClipboardList }
   ];
@@ -521,8 +527,34 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
             </motion.div>
           )}
 
+          {/* Quiz Section */}
+          {activeTab === 'Quiz' && (
+            <motion.div
+              key="quiz-tab-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full"
+            >
+              <Quiz />
+            </motion.div>
+          )}
+
+          {/* Blogs Section */}
+          {activeTab === 'Blogs' && (
+            <motion.div
+              key="blogs-tab-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full"
+            >
+              <Blogs />
+            </motion.div>
+          )}
+
           {/* Placeholders/Sub-integrations for other Sidebar tabs */}
-          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && (
+          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && (
             <motion.div
               key="fallback-tabs"
               initial={{ opacity: 0 }}
