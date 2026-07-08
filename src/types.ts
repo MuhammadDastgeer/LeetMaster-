@@ -85,3 +85,17 @@ export interface Hackathon {
   timestamp: string;
   isUserHackathon: boolean;
 }
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
+  author: string;
+  avatar: string;
+  timestamp: string;
+  isUserEvent: boolean;
+}

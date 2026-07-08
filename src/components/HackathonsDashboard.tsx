@@ -190,10 +190,6 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
               <span>Add Hackathon</span>
             </button>
           )}
-          <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40 px-3.5 py-1.5 rounded-full">
-            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-400/20 animate-pulse" />
-            <span className="text-xs font-bold text-amber-800 dark:text-amber-400 font-mono">SQLite Secured</span>
-          </div>
         </div>
       </div>
 

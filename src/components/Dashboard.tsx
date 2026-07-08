@@ -15,6 +15,7 @@ import DsaProblems from './DsaProblems';
 import Quiz from './Quiz';
 import Blogs from './Blogs';
 import HackathonsDashboard from './HackathonsDashboard';
+import EventsDashboard from './EventsDashboard';
 
 interface DashboardProps {
   darkMode: boolean;
@@ -34,8 +35,6 @@ const pathToTab: Record<string, string> = {
   '/blog': 'Blogs',
   '/projects': 'Projects',
   '/project': 'Projects',
-  '/peerreviews': 'Peer Reviews',
-  '/peer-reviews': 'Peer Reviews',
   '/events': 'Events',
   '/event': 'Events',
   '/hackathons-dashboard': 'Hackathons',
@@ -57,7 +56,6 @@ const tabToPath: Record<string, string> = {
   'Town Halls': '/town-hall',
   'Blogs': '/blogs',
   'Projects': '/projects',
-  'Peer Reviews': '/peer-reviews',
   'Events': '/events',
   'Hackathons': '/hackathons-dashboard',
   'My Hackathons': '/my-hackathons',
@@ -79,13 +77,12 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
     { name: 'Town Halls', icon: Users, beta: true },
     { name: 'Blogs', icon: FileText },
     { name: 'Projects', icon: Folder },
-    { name: 'Peer Reviews', icon: CheckSquare },
     { name: 'Events', icon: Calendar },
-    { name: 'Hackathons', icon: Trophy, beta: true },
-    { name: 'My Hackathons', icon: Award, beta: true },
+    { name: 'Hackathons', icon: Trophy },
+    { name: 'My Hackathons', icon: Award },
     { name: 'DSA Problems', icon: Code },
     { name: 'DSA Sheets', icon: FileSpreadsheet },
-    { name: 'Quiz', icon: Brain, beta: true },
+    { name: 'Quiz', icon: Brain },
     { name: 'Professional Profile', icon: User },
     { name: 'Report Card', icon: ClipboardList }
   ];
@@ -340,30 +337,9 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
               className="space-y-8"
             >
               {/* Stat cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 
-                {/* CARD 1: Peer Reviews */}
-                <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-base font-bold text-stone-700 dark:text-stone-300">Peer Reviews</h3>
-                    <Star className="w-5 h-5 text-stone-400 dark:text-stone-500 fill-stone-400 dark:fill-stone-500" />
-                  </div>
-                  <div className="mt-4 mb-5">
-                    <span className="text-5xl font-black font-sans text-stone-900 dark:text-white">0</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs font-semibold text-stone-500 dark:text-stone-400">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      0 Total
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-rose-500" />
-                      0 Pending
-                    </span>
-                  </div>
-                </div>
-
-                {/* CARD 2: Projects */}
+                {/* CARD 1: Projects */}
                 <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
                   <div className="flex items-start justify-between">
                     <h3 className="text-base font-bold text-stone-700 dark:text-stone-300">Projects</h3>
@@ -389,7 +365,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                   </div>
                 </div>
 
-                {/* CARD 3: Blogs */}
+                {/* CARD 2: Blogs */}
                 <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
                   <div className="flex items-start justify-between">
                     <h3 className="text-base font-bold text-stone-700 dark:text-stone-300">Blogs</h3>
@@ -410,7 +386,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                   </div>
                 </div>
 
-                {/* CARD 4: Courses */}
+                {/* CARD 3: Courses */}
                 <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
                   <div className="flex items-start justify-between">
                     <h3 className="text-base font-bold text-stone-700 dark:text-stone-300">Courses</h3>
@@ -580,8 +556,21 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
             </motion.div>
           )}
 
+          {/* Events Section */}
+          {activeTab === 'Events' && (
+            <motion.div
+              key="events-tab-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full"
+            >
+              <EventsDashboard />
+            </motion.div>
+          )}
+
           {/* Placeholders/Sub-integrations for other Sidebar tabs */}
-          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && (
+          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && activeTab !== 'Events' && (
             <motion.div
               key="fallback-tabs"
               initial={{ opacity: 0 }}

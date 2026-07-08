@@ -553,23 +553,23 @@ export default function App() {
               <h4 className="text-xs font-black uppercase tracking-wider text-gray-500 mb-4">Community</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <button onClick={() => navigateTo('/')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
+                  <button onClick={() => navigateTo('/dsa-sheets')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
                     DSA Sheets
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigateTo('/hackathons')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
+                  <button onClick={() => navigateTo('/hackathons-dashboard')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
                     Hackathons
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigateTo('/quiz')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
+                  <button onClick={() => navigateTo('/quiz-tab')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
                     Weekly Quizzes
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigateTo('/')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
-                    Voice Rooms
+                  <button onClick={() => navigateTo('/town-hall')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
+                    Town Halls
                   </button>
                 </li>
               </ul>

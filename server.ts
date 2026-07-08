@@ -94,6 +94,74 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS events (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    location TEXT NOT NULL,
+    category TEXT NOT NULL,
+    author TEXT NOT NULL,
+    avatar TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    isUserEvent INTEGER DEFAULT 0
+  )
+`);
+
+// Insert default seed events if table is empty
+const eventsCheck = db.prepare("SELECT COUNT(*) as count FROM events");
+const { count: eventsCount } = eventsCheck.get() as { count: number };
+if (eventsCount === 0) {
+  const insertEvent = db.prepare(`
+    INSERT INTO events (id, title, description, date, time, location, category, author, avatar, timestamp, isUserEvent)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  insertEvent.run(
+    'seed-event-1',
+    'Mastering Dynamic Programming Patterns',
+    'Join our community experts in solving DP patterns like 0/1 Knapsack, LCS, and Interval DP. Walk away with clear intuition, logic-building strategies, and optimized code templates.',
+    'July 12, 2026',
+    '6:00 PM',
+    'Discord Hall 1 (Virtual)',
+    'DSA Study Session',
+    'LeetMaster Mentor',
+    'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=128&auto=format&fit=crop',
+    'July 08, 2026',
+    0
+  );
+
+  insertEvent.run(
+    'seed-event-2',
+    'Generative AI Hackathon Prep Masterclass',
+    'Ready for the Agentic AI Hackathon? Learn how to structure prompt logic, implement tools, and utilize the modern Google Gemini SDK to build full-stack responsive web applications.',
+    'July 18, 2026',
+    '5:00 PM',
+    'Google Meet Link (Virtual)',
+    'Webinar & Workshop',
+    'Google GDG Mentor',
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=128&auto=format&fit=crop',
+    'July 07, 2026',
+    0
+  );
+
+  insertEvent.run(
+    'seed-event-3',
+    'AMA Session: Career Guidance & System Design',
+    'Curious about career progression, system architecture design, or tech interview processes? Bring your questions for an interactive and live Ask-Me-Anything session with principal tech experts.',
+    'July 22, 2026',
+    '7:00 PM',
+    'YouTube Live Broadcast',
+    'AMA Session',
+    'Tech Architect',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=128&auto=format&fit=crop',
+    'July 06, 2026',
+    0
+  );
+}
+
 // Insert default seed hackathons if table is empty
 const hackathonsCheck = db.prepare("SELECT COUNT(*) as count FROM hackathons");
 const { count: hackathonsCount } = hackathonsCheck.get() as { count: number };
@@ -979,6 +1047,135 @@ app.delete("/api/hackathons/:id", (req, res) => {
     deleteStmt.run(id);
     
     res.json({ success: true, message: "Hackathon deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET all events
+app.get("/api/events", (req, res) => {
+  try {
+    const stmt = db.prepare("SELECT * FROM events ORDER BY date ASC, time ASC, id DESC");
+    const rows = stmt.all() as any[];
+    const parsedRows = rows.map(row => ({
+      ...row,
+      isUserEvent: row.isUserEvent === 1
+    }));
+    res.json({ success: true, events: parsedRows });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST a new event
+app.post("/api/events", (req, res) => {
+  try {
+    const { title, description, date, time, location, category, author, avatar } = req.body;
+    if (!title || !description || !date || !time || !location || !category) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    const eventId = `event-${Date.now()}`;
+    const timestamp = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const insertStmt = db.prepare(`
+      INSERT INTO events (id, title, description, date, time, location, category, author, avatar, timestamp, isUserEvent)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    insertStmt.run(
+      eventId,
+      title,
+      description,
+      date,
+      time,
+      location,
+      category,
+      author || "Dastgeer",
+      avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop",
+      timestamp,
+      1 // User Event
+    );
+
+    const getStmt = db.prepare("SELECT * FROM events WHERE id = ?");
+    const newEv = getStmt.get(eventId) as any;
+    res.json({
+      success: true,
+      event: {
+        ...newEv,
+        isUserEvent: newEv.isUserEvent === 1
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT update an event
+app.put("/api/events/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, date, time, location, category } = req.body;
+    if (!title || !description || !date || !time || !location || !category) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+
+    const checkStmt = db.prepare("SELECT isUserEvent FROM events WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Event not found" });
+    }
+
+    if (existing.isUserEvent !== 1) {
+      return res.status(403).json({ success: false, error: "You can only edit events created by you" });
+    }
+
+    const updateStmt = db.prepare(`
+      UPDATE events
+      SET title = ?, description = ?, date = ?, time = ?, location = ?, category = ?
+      WHERE id = ?
+    `);
+
+    updateStmt.run(title, description, date, time, location, category, id);
+
+    const getStmt = db.prepare("SELECT * FROM events WHERE id = ?");
+    const updated = getStmt.get(id) as any;
+    res.json({
+      success: true,
+      event: {
+        ...updated,
+        isUserEvent: updated.isUserEvent === 1
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// DELETE an event
+app.delete("/api/events/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const checkStmt = db.prepare("SELECT isUserEvent FROM events WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Event not found" });
+    }
+
+    if (existing.isUserEvent !== 1) {
+      return res.status(403).json({ success: false, error: "You can only delete events created by you" });
+    }
+
+    const deleteStmt = db.prepare("DELETE FROM events WHERE id = ?");
+    deleteStmt.run(id);
+
+    res.json({ success: true, message: "Event deleted successfully" });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }

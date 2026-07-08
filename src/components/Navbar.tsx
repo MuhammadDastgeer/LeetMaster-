@@ -12,9 +12,9 @@ export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavi
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { label: 'Hackathons', path: '/hackathons' },
-    { label: 'Quiz', path: '/quiz' },
-    { label: 'Stories', path: '/stories' },
+    { label: 'Hackathons', path: '/hackathons-dashboard' },
+    { label: 'Quiz', path: '/quiz-tab' },
+    { label: 'Blogs', path: '/blogs' },
     { label: 'Courses', path: '/courses' }
   ];
 
