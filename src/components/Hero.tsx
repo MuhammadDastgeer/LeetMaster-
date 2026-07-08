@@ -1,7 +1,11 @@
 import { motion } from 'motion/react';
 import { Play, Sparkles, Award, Star, ArrowUpRight } from 'lucide-react';
 
-export default function Hero() {
+interface HeroProps {
+  onNavigate?: (path: string) => void;
+}
+
+export default function Hero({ onNavigate }: HeroProps) {
   return (
     <section className="relative overflow-hidden py-20 bg-gradient-to-b from-white via-[#fcfbf9] to-white dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 transition-colors">
       {/* Decorative background grid pattern */}
@@ -53,17 +57,20 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.45 }}
               className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
             >
-              <a
-                href="/dsa-sheets"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('dsa-sheets')?.scrollIntoView({ behavior: 'smooth' });
+              <button
+                onClick={() => {
+                  if (onNavigate) {
+                    onNavigate('/dashboard');
+                  } else {
+                    window.history.pushState(null, '', '/dashboard');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }
                 }}
                 className="w-full sm:w-auto bg-black dark:bg-zinc-800 text-white hover:bg-[#ff6b2b] font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-[#ff6b2b]/15 text-center flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Start Learning</span>
                 <ArrowUpRight className="w-4 h-4" />
-              </a>
+              </button>
               <a
                 href="/download"
                 onClick={(e) => e.preventDefault()}

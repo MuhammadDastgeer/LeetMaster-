@@ -71,7 +71,7 @@ export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavi
             </div>
 
             <button 
-              onClick={() => onNavigate('/')}
+              onClick={() => onNavigate('/dashboard')}
               className="bg-black dark:bg-zinc-850 dark:hover:bg-[#ff6b2b] text-white px-5 py-2 rounded-full font-semibold text-sm hover:bg-[#ff6b2b] transition-all duration-300 hover:shadow-lg hover:shadow-[#ff6b2b]/10 cursor-pointer"
             >
               Start Learning
@@ -120,7 +120,7 @@ export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavi
           <div className="pt-4 border-t border-[#f2efe9] dark:border-zinc-800 flex flex-col gap-3">
             <button 
               onClick={() => {
-                onNavigate('/');
+                onNavigate('/dashboard');
                 setIsOpen(false);
               }}
               className="w-full bg-black dark:bg-zinc-800 text-white py-2.5 rounded-full font-semibold text-sm text-center cursor-pointer"

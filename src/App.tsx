@@ -8,6 +8,7 @@ import TownHall from './components/TownHall';
 import DsaSheets from './components/DsaSheets';
 import MobileContests from './components/MobileContests';
 import HackathonsAI from './components/HackathonsAI';
+import Dashboard from './components/Dashboard';
 import { 
   Coffee, Flame, Heart, Github, Linkedin, ArrowUp, BookOpen, 
   Check, CheckCircle2, AlertCircle, Award, Sparkles, 
@@ -16,7 +17,7 @@ import {
 
 export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   // Simple state to store enrolled course IDs
@@ -161,6 +162,33 @@ export default function App() {
     setEnrolledCourses(prev => [...prev, courseId]);
   };
 
+  const isDashboardPath = [
+    '/dashboard', '/desboard', 
+    '/townhall', '/town-hall', '/town-halls',
+    '/blogs', '/blog',
+    '/projects', '/project',
+    '/peerreviews', '/peer-reviews',
+    '/events', '/event',
+    '/hackathons-dashboard',
+    '/my-hackathons', '/myhackathons',
+    '/dsa-problems', '/dsaproblems',
+    '/dsa-sheets', '/dsasheets',
+    '/profile', '/professional-profile',
+    '/report-card', '/reportcard'
+  ].includes(currentPath);
+
+  if (isDashboardPath) {
+    return (
+      <Dashboard 
+        darkMode={darkMode} 
+        onToggleDarkMode={() => setDarkMode(!darkMode)}
+        onNavigate={navigateTo}
+        onBackToHome={() => navigateTo('/')}
+        currentPath={currentPath}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#faf9f6] text-[#111111] dark:bg-zinc-950 dark:text-zinc-100 antialiased selection:bg-[#ff6b2b] selection:text-white transition-colors">
       {/* Navbar Header */}
@@ -176,7 +204,7 @@ export default function App() {
         {/* Render main single view by default */}
         <div>
           {/* Hero Section */}
-          <Hero />
+          <Hero onNavigate={navigateTo} />
 
           {/* Community & Consistency Section */}
           <CommunityConsistency />
