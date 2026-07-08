@@ -79,6 +79,70 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS hackathons (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    tags TEXT NOT NULL,
+    prizes TEXT NOT NULL,
+    deadline TEXT NOT NULL,
+    author TEXT NOT NULL,
+    avatar TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    isUserHackathon INTEGER DEFAULT 0
+  )
+`);
+
+// Insert default seed hackathons if table is empty
+const hackathonsCheck = db.prepare("SELECT COUNT(*) as count FROM hackathons");
+const { count: hackathonsCount } = hackathonsCheck.get() as { count: number };
+if (hackathonsCount === 0) {
+  const insertHackathon = db.prepare(`
+    INSERT INTO hackathons (id, title, description, tags, prizes, deadline, author, avatar, timestamp, isUserHackathon)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  insertHackathon.run(
+    'seed-hackathon-1',
+    'LeetMaster Global Algorithmic Showdown',
+    'Design optimized algorithmic modules and structural data parsing tools on the LeetMaster local workspace. Compete with global developers to resolve advanced tree-balancing, graph routing, and dynamic programming challenges with real-time feedback loops.',
+    'Algorithms, Data Structures, Performance',
+    '$5,000 Cash Prize + Premium Swag',
+    'July 25, 2026',
+    'LeetMaster Team',
+    'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=128&auto=format&fit=crop',
+    'July 08, 2026',
+    0
+  );
+
+  insertHackathon.run(
+    'seed-hackathon-2',
+    'Google Solution Challenge: Agentic AI Edition',
+    'Build and deploy real-world agents using the Gemini API SDK, focused on solving local communities, educative challenges, or workspace automated assistants. Leverage structured tool calls, system instructions, and multi-agent systems to win.',
+    'Generative AI, Agentic, Python, Node.js',
+    'Google Pixel 9 Pro + $10,000 Cloud Credits',
+    'August 15, 2026',
+    'Google GDG Team',
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=128&auto=format&fit=crop',
+    'July 07, 2026',
+    0
+  );
+
+  insertHackathon.run(
+    'seed-hackathon-3',
+    'Meta Llama 3 Hackathon',
+    'Explore the limits of Llama 3 open models on complex reasoning datasets. Develop tools that evaluate code logic correctness, assist students in learning complex mathematics, or run local optimization solvers.',
+    'LLMs, Python, System Design',
+    'RTX 4090 GPU + Meta Mentorship',
+    'July 30, 2026',
+    'Meta AI Team',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=128&auto=format&fit=crop',
+    'July 06, 2026',
+    0
+  );
+}
+
 // Insert default seed blogs if table is empty
 const blogsCheck = db.prepare("SELECT COUNT(*) as count FROM blogs");
 const { count: blogsCount } = blogsCheck.get() as { count: number };
@@ -787,6 +851,134 @@ app.post("/api/blogs/:id/like", (req, res) => {
     const updateStmt = db.prepare("UPDATE blogs SET likes = ? WHERE id = ?");
     updateStmt.run(newLikes, id);
     res.json({ success: true, likes: newLikes });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET all hackathons
+app.get("/api/hackathons", (req, res) => {
+  try {
+    const stmt = db.prepare("SELECT * FROM hackathons ORDER BY timestamp DESC, id DESC");
+    const rows = stmt.all() as any[];
+    const parsedRows = rows.map(row => ({
+      ...row,
+      isUserHackathon: row.isUserHackathon === 1
+    }));
+    res.json({ success: true, hackathons: parsedRows });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST a new hackathon
+app.post("/api/hackathons", (req, res) => {
+  try {
+    const { title, description, tags, prizes, deadline, author, avatar } = req.body;
+    if (!title || !description || !tags || !prizes || !deadline) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    const hackathonId = `hackathon-${Date.now()}`;
+    const timestamp = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const insertStmt = db.prepare(`
+      INSERT INTO hackathons (id, title, description, tags, prizes, deadline, author, avatar, timestamp, isUserHackathon)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    insertStmt.run(
+      hackathonId,
+      title,
+      description,
+      tags,
+      prizes,
+      deadline,
+      author || "Dastgeer",
+      avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop",
+      timestamp,
+      1 // User hackathon
+    );
+
+    const getStmt = db.prepare("SELECT * FROM hackathons WHERE id = ?");
+    const newHack = getStmt.get(hackathonId) as any;
+    res.json({
+      success: true,
+      hackathon: {
+        ...newHack,
+        isUserHackathon: newHack.isUserHackathon === 1
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT update a hackathon
+app.put("/api/hackathons/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, tags, prizes, deadline } = req.body;
+    if (!title || !description || !tags || !prizes || !deadline) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    
+    const checkStmt = db.prepare("SELECT isUserHackathon FROM hackathons WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+    
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Hackathon not found" });
+    }
+    
+    if (existing.isUserHackathon !== 1) {
+      return res.status(403).json({ success: false, error: "You can only edit hackathons created by you" });
+    }
+
+    const updateStmt = db.prepare(`
+      UPDATE hackathons
+      SET title = ?, description = ?, tags = ?, prizes = ?, deadline = ?
+      WHERE id = ?
+    `);
+    
+    updateStmt.run(title, description, tags, prizes, deadline, id);
+    
+    const getStmt = db.prepare("SELECT * FROM hackathons WHERE id = ?");
+    const updated = getStmt.get(id) as any;
+    res.json({
+      success: true,
+      hackathon: {
+        ...updated,
+        isUserHackathon: updated.isUserHackathon === 1
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// DELETE a hackathon
+app.delete("/api/hackathons/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const checkStmt = db.prepare("SELECT isUserHackathon FROM hackathons WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+    
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Hackathon not found" });
+    }
+    
+    if (existing.isUserHackathon !== 1) {
+      return res.status(403).json({ success: false, error: "You can only delete hackathons created by you" });
+    }
+
+    const deleteStmt = db.prepare("DELETE FROM hackathons WHERE id = ?");
+    deleteStmt.run(id);
+    
+    res.json({ success: true, message: "Hackathon deleted successfully" });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }

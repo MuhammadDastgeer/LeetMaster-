@@ -14,6 +14,7 @@ import DsaSheets from './DsaSheets';
 import DsaProblems from './DsaProblems';
 import Quiz from './Quiz';
 import Blogs from './Blogs';
+import HackathonsDashboard from './HackathonsDashboard';
 
 interface DashboardProps {
   darkMode: boolean;
@@ -553,8 +554,34 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
             </motion.div>
           )}
 
+          {/* Hackathons Section */}
+          {activeTab === 'Hackathons' && (
+            <motion.div
+              key="hackathons-tab-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full"
+            >
+              <HackathonsDashboard isMyOnly={false} />
+            </motion.div>
+          )}
+
+          {/* My Hackathons Section */}
+          {activeTab === 'My Hackathons' && (
+            <motion.div
+              key="my-hackathons-tab-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full"
+            >
+              <HackathonsDashboard isMyOnly={true} />
+            </motion.div>
+          )}
+
           {/* Placeholders/Sub-integrations for other Sidebar tabs */}
-          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && (
+          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && (
             <motion.div
               key="fallback-tabs"
               initial={{ opacity: 0 }}

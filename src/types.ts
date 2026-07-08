@@ -72,3 +72,16 @@ export interface Blog {
   likes: number;
   isUserBlog: boolean;
 }
+
+export interface Hackathon {
+  id: string;
+  title: string;
+  description: string;
+  tags: string;
+  prizes: string;
+  deadline: string;
+  author: string;
+  avatar: string;
+  timestamp: string;
+  isUserHackathon: boolean;
+}
