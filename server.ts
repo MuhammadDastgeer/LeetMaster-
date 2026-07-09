@@ -211,6 +211,137 @@ if (hackathonsCount === 0) {
   );
 }
 
+// Create user_projects table if not exists
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_projects (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    codeLink TEXT NOT NULL,
+    deployLink TEXT,
+    startDate TEXT NOT NULL,
+    endDate TEXT,
+    status TEXT NOT NULL,
+    author TEXT NOT NULL,
+    avatar TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    isUserProject INTEGER DEFAULT 0
+  )
+`);
+
+// Create dsa_submissions table if not exists
+db.exec(`
+  CREATE TABLE IF NOT EXISTS dsa_submissions (
+    id TEXT PRIMARY KEY,
+    problemId TEXT NOT NULL,
+    problemTitle TEXT NOT NULL,
+    difficulty TEXT NOT NULL,
+    category TEXT NOT NULL,
+    language TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    status TEXT NOT NULL
+  )
+`);
+
+// Seed dsa_submissions if empty
+try {
+  const submissionsCheck = db.prepare("SELECT COUNT(*) as count FROM dsa_submissions");
+  const result = submissionsCheck.get() as { count: number };
+  if (result && result.count === 0) {
+    const insertSub = db.prepare(`
+      INSERT INTO dsa_submissions (id, problemId, problemTitle, difficulty, category, language, timestamp, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const seedSubs = [
+      // Easy (12 Solves)
+      ['sub-1', 'prob-2', 'Two Sum', 'Easy', 'Arrays & Hashing', 'python', '2026-07-08T17:26:00Z', 'Accepted'],
+      ['sub-2', 'prob-8', 'Assign Cookies', 'Easy', 'Greedy', 'python', '2026-07-07T16:45:00Z', 'Accepted'],
+      ['sub-3', 'prob-3', 'Checking for Palindrome Numbers', 'Easy', 'Two Pointers', 'javascript', '2026-07-06T21:12:00Z', 'Accepted'],
+      ['sub-4', 'prob-ga-1', 'Flood Fill', 'Easy', 'Graphs', 'python', '2026-07-05T23:30:00Z', 'Accepted'],
+      ['sub-5', 'prob-9', 'Reverse Linked List', 'Easy', 'Linked List', 'python', '2026-06-20T16:30:00Z', 'Accepted'],
+      ['sub-6', 'prob-11', 'Single Number', 'Easy', 'Bit Manipulation', 'javascript', '2026-06-10T18:20:00Z', 'Accepted'],
+      ['sub-7', 'prob-12', 'Number of 1 Bits', 'Easy', 'Bit Manipulation', 'python', '2026-06-05T23:15:00Z', 'Accepted'],
+      ['sub-8', 'prob-custom-1', 'Find the Missing Number', 'Easy', 'Arrays', 'python', '2026-07-08T18:45:00Z', 'Accepted'],
+      ['sub-9', 'prob-custom-2', 'Remove Duplicates from Sorted Collection', 'Easy', 'Arrays', 'python', '2026-07-05T16:46:00Z', 'Accepted'],
+      ['sub-10', 'prob-4', 'Finding the Longest Common Starting Letters', 'Easy', 'Strings', 'python', '2026-05-25T18:40:00Z', 'Accepted'],
+      ['sub-11', 'prob-5', 'Sum of Two Binary Strings', 'Easy', 'Bit Manipulation', 'python', '2026-05-18T17:12:00Z', 'Accepted'],
+      ['sub-12', 'prob-15', 'Contains Duplicate', 'Easy', 'Arrays & Hashing', 'javascript', '2026-05-15T16:25:00Z', 'Accepted'],
+
+      // Medium (6 Solves)
+      ['sub-13', 'prob-ga-2', 'Number of Islands', 'Medium', 'Graphs', 'python', '2026-07-04T18:24:00Z', 'Accepted'],
+      ['sub-14', 'prob-ga-3', 'Clone Graph', 'Medium', 'Graphs', 'python', '2026-07-03T22:52:00Z', 'Accepted'],
+      ['sub-15', 'prob-6', 'Gas Station', 'Medium', 'Greedy', 'python', '2026-06-28T01:10:00Z', 'Accepted'],
+      ['sub-16', 'prob-7', 'Jump Game', 'Medium', 'Greedy', 'python', '2026-06-25T20:05:00Z', 'Accepted'],
+      ['sub-17', 'prob-10', 'Kth Largest Element in an Array', 'Medium', 'Heap', 'python', '2026-06-15T17:45:00Z', 'Accepted'],
+      ['sub-18', 'prob-custom-3', 'Unique Cars in a Row', 'Medium', 'Simulation', 'python', '2026-07-07T17:15:00Z', 'Accepted']
+    ];
+
+    for (const sub of seedSubs) {
+      insertSub.run(sub[0], sub[1], sub[2], sub[3], sub[4], sub[5], sub[6], sub[7]);
+    }
+  }
+} catch (err) {
+  console.error("Failed to seed dsa_submissions table:", err);
+}
+
+// Migrate existing tables to support status column if missing
+try {
+  db.exec("ALTER TABLE blogs ADD COLUMN status TEXT DEFAULT 'public'");
+} catch (e) {
+  // Column already exists, safe to ignore
+}
+try {
+  db.exec("ALTER TABLE events ADD COLUMN status TEXT DEFAULT 'public'");
+} catch (e) {
+  // Column already exists, safe to ignore
+}
+try {
+  db.exec("ALTER TABLE hackathons ADD COLUMN status TEXT DEFAULT 'public'");
+} catch (e) {
+  // Column already exists, safe to ignore
+}
+
+// Insert default seed projects if table is empty
+const projectsCheck = db.prepare("SELECT COUNT(*) as count FROM user_projects");
+const { count: projectsCount } = projectsCheck.get() as { count: number };
+if (projectsCount === 0) {
+  const insertProject = db.prepare(`
+    INSERT INTO user_projects (id, title, description, codeLink, deployLink, startDate, endDate, status, author, avatar, timestamp, isUserProject)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  insertProject.run(
+    'seed-project-1',
+    'LeetMaster Algo-Visualizer',
+    'An interactive whiteboard and live visualizer for complex graph traversals, recursion trees, and dynamic programming tables. Made to help developers build spatial intuition for hard DSA problems.',
+    'https://github.com/dastgeer/algo-visualizer',
+    'https://algo-visualizer.leetmaster.com',
+    '2026-05-15',
+    '2026-06-10',
+    'public',
+    'LeetMaster Lead',
+    'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=128&auto=format&fit=crop',
+    'June 10, 2026',
+    0
+  );
+
+  insertProject.run(
+    'seed-project-2',
+    'AI Interview Prep Co-Pilot',
+    'A real-time audio and text assistant that conducts mock tech interviews based on specialized role guidelines, offering deep analytics on DSA complexity, communication clarity, and syntax correctness.',
+    'https://github.com/dastgeer/ai-mock-copilot',
+    'https://copilot.leetmaster.ai',
+    '2026-06-01',
+    '2026-06-25',
+    'public',
+    'Elite Scholar',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop',
+    'June 25, 2026',
+    0
+  );
+}
+
 // Insert default seed blogs if table is empty
 const blogsCheck = db.prepare("SELECT COUNT(*) as count FROM blogs");
 const { count: blogsCount } = blogsCheck.get() as { count: number };
@@ -846,10 +977,46 @@ app.post("/api/messages/:id/react", (req, res) => {
   }
 });
 
+// GET all DSA submissions
+app.get("/api/dsa/submissions", (req, res) => {
+  try {
+    const stmt = db.prepare("SELECT * FROM dsa_submissions ORDER BY timestamp DESC");
+    const rows = stmt.all() as any[];
+    res.json({ success: true, submissions: rows });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST a new DSA submission
+app.post("/api/dsa/submissions", (req, res) => {
+  try {
+    const { problemId, problemTitle, difficulty, category, language, status } = req.body;
+    if (!problemId || !problemTitle || !difficulty || !category || !language) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    const id = `sub-${Date.now()}`;
+    const timestamp = new Date().toISOString();
+    
+    const insertStmt = db.prepare(`
+      INSERT INTO dsa_submissions (id, problemId, problemTitle, difficulty, category, language, timestamp, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    insertStmt.run(id, problemId, problemTitle, difficulty, category, language, timestamp, status || "Accepted");
+    
+    const getStmt = db.prepare("SELECT * FROM dsa_submissions WHERE id = ?");
+    const newSub = getStmt.get(id) as any;
+    res.json({ success: true, submission: newSub });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // GET all blogs
 app.get("/api/blogs", (req, res) => {
   try {
-    const stmt = db.prepare("SELECT * FROM blogs ORDER BY timestamp DESC");
+    const stmt = db.prepare("SELECT * FROM blogs WHERE status = 'public' OR isUserBlog = 1 ORDER BY timestamp DESC");
     const rows = stmt.all() as any[];
     const parsedRows = rows.map(row => ({
       ...row,
@@ -865,7 +1032,7 @@ app.get("/api/blogs", (req, res) => {
 // POST a new blog
 app.post("/api/blogs", (req, res) => {
   try {
-    const { title, content, category, author, avatar } = req.body;
+    const { title, content, category, author, avatar, status } = req.body;
     if (!title || !content || !category) {
       return res.status(400).json({ success: false, error: "Missing required fields" });
     }
@@ -876,8 +1043,8 @@ app.post("/api/blogs", (req, res) => {
       day: 'numeric'
     });
     const insertStmt = db.prepare(`
-      INSERT INTO blogs (id, title, content, author, avatar, category, timestamp, likes, isUserBlog)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO blogs (id, title, content, author, avatar, category, timestamp, likes, isUserBlog, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     insertStmt.run(
       blogId,
@@ -888,7 +1055,8 @@ app.post("/api/blogs", (req, res) => {
       category,
       timestamp,
       0,
-      1 // Created by current user, so isUserBlog = 1
+      1, // Created by current user, so isUserBlog = 1
+      status || "public"
     );
     
     const getStmt = db.prepare("SELECT * FROM blogs WHERE id = ?");
@@ -901,6 +1069,64 @@ app.post("/api/blogs", (req, res) => {
         likes: Number(newBlog.likes || 0)
       }
     });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT update a blog
+app.put("/api/blogs/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, category, status } = req.body;
+    if (!title || !content || !category) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    const checkStmt = db.prepare("SELECT isUserBlog FROM blogs WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Blog not found" });
+    }
+    if (existing.isUserBlog !== 1) {
+      return res.status(403).json({ success: false, error: "You can only edit blogs created by you" });
+    }
+    const updateStmt = db.prepare(`
+      UPDATE blogs
+      SET title = ?, content = ?, category = ?, status = ?
+      WHERE id = ?
+    `);
+    updateStmt.run(title, content, category, status || "public", id);
+    
+    const getStmt = db.prepare("SELECT * FROM blogs WHERE id = ?");
+    const updated = getStmt.get(id) as any;
+    res.json({
+      success: true,
+      blog: {
+        ...updated,
+        isUserBlog: updated.isUserBlog === 1,
+        likes: Number(updated.likes || 0)
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// DELETE a blog
+app.delete("/api/blogs/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const checkStmt = db.prepare("SELECT isUserBlog FROM blogs WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Blog not found" });
+    }
+    if (existing.isUserBlog !== 1) {
+      return res.status(403).json({ success: false, error: "You can only delete blogs created by you" });
+    }
+    const deleteStmt = db.prepare("DELETE FROM blogs WHERE id = ?");
+    deleteStmt.run(id);
+    res.json({ success: true, message: "Blog deleted successfully" });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -924,10 +1150,129 @@ app.post("/api/blogs/:id/like", (req, res) => {
   }
 });
 
+// GET all projects
+app.get("/api/projects", (req, res) => {
+  try {
+    const stmt = db.prepare("SELECT * FROM user_projects WHERE status = 'public' OR isUserProject = 1 ORDER BY id DESC");
+    const rows = stmt.all() as any[];
+    const parsedRows = rows.map(row => ({
+      ...row,
+      isUserProject: row.isUserProject === 1
+    }));
+    res.json({ success: true, projects: parsedRows });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST a new project
+app.post("/api/projects", (req, res) => {
+  try {
+    const { title, description, codeLink, deployLink, startDate, endDate, status } = req.body;
+    if (!title || !description || !codeLink || !startDate || !status) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    const projectId = `project-${Date.now()}`;
+    const timestamp = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const insertStmt = db.prepare(`
+      INSERT INTO user_projects (id, title, description, codeLink, deployLink, startDate, endDate, status, author, avatar, timestamp, isUserProject)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+    `);
+    
+    insertStmt.run(
+      projectId,
+      title,
+      description,
+      codeLink,
+      deployLink || "",
+      startDate,
+      endDate || "",
+      status,
+      "Dastgeer", // Default author
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop", // Default avatar
+      timestamp
+    );
+    
+    const getStmt = db.prepare("SELECT * FROM user_projects WHERE id = ?");
+    const newProject = getStmt.get(projectId) as any;
+    res.json({
+      success: true,
+      project: {
+        ...newProject,
+        isUserProject: newProject.isUserProject === 1
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT update a project
+app.put("/api/projects/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, codeLink, deployLink, startDate, endDate, status } = req.body;
+    if (!title || !description || !codeLink || !startDate || !status) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+    const checkStmt = db.prepare("SELECT isUserProject FROM user_projects WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Project not found" });
+    }
+    if (existing.isUserProject !== 1) {
+      return res.status(403).json({ success: false, error: "You can only edit projects created by you" });
+    }
+    const updateStmt = db.prepare(`
+      UPDATE user_projects
+      SET title = ?, description = ?, codeLink = ?, deployLink = ?, startDate = ?, endDate = ?, status = ?
+      WHERE id = ?
+    `);
+    updateStmt.run(title, description, codeLink, deployLink || "", startDate, endDate || "", status, id);
+    
+    const getStmt = db.prepare("SELECT * FROM user_projects WHERE id = ?");
+    const updated = getStmt.get(id) as any;
+    res.json({
+      success: true,
+      project: {
+        ...updated,
+        isUserProject: updated.isUserProject === 1
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// DELETE a project
+app.delete("/api/projects/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const checkStmt = db.prepare("SELECT isUserProject FROM user_projects WHERE id = ?");
+    const existing = checkStmt.get(id) as any;
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Project not found" });
+    }
+    if (existing.isUserProject !== 1) {
+      return res.status(403).json({ success: false, error: "You can only delete projects created by you" });
+    }
+    const deleteStmt = db.prepare("DELETE FROM user_projects WHERE id = ?");
+    deleteStmt.run(id);
+    res.json({ success: true, message: "Project deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // GET all hackathons
 app.get("/api/hackathons", (req, res) => {
   try {
-    const stmt = db.prepare("SELECT * FROM hackathons ORDER BY timestamp DESC, id DESC");
+    const stmt = db.prepare("SELECT * FROM hackathons WHERE status = 'public' OR isUserHackathon = 1 ORDER BY timestamp DESC, id DESC");
     const rows = stmt.all() as any[];
     const parsedRows = rows.map(row => ({
       ...row,
@@ -942,7 +1287,7 @@ app.get("/api/hackathons", (req, res) => {
 // POST a new hackathon
 app.post("/api/hackathons", (req, res) => {
   try {
-    const { title, description, tags, prizes, deadline, author, avatar } = req.body;
+    const { title, description, tags, prizes, deadline, author, avatar, status } = req.body;
     if (!title || !description || !tags || !prizes || !deadline) {
       return res.status(400).json({ success: false, error: "Missing required fields" });
     }
@@ -954,8 +1299,8 @@ app.post("/api/hackathons", (req, res) => {
     });
     
     const insertStmt = db.prepare(`
-      INSERT INTO hackathons (id, title, description, tags, prizes, deadline, author, avatar, timestamp, isUserHackathon)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO hackathons (id, title, description, tags, prizes, deadline, author, avatar, timestamp, isUserHackathon, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
     insertStmt.run(
@@ -968,7 +1313,8 @@ app.post("/api/hackathons", (req, res) => {
       author || "Dastgeer",
       avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop",
       timestamp,
-      1 // User hackathon
+      1, // User hackathon
+      status || "public"
     );
 
     const getStmt = db.prepare("SELECT * FROM hackathons WHERE id = ?");
@@ -989,7 +1335,7 @@ app.post("/api/hackathons", (req, res) => {
 app.put("/api/hackathons/:id", (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, tags, prizes, deadline } = req.body;
+    const { title, description, tags, prizes, deadline, status } = req.body;
     if (!title || !description || !tags || !prizes || !deadline) {
       return res.status(400).json({ success: false, error: "Missing required fields" });
     }
@@ -1007,11 +1353,11 @@ app.put("/api/hackathons/:id", (req, res) => {
 
     const updateStmt = db.prepare(`
       UPDATE hackathons
-      SET title = ?, description = ?, tags = ?, prizes = ?, deadline = ?
+      SET title = ?, description = ?, tags = ?, prizes = ?, deadline = ?, status = ?
       WHERE id = ?
     `);
     
-    updateStmt.run(title, description, tags, prizes, deadline, id);
+    updateStmt.run(title, description, tags, prizes, deadline, status || "public", id);
     
     const getStmt = db.prepare("SELECT * FROM hackathons WHERE id = ?");
     const updated = getStmt.get(id) as any;
@@ -1055,7 +1401,7 @@ app.delete("/api/hackathons/:id", (req, res) => {
 // GET all events
 app.get("/api/events", (req, res) => {
   try {
-    const stmt = db.prepare("SELECT * FROM events ORDER BY date ASC, time ASC, id DESC");
+    const stmt = db.prepare("SELECT * FROM events WHERE status = 'public' OR isUserEvent = 1 ORDER BY date ASC, time ASC, id DESC");
     const rows = stmt.all() as any[];
     const parsedRows = rows.map(row => ({
       ...row,
@@ -1070,7 +1416,7 @@ app.get("/api/events", (req, res) => {
 // POST a new event
 app.post("/api/events", (req, res) => {
   try {
-    const { title, description, date, time, location, category, author, avatar } = req.body;
+    const { title, description, date, time, location, category, author, avatar, status } = req.body;
     if (!title || !description || !date || !time || !location || !category) {
       return res.status(400).json({ success: false, error: "Missing required fields" });
     }
@@ -1082,8 +1428,8 @@ app.post("/api/events", (req, res) => {
     });
 
     const insertStmt = db.prepare(`
-      INSERT INTO events (id, title, description, date, time, location, category, author, avatar, timestamp, isUserEvent)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO events (id, title, description, date, time, location, category, author, avatar, timestamp, isUserEvent, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     insertStmt.run(
@@ -1097,7 +1443,8 @@ app.post("/api/events", (req, res) => {
       author || "Dastgeer",
       avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop",
       timestamp,
-      1 // User Event
+      1, // User Event
+      status || "public"
     );
 
     const getStmt = db.prepare("SELECT * FROM events WHERE id = ?");
@@ -1118,7 +1465,7 @@ app.post("/api/events", (req, res) => {
 app.put("/api/events/:id", (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, date, time, location, category } = req.body;
+    const { title, description, date, time, location, category, status } = req.body;
     if (!title || !description || !date || !time || !location || !category) {
       return res.status(400).json({ success: false, error: "Missing required fields" });
     }
@@ -1136,11 +1483,11 @@ app.put("/api/events/:id", (req, res) => {
 
     const updateStmt = db.prepare(`
       UPDATE events
-      SET title = ?, description = ?, date = ?, time = ?, location = ?, category = ?
+      SET title = ?, description = ?, date = ?, time = ?, location = ?, category = ?, status = ?
       WHERE id = ?
     `);
 
-    updateStmt.run(title, description, date, time, location, category, id);
+    updateStmt.run(title, description, date, time, location, category, status || "public", id);
 
     const getStmt = db.prepare("SELECT * FROM events WHERE id = ?");
     const updated = getStmt.get(id) as any;

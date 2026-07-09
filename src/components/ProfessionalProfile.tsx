@@ -355,21 +355,13 @@ export default function ProfessionalProfile() {
         {/* Subtle orange accent gradient blur */}
         <div className="absolute right-0 top-0 w-32 h-32 bg-[#ff6b2b]/10 blur-3xl rounded-full -z-10" />
 
-        {/* Avatar container with interactive trigger */}
-        <div className="relative group flex-shrink-0">
-          <img 
-            src={avatar} 
-            alt={fullName} 
-            className="w-28 h-28 rounded-2xl object-cover border-4 border-[#fff1e6] dark:border-stone-850 shadow-md transition-transform duration-300 group-hover:scale-[1.02]"
-          />
-          <button 
-            type="button"
-            onClick={handleRandomizeAvatar}
-            className="absolute -bottom-2 -right-2 bg-black text-white dark:bg-stone-800 p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-[#ff6b2b] transition-all cursor-pointer shadow"
-            title="Randomize photo"
-          >
-            <Camera className="w-3.5 h-3.5" />
-          </button>
+        {/* Avatar container with dynamic name-based avatar icon */}
+        <div className="relative group flex-shrink-0 select-none">
+          <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#ffefe7] to-[#ffe0d0] dark:from-orange-950/40 dark:to-orange-900/10 border-4 border-[#fff1e6] dark:border-stone-850 shadow-md flex flex-col items-center justify-center font-black text-5xl text-[#ff6b2b] dark:text-[#ff804a] transition-transform duration-300 group-hover:scale-[1.02] relative overflow-hidden">
+            <div className="absolute inset-0 bg-[#ff6b2b]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <span>{fullName ? fullName.trim().charAt(0).toUpperCase() : 'D'}</span>
+            <span className="text-[9px] font-bold tracking-wider text-[#ff6b2b]/60 dark:text-[#ff804a]/60 uppercase mt-1">MEMBER</span>
+          </div>
         </div>
 
         {/* Identity Details */}

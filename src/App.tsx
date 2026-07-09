@@ -9,6 +9,7 @@ import DsaSheets from './components/DsaSheets';
 import MobileContests from './components/MobileContests';
 import HackathonsAI from './components/HackathonsAI';
 import Dashboard from './components/Dashboard';
+import CuratedSheetsLanding from './components/CuratedSheetsLanding';
 import { 
   Coffee, Flame, Heart, Github, Linkedin, ArrowUp, BookOpen, 
   Check, CheckCircle2, AlertCircle, Award, Sparkles, 
@@ -217,7 +218,7 @@ export default function App() {
           <TownHall />
 
           {/* DSA Sheet Code Editor Section */}
-          <DsaSheets />
+          <CuratedSheetsLanding onNavigate={navigateTo} />
 
           {/* Mobile Mockup Contests Section */}
           <MobileContests />

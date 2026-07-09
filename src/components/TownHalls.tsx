@@ -547,11 +547,9 @@ export default function TownHalls({ darkMode }: TownHallsProps) {
                     <div className="flex items-center gap-2 pl-12 text-stone-400 dark:text-stone-500 text-xs font-semibold mb-1 relative">
                       {/* CSS connector line */}
                       <div className="absolute top-2.5 left-6 w-5 h-4 border-l-2 border-t-2 border-dashed border-stone-200 dark:border-stone-800 rounded-tl-lg" />
-                      <img 
-                        src={parentMsg.avatar} 
-                        alt={parentMsg.sender} 
-                        className="w-4 h-4 rounded-full object-cover"
-                      />
+                      <div className="w-4 h-4 rounded-full bg-[#ffefe7] dark:bg-orange-950/40 border border-[#ff6b2b]/20 text-[#ff6b2b] dark:text-[#ff804a] flex items-center justify-center font-black text-[9px] select-none flex-shrink-0">
+                        {parentMsg.sender ? parentMsg.sender.trim().charAt(0).toUpperCase() : 'U'}
+                      </div>
                       <span className="font-extrabold text-stone-700 dark:text-stone-300">@{parentMsg.sender}</span>
                       <span className="truncate max-w-sm font-medium italic">"{parentMsg.content}"</span>
                     </div>
@@ -616,11 +614,9 @@ export default function TownHalls({ darkMode }: TownHallsProps) {
                       </div>
                     )}
 
-                    <img 
-                      src={msg.avatar} 
-                      alt={msg.sender || "Official Announcement"} 
-                      className="w-10 h-10 rounded-full object-cover border-2 border-stone-200/80 dark:border-stone-800"
-                    />
+                    <div className="w-10 h-10 rounded-full bg-[#ffefe7] dark:bg-orange-950/40 border-2 border-stone-200/80 dark:border-stone-800 text-[#ff6b2b] dark:text-[#ff804a] flex items-center justify-center font-black text-sm select-none flex-shrink-0">
+                      {msg.sender ? msg.sender.trim().charAt(0).toUpperCase() : 'A'}
+                    </div>
                     
                     <div className="flex-1 min-w-0 space-y-1">
                       {msg.sender ? (

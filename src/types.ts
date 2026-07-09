@@ -71,6 +71,7 @@ export interface Blog {
   timestamp: string;
   likes: number;
   isUserBlog: boolean;
+  status: 'public' | 'private';
 }
 
 export interface Hackathon {
@@ -84,6 +85,7 @@ export interface Hackathon {
   avatar: string;
   timestamp: string;
   isUserHackathon: boolean;
+  status: 'public' | 'private';
 }
 
 export interface Event {
@@ -98,4 +100,21 @@ export interface Event {
   avatar: string;
   timestamp: string;
   isUserEvent: boolean;
+  status: 'public' | 'private';
 }
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  codeLink: string;
+  deployLink: string;
+  startDate: string;
+  endDate: string;
+  status: 'public' | 'private';
+  author: string;
+  avatar: string;
+  timestamp: string;
+  isUserProject: boolean;
+}
+

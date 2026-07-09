@@ -23,6 +23,7 @@ export default function EventsDashboard() {
   const [time, setTime] = useState<string>('');
   const [location, setLocation] = useState<string>('');
   const [category, setCategory] = useState<string>('');
+  const [status, setStatus] = useState<'public' | 'private'>('public');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   // Fetch all events from database
@@ -53,6 +54,7 @@ export default function EventsDashboard() {
     setTime('4:00 PM');
     setLocation('Google Meet (Virtual)');
     setCategory('Workshop');
+    setStatus('public');
     setIsAddModalOpen(true);
   };
 
@@ -66,6 +68,7 @@ export default function EventsDashboard() {
     setTime(ev.time);
     setLocation(ev.location);
     setCategory(ev.category);
+    setStatus(ev.status || 'public');
   };
 
   // Create new Event
@@ -85,6 +88,7 @@ export default function EventsDashboard() {
           time,
           location,
           category,
+          status,
           author: 'Dastgeer', // Default profile name
           avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop'
         })
@@ -112,7 +116,7 @@ export default function EventsDashboard() {
       const res = await fetch(`/api/events/${editingEvent.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, date, time, location, category })
+        body: JSON.stringify({ title, description, date, time, location, category, status })
       });
       const data = await res.json();
       if (data.success) {
@@ -285,9 +289,20 @@ export default function EventsDashboard() {
                 {/* Meta details */}
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2.5">
-                    <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#ff6b2b] bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/25 rounded-full border border-[#ff6b2b]/15">
-                      {ev.category}
-                    </span>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#ff6b2b] bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/25 rounded-full border border-[#ff6b2b]/15 w-max">
+                        {ev.category}
+                      </span>
+                      {ev.isUserEvent && (
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 w-max ${
+                          ev.status === 'private'
+                            ? 'bg-red-500/10 text-red-500 dark:bg-red-500/20 border border-red-500/20'
+                            : 'bg-green-500/10 text-green-500 dark:bg-green-500/20 border border-green-500/20'
+                        }`}>
+                          {ev.status === 'private' ? '🔒 Private' : '🌍 Public'}
+                        </span>
+                      )}
+                    </div>
                     
                     <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 font-mono">
                       {ev.timestamp}
@@ -326,12 +341,9 @@ export default function EventsDashboard() {
                   
                   {/* Author Meta */}
                   <div className="flex items-center gap-2.5">
-                    <img
-                      src={ev.avatar}
-                      alt={ev.author}
-                      referrerPolicy="no-referrer"
-                      className="w-7 h-7 rounded-full border border-stone-200 dark:border-stone-750 object-cover flex-shrink-0"
-                    />
+                    <div className="w-7 h-7 rounded-full bg-[#ffefe7] dark:bg-orange-950/40 border border-[#ff6b2b]/20 text-[#ff6b2b] dark:text-[#ff804a] flex items-center justify-center font-black text-xs select-none flex-shrink-0">
+                      {ev.author ? ev.author.trim().charAt(0).toUpperCase() : 'E'}
+                    </div>
                     <div>
                       <p className="text-xs font-extrabold text-stone-800 dark:text-stone-250 leading-none">
                         {ev.author}
@@ -495,6 +507,21 @@ export default function EventsDashboard() {
                     </div>
                   </div>
 
+                  {/* Visibility Status Selection */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-stone-700 dark:text-stone-300 tracking-wide uppercase">
+                      VISIBILITY STATUS
+                    </label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                    >
+                      <option value="public">🌍 Public (Visible to everyone)</option>
+                      <option value="private">🔒 Private (Only visible in 'My Events')</option>
+                    </select>
+                  </div>
+
                   {/* Action Buttons */}
                   <div className="flex items-center justify-end gap-3 pt-3">
                     <button
@@ -640,6 +667,21 @@ export default function EventsDashboard() {
                         className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-white font-semibold"
                       />
                     </div>
+                  </div>
+
+                  {/* Visibility Status Selection */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-stone-700 dark:text-stone-300 tracking-wide uppercase">
+                      VISIBILITY STATUS
+                    </label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                    >
+                      <option value="public">🌍 Public (Visible to everyone)</option>
+                      <option value="private">🔒 Private (Only visible in 'My Events')</option>
+                    </select>
                   </div>
 
                   {/* Action Buttons */}

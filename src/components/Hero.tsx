@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { 
-  Play, Sparkles, Award, Star, ArrowUpRight, Trophy, 
-  Brain, FileText, GraduationCap, Flame, Code, Users, BookOpen, Clock, ChevronRight
+  Trophy, Brain, FileText, GraduationCap, ArrowRight, Sparkles, 
+  Flame, Award, Star, ShieldCheck, Users, Code, Monitor, BookOpen
 } from 'lucide-react';
 
 interface HeroProps {
@@ -19,36 +19,35 @@ export default function Hero({ onNavigate }: HeroProps) {
   };
 
   return (
-    <section className="relative overflow-hidden py-16 sm:py-24 bg-gradient-to-b from-stone-50 via-[#fcfbfa] to-stone-50 dark:from-[#0d0c0a] dark:via-[#141311] dark:to-[#0d0c0a] transition-colors duration-500">
-      
-      {/* Decorative premium background grid & radial light flares */}
-      <div className="absolute inset-0 bg-[radial-gradient(#ff6b2b08_1px,transparent_1px)] [background-size:20px_20px] dark:bg-[radial-gradient(#ff6b2b0f_1px,transparent_1px)] pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-[#ff6b2b]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-gradient-to-bl from-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+    <section className="relative overflow-hidden py-20 sm:py-28 bg-[#faf9f6] dark:bg-[#0c0a09] transition-colors duration-500">
+      {/* Dynamic Background Accents */}
+      <div className="absolute inset-0 bg-[radial-gradient(#ff6b2b08_1px,transparent_1px)] [background-size:24px_24px] dark:bg-[radial-gradient(#ff6b2b0d_1px,transparent_1px)] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[5%] w-[40vw] h-[40vw] bg-gradient-to-tr from-[#ff6b2b]/5 to-transparent rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[5%] w-[45vw] h-[45vw] bg-gradient-to-bl from-amber-500/5 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-20">
         
-        {/* Main Grid: Copy on Left, Mascot & Streak/Live-Tracker on Right */}
+        {/* TOP ROW: Split Hero Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
-          {/* Left Hero Content Section */}
+          {/* LEFT: Copy, Value Proposition, Action Buttons */}
           <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-8">
             
-            {/* Live Badge */}
+            {/* Interactive Live Status Indicator */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/20 border border-[#ff6b2b]/20 text-[#ff6b2b] px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider"
+              className="inline-flex items-center gap-2 bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/15 border border-[#ff6b2b]/15 text-[#ff6b2b] px-4.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest font-mono"
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff6b2b] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff6b2b]"></span>
               </span>
-              <span>Peer-Powered Development Hub</span>
+              <span>Next-Gen Developer Playground Active</span>
             </motion.div>
 
-            {/* Main Title */}
+            {/* Typography Masterclass */}
             <div className="space-y-4">
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
@@ -56,10 +55,10 @@ export default function Hero({ onNavigate }: HeroProps) {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-4xl sm:text-6xl font-sans font-black text-stone-900 dark:text-white leading-[1.1] tracking-tight"
               >
-                Code together. <br />
-                Accelerate <span className="text-[#ff6b2b] relative inline-block">
-                  faster
-                  <svg className="absolute -bottom-2.5 left-0 w-full h-2.5 text-[#ff6b2b]" viewBox="0 0 100 10" preserveAspectRatio="none">
+                Assemble, build, and <br />
+                <span className="text-[#ff6b2b] relative inline-block">
+                  conquer algorithms
+                  <svg className="absolute -bottom-2 left-0 w-full h-2.5 text-[#ff6b2b]" viewBox="0 0 100 10" preserveAspectRatio="none">
                     <path d="M0,7 C30,2 70,2 100,7" stroke="currentColor" strokeWidth="4" fill="none" strokeLinecap="round" />
                   </svg>
                 </span>.
@@ -69,91 +68,130 @@ export default function Hero({ onNavigate }: HeroProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-stone-600 dark:text-stone-350 text-base sm:text-lg font-medium max-w-2xl leading-relaxed"
+                className="text-stone-600 dark:text-stone-400 text-sm sm:text-base font-medium max-w-xl leading-relaxed"
               >
-                LeetMaster brings together top-tier developer talent to solve DSA problems, build full-stack projects, write engineering blogs, and participate in graded live hackathons.
+                LeetMaster brings together top-tier global developers in a shared real-time ecosystem. Solve structured DSA sheets, build production-grade projects, write technical blogs, and compete in auto-graded live coding hackathons.
               </motion.p>
             </div>
 
-            {/* Main Call to Actions */}
+            {/* Premium CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
+              className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2"
             >
               <button
                 onClick={() => handleRedirect('/dashboard')}
-                className="w-full sm:w-auto bg-stone-900 dark:bg-stone-100 dark:text-stone-900 text-stone-50 hover:bg-[#ff6b2b] dark:hover:bg-[#ff6b2b] dark:hover:text-white font-black px-8 py-4 rounded-full transition-all duration-300 shadow-xl hover:shadow-[#ff6b2b]/15 text-center flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 text-xs uppercase tracking-wider"
+                className="group w-full sm:w-auto bg-stone-900 hover:bg-[#ff6b2b] dark:bg-stone-50 dark:text-stone-950 dark:hover:bg-[#ff6b2b] dark:hover:text-white text-stone-50 font-black px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-[#ff6b2b]/15 text-center flex items-center justify-center gap-3 cursor-pointer active:scale-95 text-xs uppercase tracking-widest"
               >
-                <span>Enter Developer Workspace</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <span>Enter Main Workspace</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
               </button>
               
-              <div className="flex items-center gap-2 text-stone-500 dark:text-stone-400 font-mono text-xs font-bold bg-stone-100/60 dark:bg-stone-900/40 px-5 py-3 rounded-full border border-stone-200/50 dark:border-stone-800/50">
-                <Users className="w-4 h-4 text-[#ff6b2b]" />
-                <span>3,820 Active Scholars Online</span>
+              <div className="flex items-center gap-2.5 text-stone-600 dark:text-stone-400 font-mono text-xs font-black bg-stone-100/65 dark:bg-stone-900/40 px-5 py-3.5 rounded-2xl border border-stone-200/50 dark:border-stone-850">
+                <Users className="w-4 h-4 text-[#ff6b2b] animate-pulse" />
+                <span>3,940 scholars online now</span>
               </div>
             </motion.div>
+
+            {/* Features list under CTA */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="grid grid-cols-2 gap-4 pt-6 w-full max-w-md font-mono text-[10px] font-bold text-stone-500 uppercase tracking-wider"
+            >
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>Graded Code Sandboxes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>SQLite Local Storage</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>Auto-curated DSA Sheets</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>Peer evaluation forum</span>
+              </div>
+            </motion.div>
+
           </div>
 
-          {/* Right Mascot & Floating Widgets */}
+          {/* RIGHT: Mascot with Streak & Leaderboard Overlay */}
           <div className="lg:col-span-5 relative flex justify-center items-center py-8 lg:py-0">
-            <div className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]">
+            <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px]">
               
-              {/* Outer decorative glowing ring */}
-              <div className="absolute inset-2 rounded-full bg-gradient-to-tr from-[#ff6b2b]/20 to-yellow-500/15 blur-2xl animate-pulse" />
+              {/* Spinning cosmic glowing background ring */}
+              <div className="absolute inset-2 rounded-full bg-gradient-to-tr from-[#ff6b2b]/20 to-amber-500/10 blur-3xl animate-pulse" />
 
-              {/* Main Mascot Image Container with premium frame */}
+              {/* Mascot container card */}
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
+                initial={{ scale: 0.92, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.7 }}
-                className="absolute inset-8 rounded-full bg-white dark:bg-stone-900 border-4 border-stone-900 dark:border-stone-850 shadow-[10px_10px_0px_0px_#ff6b2b] dark:shadow-[10px_10px_0px_0px_rgba(255,107,43,0.3)] overflow-hidden flex items-center justify-center z-10 hover:rotate-2 hover:scale-[1.02] transition-all duration-300"
+                className="absolute inset-8 rounded-full bg-white dark:bg-stone-900 border-[3px] border-stone-900 dark:border-stone-800 shadow-[12px_12px_0px_0px_#ff6b2b] dark:shadow-[12px_12px_0px_0px_rgba(255,107,43,0.25)] overflow-hidden flex items-center justify-center z-10 hover:rotate-1 hover:scale-[1.01] transition-all duration-300"
               >
                 <img
                   src="/src/assets/images/leetmaster_mascot_1783434307641.jpg"
-                  alt="LeetMaster Mascot"
+                  alt="LeetMaster Scholar Mascot"
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback avatar if asset is not found
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
                   referrerPolicy="no-referrer"
                 />
+                {/* Fallback Mascot Art if the image is missing */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b2b]/10 to-amber-500/10 flex flex-col items-center justify-center text-stone-400 font-bold p-6 text-center">
+                  <span className="text-4xl">🦉</span>
+                  <p className="text-xs font-black tracking-widest text-[#ff6b2b] uppercase font-mono mt-2">LeetMaster Mentor</p>
+                </div>
               </motion.div>
 
-              {/* FLOATING BADGE 1: Daily Streak counter */}
+              {/* FLOATING CARD 1: Flame Streak Meter */}
               <motion.div
                 initial={{ opacity: 0, x: -30, y: -20 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
-                className="absolute -top-4 -left-4 sm:left-0 bg-stone-900 dark:bg-stone-850 text-white border-2 border-[#ff6b2b]/80 rounded-2xl px-4 py-2.5 shadow-xl flex items-center gap-2.5 z-20 hover:-translate-y-1 transition-transform"
+                className="absolute -top-2 -left-2 bg-stone-900 dark:bg-stone-900 text-white border-2 border-[#ff6b2b]/80 rounded-2xl px-4 py-3 shadow-2xl flex items-center gap-3 z-20 hover:-translate-y-1 transition-transform"
               >
-                <div className="w-8 h-8 bg-[#ff6b2b] rounded-xl flex items-center justify-center text-white font-extrabold text-sm border border-stone-800">
+                <div className="w-9 h-9 bg-gradient-to-br from-amber-500 to-[#ff6b2b] rounded-xl flex items-center justify-center text-white font-extrabold text-base border border-stone-800 shadow">
                   🔥
                 </div>
                 <div>
-                  <div className="text-[9px] font-black uppercase tracking-wider text-stone-400 leading-none">STREAK SPEED</div>
-                  <div className="text-xs font-black leading-none mt-1 text-white">127 Days Strong</div>
+                  <div className="text-[9px] font-black uppercase tracking-widest text-stone-400 leading-none">STREAK PACE</div>
+                  <div className="text-xs font-black leading-none mt-1.5 text-white font-mono">128 Days Unbroken</div>
                 </div>
               </motion.div>
 
-              {/* FLOATING CARD 2: Quick peer reviews indicator */}
+              {/* FLOATING CARD 2: Interactive leader stats board */}
               <motion.div
-                initial={{ opacity: 0, x: 40, y: 45 }}
+                initial={{ opacity: 0, x: 40, y: 40 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                className="absolute bottom-2 -right-6 bg-white dark:bg-stone-900 border-2 border-stone-900 dark:border-stone-800 rounded-2xl p-3.5 shadow-2xl w-52 z-20 hover:scale-105 transition-transform"
+                className="absolute bottom-4 -right-4 bg-white dark:bg-stone-900 border-2 border-stone-900 dark:border-stone-800 rounded-2xl p-4 shadow-2xl w-56 z-20 hover:scale-[1.03] transition-all"
               >
-                <div className="flex items-center gap-1.5 border-b border-stone-100 dark:border-stone-800 pb-1.5 mb-1.5 justify-between">
-                  <span className="text-[9px] font-black tracking-widest text-[#ff6b2b] uppercase">Leaderboard</span>
-                  <Award className="w-3.5 h-3.5 text-amber-500" />
+                <div className="flex items-center gap-1.5 border-b border-stone-100 dark:border-stone-800 pb-2 mb-2 justify-between">
+                  <span className="text-[9px] font-black tracking-widest text-[#ff6b2b] uppercase font-mono">Elite Scholar Ranking</span>
+                  <Award className="w-4 h-4 text-amber-500 fill-amber-500/10" />
                 </div>
-                <div className="space-y-1 font-mono text-[10px] font-bold text-stone-600 dark:text-stone-350">
-                  <div className="flex justify-between">
+                <div className="space-y-1.5 font-mono text-[10px] font-bold text-stone-600 dark:text-stone-400">
+                  <div className="flex justify-between items-center">
                     <span>1. Rohan S.</span>
-                    <span className="text-stone-900 dark:text-white">4.8k XP</span>
+                    <span className="text-stone-900 dark:text-white px-1.5 py-0.5 rounded bg-stone-50 dark:bg-stone-850">4.8k XP</span>
                   </div>
-                  <div className="flex justify-between text-[#ff6b2b]">
-                    <span>2. You</span>
-                    <span>3.9k XP</span>
+                  <div className="flex justify-between items-center text-[#ff6b2b]">
+                    <span>2. Dastgeer (You)</span>
+                    <span className="text-white bg-[#ff6b2b] px-1.5 py-0.5 rounded font-black">4.1k XP</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>3. Kavya N.</span>
+                    <span className="text-stone-900 dark:text-white px-1.5 py-0.5 rounded bg-stone-50 dark:bg-stone-850">3.8k XP</span>
                   </div>
                 </div>
               </motion.div>
@@ -163,27 +201,30 @@ export default function Hero({ onNavigate }: HeroProps) {
 
         </div>
 
-        {/* INTERACTIVE HUB PORTAL GRID (Redesigned as beautiful cards) */}
-        <div className="space-y-6 pt-8 border-t border-stone-200/60 dark:border-stone-800/60">
-          <div className="text-center sm:text-left">
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#ff6b2b] font-mono">
-              Direct Quick Access Hub
-            </h2>
-            <p className="text-sm font-bold text-stone-500 dark:text-stone-400 mt-1">
-              Select a core community portal below to navigate instantly
-            </p>
+        {/* BOTTOM ROW: Dynamic Navigation Portal Grid (Redesigned completely as high-end SaaS modules) */}
+        <div className="space-y-6 pt-12 border-t border-stone-200/70 dark:border-stone-800/70">
+          <div className="text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h2 className="text-xs font-black uppercase tracking-widest text-[#ff6b2b] font-mono flex items-center gap-1.5 justify-center sm:justify-start">
+                <Sparkles className="w-3.5 h-3.5 animate-spin-slow" />
+                <span>Direct Workspace Portals</span>
+              </h2>
+              <p className="text-sm font-black text-stone-500 dark:text-stone-400 mt-1">
+                Select an interactive hub below to navigate and open the active workspace tab.
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            {/* PORTAL 1: HACKATHONS */}
+            {/* HUB CARD 1: HACKATHONS */}
             <div
               onClick={() => handleRedirect('/hackathons-dashboard')}
-              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[180px] hover:scale-[1.01]"
+              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[195px] hover:scale-[1.01]"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
               
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-3.5 relative z-10">
                 <div className="w-10 h-10 rounded-2xl bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center text-[#ff6b2b] group-hover:bg-[#ff6b2b] group-hover:text-white transition-colors">
                   <Trophy className="w-5 h-5" />
                 </div>
@@ -191,30 +232,31 @@ export default function Hero({ onNavigate }: HeroProps) {
                   <h3 className="text-base font-black text-stone-900 dark:text-white tracking-tight group-hover:text-[#ff6b2b] transition-colors">
                     Hackathons Hub
                   </h3>
-                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                    Join live hackathons, form squads, code solutions, and get auto-graded by our system.
+                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                    Participate in graded hackathons, construct custom challenges, or configure visibility status.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-850">
-                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono">
-                  Enter Hackathons &rarr;
+              <div className="flex items-center justify-between pt-2.5 border-t border-stone-100 dark:border-stone-850">
+                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                  <span>Enter All Hackathons</span>
+                  <span>&rarr;</span>
                 </span>
                 <span className="text-[9px] font-bold bg-[#ff6b2b]/10 text-[#ff6b2b] px-2 py-0.5 rounded-full font-mono">
-                  Live Now
+                  Live Graded
                 </span>
               </div>
             </div>
 
-            {/* PORTAL 2: SCHOLAR QUIZ */}
+            {/* HUB CARD 2: SCHOLAR QUIZ */}
             <div
               onClick={() => handleRedirect('/quiz-tab')}
-              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[180px] hover:scale-[1.01]"
+              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[195px] hover:scale-[1.01]"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
               
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-3.5 relative z-10">
                 <div className="w-10 h-10 rounded-2xl bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center text-[#ff6b2b] group-hover:bg-[#ff6b2b] group-hover:text-white transition-colors">
                   <Brain className="w-5 h-5" />
                 </div>
@@ -222,30 +264,31 @@ export default function Hero({ onNavigate }: HeroProps) {
                   <h3 className="text-base font-black text-stone-900 dark:text-white tracking-tight group-hover:text-[#ff6b2b] transition-colors">
                     Scholar Quizzes
                   </h3>
-                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                    Test your memory and logic on arrays, trees, heaps, and algorithmic complexity.
+                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                    Examine your memory on complexity bounds, tree balancing, and optimization paradigms.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-850">
-                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono">
-                  Start Quiz &rarr;
+              <div className="flex items-center justify-between pt-2.5 border-t border-stone-100 dark:border-stone-850">
+                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                  <span>Start Quiz Tab</span>
+                  <span>&rarr;</span>
                 </span>
                 <span className="text-[9px] font-bold bg-[#ff6b2b]/10 text-[#ff6b2b] px-2 py-0.5 rounded-full font-mono">
-                  +20 XP
+                  +30 XP
                 </span>
               </div>
             </div>
 
-            {/* PORTAL 3: BLOGS */}
+            {/* HUB CARD 3: BLOGS (REPLACED STORIES) */}
             <div
               onClick={() => handleRedirect('/blogs')}
-              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[180px] hover:scale-[1.01]"
+              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[195px] hover:scale-[1.01]"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
               
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-3.5 relative z-10">
                 <div className="w-10 h-10 rounded-2xl bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center text-[#ff6b2b] group-hover:bg-[#ff6b2b] group-hover:text-white transition-colors">
                   <FileText className="w-5 h-5" />
                 </div>
@@ -253,30 +296,31 @@ export default function Hero({ onNavigate }: HeroProps) {
                   <h3 className="text-base font-black text-stone-900 dark:text-white tracking-tight group-hover:text-[#ff6b2b] transition-colors">
                     Developer Blogs
                   </h3>
-                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                    Read career roadmaps, system design blueprints, and optimization logs shared by peers.
+                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                    Write peer tutorials, post micro-articles, or set public/private status on your writeups.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-850">
-                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono">
-                  Read Articles &rarr;
+              <div className="flex items-center justify-between pt-2.5 border-t border-stone-100 dark:border-stone-850">
+                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                  <span>Read Blogs Hub</span>
+                  <span>&rarr;</span>
                 </span>
                 <span className="text-[9px] font-bold bg-[#ff6b2b]/10 text-[#ff6b2b] px-2 py-0.5 rounded-full font-mono">
-                  Updates Weekly
+                  SaaS Feed
                 </span>
               </div>
             </div>
 
-            {/* PORTAL 4: COURSES (STAYS) */}
+            {/* HUB CARD 4: COURSES (ACADEMY STAYS) */}
             <div
               onClick={() => handleRedirect('/courses')}
-              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[180px] hover:scale-[1.01]"
+              className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[195px] hover:scale-[1.01]"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
               
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-3.5 relative z-10">
                 <div className="w-10 h-10 rounded-2xl bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center text-[#ff6b2b] group-hover:bg-[#ff6b2b] group-hover:text-white transition-colors">
                   <GraduationCap className="w-5 h-5" />
                 </div>
@@ -284,18 +328,19 @@ export default function Hero({ onNavigate }: HeroProps) {
                   <h3 className="text-base font-black text-stone-900 dark:text-white tracking-tight group-hover:text-[#ff6b2b] transition-colors">
                     Cohort Academy
                   </h3>
-                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 line-clamp-2 leading-relaxed">
-                    Premium structured cohort curriculum to master algorithms, deployment, and systems.
+                  <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                    Structured cohorts designed for advanced sharding, concurrent loops, and interview readiness.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-850">
-                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono">
-                  View Syllabus &rarr;
+              <div className="flex items-center justify-between pt-2.5 border-t border-stone-100 dark:border-stone-850">
+                <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                  <span>View Syllabus</span>
+                  <span>&rarr;</span>
                 </span>
-                <span className="text-[9px] font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-mono">
-                  Premium
+                <span className="text-[9px] font-bold bg-amber-100 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-mono">
+                  ★ Premium
                 </span>
               </div>
             </div>

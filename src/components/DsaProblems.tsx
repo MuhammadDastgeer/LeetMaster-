@@ -1002,6 +1002,53 @@ export default function DsaProblems() {
   const [problems, setProblems] = useState<DsaProblem[]>(DYNAMIC_LARGE_PROBLEMS_POOL);
   const [selectedSheetId, setSelectedSheetId] = useState<string | null>(null);
   const [selectedProblemId, setSelectedProblemId] = useState<string | null>(null);
+  const [profileName, setProfileName] = useState("Dastgeer");
+
+  // Load profile name on mount
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.profile && data.profile.fullName) {
+          setProfileName(data.profile.fullName);
+        }
+      })
+      .catch(err => console.error("Error fetching profile inside DsaProblems:", err));
+  }, []);
+  
+  // Load solved problems from database submissions on mount
+  useEffect(() => {
+    fetch('/api/dsa/submissions')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.submissions) {
+          const solvedIds = new Set(data.submissions.map((s: any) => s.problemId));
+          
+          setProblems(prev => prev.map(p => {
+            if (solvedIds.has(p.id)) {
+              return { ...p, solved: true };
+            }
+            return p;
+          }));
+
+          setSheets(prev => prev.map(s => {
+            const updatedProblems = s.problems.map(p => {
+              if (solvedIds.has(p.id)) {
+                return { ...p, solved: true };
+              }
+              return p;
+            });
+            const solvedCount = updatedProblems.filter(p => p.solved).length;
+            return {
+              ...s,
+              problems: updatedProblems,
+              solvedCount: Math.min(s.totalCount, solvedCount)
+            };
+          }));
+        }
+      })
+      .catch(err => console.error("Error loading submissions:", err));
+  }, []);
   
   // Pagination & Load More States
   const [visibleCount, setVisibleCount] = useState(50);
@@ -1251,6 +1298,26 @@ export default function DsaProblems() {
               results: testResults,
               lang: activeLanguage
             });
+
+            // Save submission to database
+            fetch('/api/dsa/submissions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                problemId: activeProblem.id,
+                problemTitle: activeProblem.title,
+                difficulty: activeProblem.difficulty,
+                category: activeProblem.category,
+                language: activeLanguage
+              })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                console.log("Successfully recorded solution in backend database!");
+              }
+            })
+            .catch(err => console.error("Error saving submission to backend:", err));
 
             // Update solved state in React state
             setProblems(prevProblems => prevProblems.map(p => {
@@ -1789,7 +1856,7 @@ export default function DsaProblems() {
                       placeholder="Search problems..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] dark:focus:border-[#ff6b2b] transition-all font-medium placeholder-stone-400"
+                      className="w-full pl-11 pr-4 py-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-2xl text-sm text-stone-800 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:border-[#ff6b2b] dark:focus:border-[#ff6b2b] transition-all font-medium"
                     />
                   </div>
 
@@ -2064,13 +2131,8 @@ export default function DsaProblems() {
                 <div className="h-6 w-[1px] bg-stone-200 dark:bg-stone-800" />
                 
                 {/* User Avatar */}
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-stone-200 dark:border-stone-750 shadow-sm">
-                  <img 
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" 
-                    alt="User profile avatar" 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+                <div className="w-8 h-8 rounded-full bg-[#ffefe7] dark:bg-orange-950/40 border border-[#ff6b2b]/30 text-[#ff6b2b] dark:text-[#ff804a] flex items-center justify-center font-black text-xs select-none shadow-sm flex-shrink-0">
+                  {profileName ? profileName.trim().charAt(0).toUpperCase() : 'D'}
                 </div>
               </div>
             </div>

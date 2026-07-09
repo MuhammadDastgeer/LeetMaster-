@@ -25,6 +25,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
   const [tags, setTags] = useState<string>('');
   const [prizes, setPrizes] = useState<string>('');
   const [deadline, setDeadline] = useState<string>('');
+  const [status, setStatus] = useState<'public' | 'private'>('public');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   // Fetch all hackathons from database
@@ -54,6 +55,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
     setTags('Web Dev, React, Tailwind');
     setPrizes('$1,000 Cash Prize');
     setDeadline('August 31, 2026');
+    setStatus('public');
     setIsAddModalOpen(true);
   };
 
@@ -66,6 +68,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
     setTags(hack.tags);
     setPrizes(hack.prizes);
     setDeadline(hack.deadline);
+    setStatus(hack.status || 'public');
   };
 
   // Create new Hackathon
@@ -84,6 +87,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
           tags,
           prizes,
           deadline,
+          status,
           author: 'Dastgeer', // Default profile name
           avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop'
         })
@@ -111,7 +115,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
       const res = await fetch(`/api/hackathons/${editingHackathon.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, tags, prizes, deadline })
+        body: JSON.stringify({ title, description, tags, prizes, deadline, status })
       });
       const data = await res.json();
       if (data.success) {
@@ -251,15 +255,28 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                 {/* Top Row: Tags & Deadline */}
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2.5">
-                    <div className="flex flex-wrap gap-1.5 max-w-[70%]">
-                      {hack.tags.split(',').map((tagStr, i) => (
-                        <span 
-                          key={i} 
-                          className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#ff6b2b] bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/25 rounded-full border border-[#ff6b2b]/15 whitespace-nowrap"
-                        >
-                          {tagStr.trim()}
-                        </span>
-                      ))}
+                    <div className="flex flex-col gap-1.5 max-w-[70%]">
+                      <div className="flex flex-wrap gap-1.5">
+                        {hack.tags.split(',').map((tagStr, i) => (
+                          <span 
+                            key={i} 
+                            className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#ff6b2b] bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/25 rounded-full border border-[#ff6b2b]/15 whitespace-nowrap"
+                          >
+                            {tagStr.trim()}
+                          </span>
+                        ))}
+                      </div>
+                      {hack.isUserHackathon && (
+                        <div className="flex">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 ${
+                            hack.status === 'private'
+                              ? 'bg-red-500/10 text-red-500 dark:bg-red-500/20 border border-red-500/20'
+                              : 'bg-green-500/10 text-green-500 dark:bg-green-500/20 border border-green-500/20'
+                          }`}>
+                            {hack.status === 'private' ? '🔒 Private' : '🌍 Public'}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Deadline indicator with Calendar */}
@@ -294,12 +311,9 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                   
                   {/* Author Meta */}
                   <div className="flex items-center gap-2.5">
-                    <img
-                      src={hack.avatar}
-                      alt={hack.author}
-                      referrerPolicy="no-referrer"
-                      className="w-7 h-7 rounded-full border border-stone-200 dark:border-stone-750 object-cover flex-shrink-0"
-                    />
+                    <div className="w-7 h-7 rounded-full bg-[#ffefe7] dark:bg-orange-950/40 border border-[#ff6b2b]/20 text-[#ff6b2b] dark:text-[#ff804a] flex items-center justify-center font-black text-xs select-none flex-shrink-0">
+                      {hack.author ? hack.author.trim().charAt(0).toUpperCase() : 'H'}
+                    </div>
                     <div>
                       <p className="text-xs font-extrabold text-stone-800 dark:text-stone-250 leading-none">
                         {hack.author}
@@ -445,6 +459,21 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     />
                   </div>
 
+                  {/* Visibility Status Selection */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-stone-700 dark:text-stone-300 tracking-wide uppercase">
+                      VISIBILITY STATUS
+                    </label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                    >
+                      <option value="public">🌍 Public (Visible to everyone)</option>
+                      <option value="private">🔒 Private (Only visible in 'My Hackathons')</option>
+                    </select>
+                  </div>
+
                   {/* Action Buttons */}
                   <div className="flex items-center justify-end gap-3 pt-3">
                     <button
@@ -572,6 +601,21 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                       onChange={(e) => setDeadline(e.target.value)}
                       className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-white font-semibold"
                     />
+                  </div>
+
+                  {/* Visibility Status Selection */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black text-stone-700 dark:text-stone-300 tracking-wide uppercase">
+                      VISIBILITY STATUS
+                    </label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                    >
+                      <option value="public">🌍 Public (Visible to everyone)</option>
+                      <option value="private">🔒 Private (Only visible in 'My Hackathons')</option>
+                    </select>
                   </div>
 
                   {/* Action Buttons */}
