@@ -56,6 +56,13 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Ensure landing page or other pages (excluding hackathons anchor) scroll to top on path change or mount
+  useEffect(() => {
+    if (currentPath !== '/hackathons') {
+      window.scrollTo(0, 0);
+    }
+  }, [currentPath]);
+
   const navigateTo = (path: string) => {
     window.history.pushState(null, '', path);
     setCurrentPath(path);

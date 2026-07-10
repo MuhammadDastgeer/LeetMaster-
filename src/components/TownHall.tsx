@@ -89,13 +89,15 @@ export default function TownHall() {
   const [isMuted, setIsMuted] = useState(false);
 
   const emojiIdCounter = useRef(0);
-  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const currentCohort = cohorts.find(c => c.id === activeCohortId) || cohorts[0];
 
   useEffect(() => {
-    // Scroll chat to bottom when cohort or channel changes
-    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Scroll only the local chat body container to the bottom, without scrolling the main window
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [activeCohortId, currentCohort.messages]);
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -257,7 +259,7 @@ export default function TownHall() {
             </div>
 
             {/* Chat Body */}
-            <div className="p-5 flex-1 overflow-y-auto space-y-4">
+            <div ref={chatContainerRef} className="p-5 flex-1 overflow-y-auto space-y-4">
               {currentCohort.messages.map((m) => (
                 <div key={m.id} className={`flex items-start gap-3 ${m.isMe ? 'justify-end' : ''}`}>
                   {!m.isMe && (
@@ -280,7 +282,7 @@ export default function TownHall() {
                   </div>
                 </div>
               ))}
-              <div ref={chatBottomRef} />
+              {/* Chat End */}
             </div>
 
             {/* Chat Input */}
