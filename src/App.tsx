@@ -176,7 +176,7 @@ export default function App() {
     '/dsa-sheets', '/dsasheets',
     '/profile', '/professional-profile',
     '/report-card', '/reportcard',
-    '/quiz-tab'
+    '/quiz-tab', '/courses'
   ].includes(currentPath);
 
   if (isDashboardPath) {

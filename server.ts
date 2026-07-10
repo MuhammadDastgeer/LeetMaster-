@@ -75,9 +75,16 @@ db.exec(`
     category TEXT NOT NULL,
     timestamp TEXT NOT NULL,
     likes INTEGER DEFAULT 0,
-    isUserBlog INTEGER DEFAULT 0
+    isUserBlog INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'public'
   )
 `);
+
+try {
+  db.exec("ALTER TABLE blogs ADD COLUMN status TEXT DEFAULT 'public'");
+} catch (e) {
+  // column already exists, safe to ignore
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS hackathons (

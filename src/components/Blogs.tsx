@@ -261,10 +261,6 @@ export default function Blogs() {
                   <PenSquare className="w-4 h-4" />
                   <span>Write a Blog</span>
                 </button>
-                <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40 px-3.5 py-1.5 rounded-full">
-                  <Sparkles className="w-4 h-4 text-amber-500 fill-amber-400/20 animate-pulse" />
-                  <span className="text-xs font-bold text-amber-800 dark:text-amber-400">SQLite Backend</span>
-                </div>
               </div>
             </div>
 
@@ -351,7 +347,7 @@ export default function Blogs() {
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
                 <div className="w-10 h-10 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
                 <p className="text-stone-500 dark:text-stone-400 text-xs font-semibold font-mono">
-                  Loading articles from SQLite database...
+                  Loading articles...
                 </p>
               </div>
             ) : filteredBlogs.length === 0 ? (
@@ -583,7 +579,7 @@ export default function Blogs() {
                     <span>Write a New Blog Post</span>
                   </h2>
                   <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mt-1">
-                    Your post will be stored in SQLite and added immediately to "My Blogs" and "All Blogs".
+                    Your post will be published and added immediately to "My Blogs" and "All Blogs".
                   </p>
                 </div>
 
@@ -707,7 +703,7 @@ export default function Blogs() {
                     <span>Edit Blog Post</span>
                   </h2>
                   <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mt-1">
-                    Update the fields below to modify your blog post in SQLite.
+                    Update the fields below to modify your blog post.
                   </p>
                 </div>
 
