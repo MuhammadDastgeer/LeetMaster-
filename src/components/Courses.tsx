@@ -48,8 +48,8 @@ const INITIAL_COURSES: Course[] = [
     duration: '42 hrs',
     rating: 4.9,
     difficulty: 'Intermediate',
-    enrolled: true,
-    progress: 35,
+    enrolled: false,
+    progress: 0,
     tags: ['C++', 'DSA', 'Algorithms', 'FAANG'],
     modules: [
       {
@@ -57,9 +57,9 @@ const INITIAL_COURSES: Course[] = [
         title: 'Module 1: Complexity Analysis & STL Containers',
         duration: '4 hrs',
         lessons: [
-          { id: 'cpp-l1', title: 'Asymptotic Notations & Math Prep', duration: '45m', completed: true, type: 'video' },
-          { id: 'cpp-l2', title: 'Under the Hood: Vectors & Allocations', duration: '55m', completed: true, type: 'coding' },
-          { id: 'cpp-l3', title: 'Unordered Maps vs Maps Complexity', duration: '60m', completed: true, type: 'video' },
+          { id: 'cpp-l1', title: 'Asymptotic Notations & Math Prep', duration: '45m', completed: false, type: 'video' },
+          { id: 'cpp-l2', title: 'Under the Hood: Vectors & Allocations', duration: '55m', completed: false, type: 'coding' },
+          { id: 'cpp-l3', title: 'Unordered Maps vs Maps Complexity', duration: '60m', completed: false, type: 'video' },
           { id: 'cpp-l4', title: 'Interactive STL Container Quiz', duration: '20m', completed: false, type: 'quiz' }
         ]
       },
@@ -130,8 +130,8 @@ const INITIAL_COURSES: Course[] = [
     duration: '35 hrs',
     rating: 4.9,
     difficulty: 'Advanced',
-    enrolled: true,
-    progress: 75,
+    enrolled: false,
+    progress: 0,
     tags: ['React', 'Next.js', 'PostgreSQL', 'Tailwind'],
     modules: [
       {
@@ -139,9 +139,9 @@ const INITIAL_COURSES: Course[] = [
         title: 'Module 1: Server Components & Hydration Engine',
         duration: '6 hrs',
         lessons: [
-          { id: 'web-l1', title: 'Understanding RSC, Suspense & Streaming', duration: '55m', completed: true, type: 'video' },
-          { id: 'web-l2', title: 'Dynamic Layout Routing and Interceptors', duration: '70m', completed: true, type: 'coding' },
-          { id: 'web-l3', title: 'Server Actions Security Benchmarks', duration: '40m', completed: true, type: 'video' }
+          { id: 'web-l1', title: 'Understanding RSC, Suspense & Streaming', duration: '55m', completed: false, type: 'video' },
+          { id: 'web-l2', title: 'Dynamic Layout Routing and Interceptors', duration: '70m', completed: false, type: 'coding' },
+          { id: 'web-l3', title: 'Server Actions Security Benchmarks', duration: '40m', completed: false, type: 'video' }
         ]
       },
       {
@@ -149,8 +149,8 @@ const INITIAL_COURSES: Course[] = [
         title: 'Module 2: Database Layer & Cache Management',
         duration: '10 hrs',
         lessons: [
-          { id: 'web-l4', title: 'Relational Database Architectures & Indexes', duration: '60m', completed: true, type: 'video' },
-          { id: 'web-l5', title: 'Drizzle Migrations & Complex Inner Joins', duration: '80m', completed: true, type: 'coding' },
+          { id: 'web-l4', title: 'Relational Database Architectures & Indexes', duration: '60m', completed: false, type: 'video' },
+          { id: 'web-l5', title: 'Drizzle Migrations & Complex Inner Joins', duration: '80m', completed: false, type: 'coding' },
           { id: 'web-l6', title: 'Redis Cache Eviction Policies & Session Store', duration: '50m', completed: false, type: 'coding' }
         ]
       }

@@ -5,6 +5,7 @@ import {
   PenSquare, Trash2, Pencil, Info, Award, AlertCircle
 } from 'lucide-react';
 import { Hackathon } from '../types';
+import CardInteractions from './CardInteractions';
 
 interface HackathonsDashboardProps {
   isMyOnly: boolean;
@@ -14,6 +15,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -245,7 +247,8 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
           {displayedHackathons.map((hack) => (
             <div
               key={hack.id}
-              className="group relative p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-gradient-to-br from-[#faf8f5] via-[#f7f5f0] to-[#f2eee6] dark:from-[#1e1c18] dark:via-[#191815] dark:to-[#141311] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:border-[#ff6b2b] hover:shadow-xl flex flex-col justify-between min-h-[290px]"
+              onClick={() => setSelectedHackathon(hack)}
+              className="group relative p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-gradient-to-br from-[#faf8f5] via-[#f7f5f0] to-[#f2eee6] dark:from-[#1e1c18] dark:via-[#191815] dark:to-[#141311] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:border-[#ff6b2b] hover:shadow-xl flex flex-col justify-between min-h-[290px] cursor-pointer"
             >
               {/* Inner Subtle Grid Pattern Overlay */}
               <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#111111_1px,transparent_1px)] [background-size:16px_16px]" />
@@ -636,6 +639,82 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     </button>
                   </div>
                 </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* DETAILED HACKATHON MODAL */}
+      <AnimatePresence>
+        {selectedHackathon && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 sm:p-8 w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedHackathon(null)}
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {selectedHackathon.tags.split(',').map((tagStr, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#ff6b2b] bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/25 rounded-full border border-[#ff6b2b]/15"
+                      >
+                        {tagStr.trim()}
+                      </span>
+                    ))}
+                    {selectedHackathon.isUserHackathon && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-orange-100/50 dark:bg-orange-950/40 text-[#ff6b2b]">
+                        {selectedHackathon.status === 'private' ? '🔒 Private' : '🌍 Public'}
+                      </span>
+                    )}
+                  </div>
+
+                  <h2 className="text-2xl font-black text-stone-900 dark:text-white leading-tight">
+                    {selectedHackathon.title}
+                  </h2>
+                  <p className="text-xs text-stone-500 mt-1 font-semibold">
+                    Posted by: <span className="text-[#ff6b2b]">{selectedHackathon.author}</span>
+                  </p>
+                </div>
+
+                {/* Info Badges */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="bg-amber-100/40 dark:bg-amber-950/20 border border-amber-200/20 rounded-2xl p-4 flex items-center gap-3">
+                    <Trophy className="w-5 h-5 text-amber-500 fill-amber-500/10 flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] font-bold text-amber-800 dark:text-amber-500 uppercase tracking-wider leading-none">prizes & awards</p>
+                      <p className="text-xs font-black text-stone-850 dark:text-amber-400 font-mono mt-1">{selectedHackathon.prizes}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-stone-100 dark:bg-stone-850 border border-stone-200/20 rounded-2xl p-4 flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-[#ff6b2b] flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider leading-none">submission deadline</p>
+                      <p className="text-xs font-black text-stone-850 dark:text-stone-300 font-mono mt-1">{selectedHackathon.deadline}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hackathon Description */}
+                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-850/40 p-4 rounded-2xl border border-stone-150 dark:border-stone-800/40">
+                  {selectedHackathon.description}
+                </div>
+
+                {/* Comments & Reactions Panel */}
+                <CardInteractions itemType="hackathon" itemId={selectedHackathon.id} />
               </div>
             </motion.div>
           </div>

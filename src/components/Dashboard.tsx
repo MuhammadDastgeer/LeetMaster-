@@ -6,7 +6,7 @@ import {
   ClipboardList, ArrowLeft, ArrowRight, Bell, Moon, Sun,
   Check, Star, Sparkles, MessageSquare, BookOpen, PenTool,
   Plus, ExternalLink, ChevronRight, GraduationCap, Flame, AlertCircle,
-  Brain, BarChart2, TrendingUp, Shield, HelpCircle
+  Brain, BarChart2, TrendingUp, Shield, HelpCircle, Menu, X
 } from 'lucide-react';
 import { Blog, Project, Hackathon, Event } from '../types';
 import TownHalls from './TownHalls';
@@ -75,8 +75,14 @@ const tabToPath: Record<string, string> = {
 export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBackToHome, currentPath }: DashboardProps) {
   const activeTab = pathToTab[currentPath] || 'Dashboard';
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [profileName, setProfileName] = useState("Dastgeer");
+
+  // Close mobile sidebar on navigate
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [currentPath]);
 
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -192,13 +198,28 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
   );
 
   return (
-    <div className="h-screen bg-[#faf9f6] dark:bg-[#0c0a09] text-stone-900 dark:text-stone-100 flex transition-colors overflow-hidden">
+    <div className="h-screen bg-[#faf9f6] dark:bg-[#0c0a09] text-stone-900 dark:text-stone-100 flex transition-colors overflow-hidden relative">
       
+      {/* Mobile Backdrop */}
+      <AnimatePresence>
+        {isMobileOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileOpen(false)}
+            className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Left Sidebar Layout */}
       <aside 
-        className={`h-screen sticky top-0 bg-white dark:bg-stone-900 border-r border-[#e7e5e4] dark:border-stone-800 flex flex-col justify-between transition-all duration-300 relative z-20 flex-shrink-0 overflow-hidden ${
-          isCollapsed ? 'w-20' : 'w-64'
-        }`}
+        className={`h-screen bg-white dark:bg-stone-900 border-r border-[#e7e5e4] dark:border-stone-800 flex flex-col justify-between transition-all duration-300 flex-shrink-0 overflow-hidden z-40
+          fixed inset-y-0 left-0 md:sticky md:top-0 md:translate-x-0
+          ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'}
+          ${isCollapsed ? 'md:w-20' : 'md:w-64'}
+        `}
       >
         
         {/* Sidebar Content wrapper */}
@@ -352,7 +373,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
         {/* Interactive toggle collar button sitting on the border */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute top-1/2 -right-3.5 -translate-y-1/2 w-7 h-7 bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-full shadow-md flex items-center justify-center text-stone-500 hover:text-black dark:hover:text-white hover:scale-105 active:scale-95 transition-all z-30 cursor-pointer"
+          className="hidden md:flex absolute top-1/2 -right-3.5 -translate-y-1/2 w-7 h-7 bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-full shadow-md items-center justify-center text-stone-500 hover:text-black dark:hover:text-white hover:scale-105 active:scale-95 transition-all z-30 cursor-pointer"
           title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           {isCollapsed ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
@@ -361,7 +382,36 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
       </aside>
 
       {/* Right Canvas Main scrollable contents */}
-      <main className={`flex-1 flex flex-col h-screen ${activeTab === 'Town Halls' ? 'p-0 overflow-hidden' : 'overflow-y-auto p-6 md:p-8 lg:p-10'}`}>
+      <main className={`flex-1 flex flex-col h-screen ${activeTab === 'Town Halls' ? 'p-0 overflow-hidden' : 'overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10'}`}>
+        
+        {/* Mobile Header Top Bar (only visible on mobile/tablet) */}
+        <div className="md:hidden bg-white dark:bg-stone-900 border-b border-stone-200/60 dark:border-stone-800 px-4 py-3 flex items-center justify-between flex-shrink-0 z-30 sticky top-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileOpen(true)}
+              className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-xl text-stone-600 dark:text-stone-300 focus:outline-none"
+              title="Open Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="font-sans font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
+              Leet<span className="text-[#ff6b2b]">Master</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-bold text-[#ff6b2b] bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded uppercase">
+              {activeTab}
+            </span>
+            <button 
+              onClick={onToggleDarkMode}
+              className="w-6 h-6 rounded-full border border-stone-800 dark:border-stone-400 overflow-hidden relative flex items-center justify-center"
+              title="Toggle Theme"
+            >
+              <div className="absolute inset-0 bg-stone-900 dark:bg-stone-400" style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0% 100%)' }} />
+              <div className="absolute inset-0 bg-white dark:bg-stone-900" style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }} />
+            </button>
+          </div>
+        </div>
         
         {/* Dynamic header row with Title, Notice Board & Split theme toggle */}
         {activeTab !== 'Town Halls' && (

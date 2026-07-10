@@ -2120,7 +2120,7 @@ export default function DsaSheets() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               
               {/* SIDEBAR: Problems checklist (Column span: 3) */}
-              <div className="lg:col-span-3 bg-stone-50 dark:bg-stone-900/20 border border-stone-200 dark:border-stone-800 rounded-3xl p-4 flex flex-col h-[700px]">
+              <div className="lg:col-span-3 bg-stone-50 dark:bg-stone-900/20 border border-stone-200 dark:border-stone-800 rounded-3xl p-4 flex flex-col h-[350px] lg:h-[700px]">
                 <div className="pb-3 border-b border-stone-200 dark:border-stone-800/80 mb-4 flex items-center justify-between">
                   <span className="text-xs font-extrabold uppercase tracking-wider text-stone-450 dark:text-stone-550 font-mono">
                     Sheet Progress
@@ -2195,7 +2195,7 @@ export default function DsaSheets() {
               </div>
 
               {/* CORE SPLIT WORKSPACE: LEFT INFORMATION AREA & RIGHT EDITOR (Column span: 9) */}
-              <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch h-[700px]">
+              <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch h-[600px] lg:h-[700px]">
                 
                 {/* LEFT BLOCK: Description, Hints, Optimal Solutions & Submissions */}
                 <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-3xl overflow-hidden flex flex-col h-full shadow-sm">

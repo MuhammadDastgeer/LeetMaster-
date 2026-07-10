@@ -5,12 +5,14 @@ import {
   Pencil, Trash2, X, Info, Video, Users, Award, BookOpen
 } from 'lucide-react';
 import { Event } from '../types';
+import CardInteractions from './CardInteractions';
 
 export default function EventsDashboard() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeSubTab, setActiveSubTab] = useState<'all' | 'my'>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -279,7 +281,8 @@ export default function EventsDashboard() {
           {displayedEvents.map((ev) => (
             <div
               key={ev.id}
-              className="group relative p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-gradient-to-br from-[#faf8f5] via-[#f7f5f0] to-[#f2eee6] dark:from-[#1e1c18] dark:via-[#191815] dark:to-[#141311] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:border-[#ff6b2b] hover:shadow-xl flex flex-col justify-between min-h-[300px]"
+              onClick={() => setSelectedEvent(ev)}
+              className="group relative p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-gradient-to-br from-[#faf8f5] via-[#f7f5f0] to-[#f2eee6] dark:from-[#1e1c18] dark:via-[#191815] dark:to-[#141311] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:border-[#ff6b2b] hover:shadow-xl flex flex-col justify-between min-h-[300px] cursor-pointer"
             >
               {/* Subtle background graphics */}
               <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#111111_1px,transparent_1px)] [background-size:16px_16px]" />
@@ -702,6 +705,83 @@ export default function EventsDashboard() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* DETAILED EVENT MODAL */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 sm:p-8 w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#ff6b2b] bg-[#ff6b2b]/10 dark:bg-[#ff6b2b]/25 rounded-full border border-[#ff6b2b]/15">
+                      {selectedEvent.category}
+                    </span>
+                    {selectedEvent.isUserEvent && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-orange-100/50 dark:bg-orange-950/40 text-[#ff6b2b]">
+                        {selectedEvent.status === 'private' ? '🔒 Private' : '🌍 Public'}
+                      </span>
+                    )}
+                  </div>
+
+                  <h2 className="text-2xl font-black text-stone-900 dark:text-white leading-tight">
+                    {selectedEvent.title}
+                  </h2>
+                  <p className="text-xs text-stone-500 mt-1 font-semibold">
+                    Organized by: <span className="text-[#ff6b2b]">{selectedEvent.author}</span>
+                  </p>
+                </div>
+
+                {/* Timing & Location block */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-stone-200/40 dark:bg-stone-900/40 border border-stone-200/20 rounded-2xl p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-stone-700 dark:text-stone-300 font-mono">
+                    <Calendar className="w-4.5 h-4.5 text-[#ff6b2b] flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-stone-400 font-normal">DATE</p>
+                      <p>{selectedEvent.date}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-stone-700 dark:text-stone-300 font-mono">
+                    <Clock className="w-4.5 h-4.5 text-[#ff6b2b] flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-stone-400 font-normal">TIME</p>
+                      <p>{selectedEvent.time}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-stone-700 dark:text-stone-300 font-mono">
+                    <MapPin className="w-4.5 h-4.5 text-[#ff6b2b] flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-stone-400 font-normal">LOCATION</p>
+                      <p className="truncate max-w-[150px]" title={selectedEvent.location}>{selectedEvent.location}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Event Description */}
+                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-850/40 p-4 rounded-2xl border border-stone-150 dark:border-stone-800/40">
+                  {selectedEvent.description}
+                </div>
+
+                {/* Comments & Reactions Panel */}
+                <CardInteractions itemType="event" itemId={selectedEvent.id} />
               </div>
             </motion.div>
           </div>

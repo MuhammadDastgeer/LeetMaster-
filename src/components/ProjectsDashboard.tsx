@@ -5,11 +5,13 @@ import {
   Github, X, ExternalLink, Code2, Sparkles, Filter, ArrowUpRight, PenSquare, Trash2
 } from 'lucide-react';
 import { Project } from '../types';
+import CardInteractions from './CardInteractions';
 
 export default function ProjectsDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'all' | 'my'>('all');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   
   // Filtering & Search states
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -332,7 +334,8 @@ export default function ProjectsDashboard() {
           {filteredProjects.map((project) => (
             <div
               key={project.id}
-              className="group relative p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-gradient-to-br from-[#faf8f5] via-[#f7f5f0] to-[#f2eee6] dark:from-[#1e1c18] dark:via-[#191815] dark:to-[#141311] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:border-[#ff6b2b] hover:shadow-xl flex flex-col justify-between min-h-[300px]"
+              onClick={() => setSelectedProject(project)}
+              className="group relative p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-gradient-to-br from-[#faf8f5] via-[#f7f5f0] to-[#f2eee6] dark:from-[#1e1c18] dark:via-[#191815] dark:to-[#141311] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:border-[#ff6b2b] hover:shadow-xl flex flex-col justify-between min-h-[300px] cursor-pointer"
             >
               {/* Grid backdrop deco pattern */}
               <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#111111_1px,transparent_1px)] [background-size:16px_16px]" />
@@ -395,12 +398,15 @@ export default function ProjectsDashboard() {
                   </div>
 
                   {/* Action Link Icon Buttons */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {project.isUserProject && (
                       <div className="flex items-center gap-1.5 mr-2">
                         <button
                           type="button"
-                          onClick={() => startEditProject(project)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditProject(project);
+                          }}
                           className="p-2 bg-stone-100 hover:bg-stone-250 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90 cursor-pointer hover:text-[#ff6b2b] dark:hover:text-[#ff6b2b]"
                           title="Edit Project"
                         >
@@ -408,7 +414,10 @@ export default function ProjectsDashboard() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteProject(project.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteProject(project.id);
+                          }}
                           className="p-2 bg-stone-100 hover:bg-stone-250 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90 cursor-pointer hover:text-red-500 dark:hover:text-red-400"
                           title="Delete Project"
                         >
@@ -420,6 +429,7 @@ export default function ProjectsDashboard() {
                       href={project.codeLink}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="p-2 bg-stone-100 hover:bg-[#ff6b2b] text-stone-700 hover:text-white dark:bg-stone-850 dark:hover:bg-[#ff6b2b] dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90"
                       title="View Code Repository"
                     >
@@ -430,6 +440,7 @@ export default function ProjectsDashboard() {
                         href={project.deployLink}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="p-2 bg-stone-100 hover:bg-[#ff6b2b] text-stone-700 hover:text-white dark:bg-stone-850 dark:hover:bg-[#ff6b2b] dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90"
                         title="Open Live Deployment"
                       >
@@ -813,6 +824,85 @@ export default function ProjectsDashboard() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* DETAILED PROJECT MODAL */}
+      <AnimatePresence>
+        {selectedProject && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 sm:p-8 w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                      selectedProject.status === 'public'
+                        ? 'bg-emerald-100/60 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400'
+                        : 'bg-amber-100/60 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400'
+                    }`}>
+                      {selectedProject.status === 'public' ? 'Public Showcase' : 'Private Project'}
+                    </span>
+                    <span className="text-xs text-stone-400 font-mono flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {formatDateRange(selectedProject.startDate, selectedProject.endDate)}
+                    </span>
+                  </div>
+
+                  <h2 className="text-2xl font-black text-stone-900 dark:text-white leading-tight">
+                    {selectedProject.title}
+                  </h2>
+                  <p className="text-xs text-stone-500 mt-1 font-semibold">
+                    Published by: <span className="text-[#ff6b2b]">{selectedProject.author}</span>
+                  </p>
+                </div>
+
+                {/* Project Description */}
+                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-850/40 p-4 rounded-2xl border border-stone-150 dark:border-stone-800/40">
+                  {selectedProject.description}
+                </div>
+
+                {/* Resource Links */}
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={selectedProject.codeLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-stone-900 hover:bg-stone-800 dark:bg-white dark:text-stone-900 text-white rounded-xl text-xs font-black shadow transition-all cursor-pointer"
+                  >
+                    <Github className="w-4 h-4" />
+                    <span>View Repository Code</span>
+                  </a>
+                  {selectedProject.deployLink && (
+                    <a
+                      href={selectedProject.deployLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-[#ff6b2b] hover:bg-[#e0561a] text-white rounded-xl text-xs font-black shadow transition-all cursor-pointer"
+                    >
+                      <Globe className="w-4 h-4" />
+                      <span>Open Live Demo</span>
+                    </a>
+                  )}
+                </div>
+
+                {/* Comments & Reactions Panel */}
+                <CardInteractions itemType="project" itemId={selectedProject.id} />
               </div>
             </motion.div>
           </div>

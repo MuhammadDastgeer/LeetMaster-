@@ -1003,6 +1003,7 @@ export default function DsaProblems() {
   const [selectedSheetId, setSelectedSheetId] = useState<string | null>(null);
   const [selectedProblemId, setSelectedProblemId] = useState<string | null>(null);
   const [profileName, setProfileName] = useState("Dastgeer");
+  const [copied, setCopied] = useState(false);
 
   // Load profile name on mount
   useEffect(() => {
@@ -2138,7 +2139,7 @@ export default function DsaProblems() {
             </div>
 
             {/* SPLIT SCREEN WORKSPACE LAYOUT */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch h-[calc(100vh-180px)] min-h-[750px]">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch h-auto lg:h-[calc(100vh-180px)] lg:min-h-[750px]">
               
               {/* Left Pane: Tabs Navigation and Content */}
               <div className="lg:col-span-5 flex flex-col bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl overflow-hidden shadow-sm h-full">
@@ -2449,12 +2450,13 @@ export default function DsaProblems() {
                       type="button"
                       onClick={() => {
                         navigator.clipboard.writeText(code);
-                        alert('Source code copied to workspace buffer!');
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
                       }}
                       className="p-2 hover:bg-stone-850 rounded-xl text-stone-400 hover:text-white transition-colors focus:outline-none cursor-pointer"
-                      title="Copy code"
+                      title={copied ? "Copied!" : "Copy code"}
                     >
-                      <Copy className="w-3.5 h-3.5" />
+                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
                     <button
                       type="button"

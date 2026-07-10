@@ -296,8 +296,8 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
 
     doc.setFontSize(8.5);
     doc.setTextColor(41, 37, 36);
-    doc.text(`Python: ${pythonSolved || 16} Solved`, 20, currentY + 44);
-    doc.text(`JavaScript: ${jsSolved || 3} Solved`, 65, currentY + 44);
+    doc.text(`Python: ${pythonSolved} Solved`, 20, currentY + 44);
+    doc.text(`JavaScript: ${jsSolved} Solved`, 65, currentY + 44);
     doc.text(`C++: ${cppSolved} Solved`, 110, currentY + 44);
     doc.text(`Java: ${javaSolved} Solved`, 155, currentY + 44);
 
@@ -711,7 +711,7 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                 </div>
                 <div>
                   <div className="text-[10px] text-stone-400 dark:text-stone-500 font-bold uppercase font-mono">Core Bytes</div>
-                  <div className="text-sm font-black text-stone-800 dark:text-stone-200 font-mono">250</div>
+                  <div className="text-sm font-black text-stone-800 dark:text-stone-200 font-mono">{totalSolved * 10}</div>
                 </div>
               </div>
               <div className="flex gap-1">
@@ -753,12 +753,12 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-blue-500" /> Python
                 </span>
-                <span>{pythonSolved || 16} solved</span>
+                <span>{pythonSolved} solved</span>
               </div>
               <div className="w-full h-1.5 bg-stone-100 dark:bg-stone-850 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, ((pythonSolved || 16) / 20) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (pythonSolved / 20) * 100)}%` }}
                 />
               </div>
             </div>
@@ -769,12 +769,12 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-amber-400" /> Javascript
                 </span>
-                <span>{jsSolved || 3} solved</span>
+                <span>{jsSolved} solved</span>
               </div>
               <div className="w-full h-1.5 bg-stone-100 dark:bg-stone-850 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-amber-400 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, ((jsSolved || 3) / 10) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (jsSolved / 10) * 100)}%` }}
                 />
               </div>
             </div>
@@ -893,13 +893,13 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                   <div className="flex justify-between text-xs font-bold">
                     <span className="text-emerald-600 dark:text-emerald-400">Easy</span>
                     <span className="font-mono text-stone-600 dark:text-stone-400">
-                      <span className="text-stone-900 dark:text-white font-black">{easySolved || 12}</span> / 172
+                      <span className="text-stone-900 dark:text-white font-black">{easySolved}</span> / 172
                     </span>
                   </div>
                   <div className="w-full h-2 bg-stone-100 dark:bg-stone-850 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-emerald-500 rounded-full transition-all duration-700"
-                      style={{ width: `${((easySolved || 12) / 172) * 100}%` }}
+                      style={{ width: `${(easySolved / 172) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -909,13 +909,13 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                   <div className="flex justify-between text-xs font-bold">
                     <span className="text-amber-500 dark:text-amber-400">Medium</span>
                     <span className="font-mono text-stone-600 dark:text-stone-400">
-                      <span className="text-stone-900 dark:text-white font-black">{mediumSolved || 6}</span> / 350
+                      <span className="text-stone-900 dark:text-white font-black">{mediumSolved}</span> / 350
                     </span>
                   </div>
                   <div className="w-full h-2 bg-stone-100 dark:bg-stone-850 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-amber-400 rounded-full transition-all duration-700"
-                      style={{ width: `${((mediumSolved || 6) / 350) * 100}%` }}
+                      style={{ width: `${(mediumSolved / 350) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -925,13 +925,13 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                   <div className="flex justify-between text-xs font-bold">
                     <span className="text-rose-600 dark:text-rose-400">Hard</span>
                     <span className="font-mono text-stone-600 dark:text-stone-400">
-                      <span className="text-stone-900 dark:text-white font-black">{hardSolved || 0}</span> / 106
+                      <span className="text-stone-900 dark:text-white font-black">{hardSolved}</span> / 106
                     </span>
                   </div>
                   <div className="w-full h-2 bg-stone-100 dark:bg-stone-850 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-rose-500 rounded-full transition-all duration-700"
-                      style={{ width: `${((hardSolved || 0) / 106) * 100}%` }}
+                      style={{ width: `${(hardSolved / 106) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -959,7 +959,7 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                     strokeWidth="8"
                     fill="transparent"
                     strokeDasharray="251.2"
-                    strokeDashoffset={251.2 - (251.2 * (Math.min(easySolved || 12, 172) / 628))}
+                    strokeDashoffset={251.2 - (251.2 * (Math.min(easySolved, 172) / 628))}
                   />
                   {/* Medium Solved Path (Offset by Easy solved amount) */}
                   <circle
@@ -970,9 +970,9 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                     strokeWidth="8"
                     fill="transparent"
                     strokeDasharray="251.2"
-                    strokeDashoffset={251.2 - (251.2 * (Math.min(mediumSolved || 6, 350) / 628))}
+                    strokeDashoffset={251.2 - (251.2 * (Math.min(mediumSolved, 350) / 628))}
                     style={{
-                      transform: `rotate(${((easySolved || 12) / 628) * 360}deg)`,
+                      transform: `rotate(${((easySolved) / 628) * 360}deg)`,
                       transformOrigin: '50% 50%'
                     }}
                   />
@@ -985,9 +985,9 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                     strokeWidth="8"
                     fill="transparent"
                     strokeDasharray="251.2"
-                    strokeDashoffset={251.2 - (251.2 * (Math.min(hardSolved || 0, 106) / 628))}
+                    strokeDashoffset={251.2 - (251.2 * (Math.min(hardSolved, 106) / 628))}
                     style={{
-                      transform: `rotate(${(((easySolved || 12) + (mediumSolved || 6)) / 628) * 360}deg)`,
+                      transform: `rotate(${(((easySolved) + (mediumSolved)) / 628) * 360}deg)`,
                       transformOrigin: '50% 50%'
                     }}
                   />
@@ -995,7 +995,7 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
                 {/* Center text */}
                 <div className="absolute text-center">
                   <div className="text-xl font-black text-stone-900 dark:text-white font-mono">
-                    {totalSolved || 18}
+                    {totalSolved}
                   </div>
                   <div className="text-[10px] text-stone-400 dark:text-stone-500 font-bold uppercase tracking-wider font-mono">
                     / 628 Solved
@@ -1006,8 +1006,8 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
             </div>
 
             <div className="border-t border-stone-100 dark:border-stone-850 pt-4 flex justify-between text-[11px] text-stone-400 dark:text-stone-500 font-mono font-bold">
-              <span>Overall Completion: {(((totalSolved || 18) / 628) * 100).toFixed(1)}%</span>
-              <span className="text-[#ff6b2b]">Level: Intermediate</span>
+              <span>Overall Completion: {(((totalSolved) / 628) * 100).toFixed(1)}%</span>
+              <span className="text-[#ff6b2b]">Level: {totalSolved === 0 ? 'Novice' : totalSolved < 10 ? 'Beginner' : totalSolved < 30 ? 'Intermediate' : 'Expert'}</span>
             </div>
           </div>
 

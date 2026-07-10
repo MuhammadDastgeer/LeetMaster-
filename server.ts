@@ -291,6 +291,29 @@ db.exec(`
   )
 `);
 
+// Create card_comments and card_reactions tables
+db.exec(`
+  CREATE TABLE IF NOT EXISTS card_comments (
+    id TEXT PRIMARY KEY,
+    item_type TEXT NOT NULL,
+    item_id TEXT NOT NULL,
+    author TEXT NOT NULL,
+    avatar TEXT NOT NULL,
+    content TEXT NOT NULL,
+    timestamp TEXT NOT NULL
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS card_reactions (
+    item_type TEXT NOT NULL,
+    item_id TEXT NOT NULL,
+    emoji TEXT NOT NULL,
+    users TEXT NOT NULL,
+    PRIMARY KEY (item_type, item_id, emoji)
+  )
+`);
+
 // Clear dsa_submissions table to ensure 0 progress initially
 try {
   db.exec("DELETE FROM dsa_submissions");
@@ -1541,6 +1564,116 @@ app.delete("/api/events/:id", (req, res) => {
     deleteStmt.run(id);
 
     res.json({ success: true, message: "Event deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- Card Comments & Reactions API ---
+
+// GET interactions (comments and reactions) for a card
+app.get("/api/interactions/:item_type/:item_id", (req, res) => {
+  try {
+    const { item_type, item_id } = req.params;
+
+    // Get comments
+    const commentsStmt = db.prepare("SELECT * FROM card_comments WHERE item_type = ? AND item_id = ? ORDER BY timestamp ASC");
+    const comments = commentsStmt.all(item_type, item_id) || [];
+
+    // Get reactions
+    const reactionsStmt = db.prepare("SELECT * FROM card_reactions WHERE item_type = ? AND item_id = ?");
+    const reactionsRaw = reactionsStmt.all(item_type, item_id) || [];
+    
+    const reactions = reactionsRaw.map((r: any) => ({
+      emoji: r.emoji,
+      users: JSON.parse(r.users || "[]")
+    }));
+
+    res.json({ success: true, comments, reactions });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST comment to a card
+app.post("/api/interactions/:item_type/:item_id/comment", (req, res) => {
+  try {
+    const { item_type, item_id } = req.params;
+    const { author, avatar, content } = req.body;
+
+    if (!author || !content) {
+      return res.status(400).json({ success: false, error: "Author and content are required." });
+    }
+
+    const commentId = `comment-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+    const timestamp = new Date().toISOString();
+
+    const insertStmt = db.prepare(`
+      INSERT INTO card_comments (id, item_type, item_id, author, avatar, content, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    insertStmt.run(commentId, item_type, item_id, author, avatar || "", content, timestamp);
+
+    const getStmt = db.prepare("SELECT * FROM card_comments WHERE id = ?");
+    const newComment = getStmt.get(commentId);
+
+    res.json({ success: true, comment: newComment });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST reaction to a card (toggle)
+app.post("/api/interactions/:item_type/:item_id/react", (req, res) => {
+  try {
+    const { item_type, item_id } = req.params;
+    const { emoji, user } = req.body;
+
+    if (!emoji || !user) {
+      return res.status(400).json({ success: false, error: "Emoji and user are required." });
+    }
+
+    // Check if entry already exists
+    const getStmt = db.prepare("SELECT users FROM card_reactions WHERE item_type = ? AND item_id = ? AND emoji = ?");
+    const row = getStmt.get(item_type, item_id, emoji) as any;
+
+    let usersList: string[] = [];
+    if (row) {
+      usersList = JSON.parse(row.users || "[]");
+    }
+
+    const userIdx = usersList.indexOf(user);
+    if (userIdx > -1) {
+      // Remove reaction
+      usersList.splice(userIdx, 1);
+    } else {
+      // Add reaction
+      usersList.push(user);
+    }
+
+    if (usersList.length === 0) {
+      // Delete record if no users left
+      const deleteStmt = db.prepare("DELETE FROM card_reactions WHERE item_type = ? AND item_id = ? AND emoji = ?");
+      deleteStmt.run(item_type, item_id, emoji);
+    } else {
+      if (row) {
+        const updateStmt = db.prepare("UPDATE card_reactions SET users = ? WHERE item_type = ? AND item_id = ? AND emoji = ?");
+        updateStmt.run(JSON.stringify(usersList), item_type, item_id, emoji);
+      } else {
+        const insertStmt = db.prepare("INSERT INTO card_reactions (item_type, item_id, emoji, users) VALUES (?, ?, ?, ?)");
+        insertStmt.run(item_type, item_id, emoji, JSON.stringify(usersList));
+      }
+    }
+
+    // Return the updated list of reactions for this card
+    const allReactionsStmt = db.prepare("SELECT * FROM card_reactions WHERE item_type = ? AND item_id = ?");
+    const reactionsRaw = allReactionsStmt.all(item_type, item_id) || [];
+    const reactions = reactionsRaw.map((r: any) => ({
+      emoji: r.emoji,
+      users: JSON.parse(r.users || "[]")
+    }));
+
+    res.json({ success: true, reactions });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }

@@ -5,6 +5,7 @@ import {
   Sparkles, Tag, ArrowUpRight, PenSquare, Filter, BookOpen, ChevronRight, Trash2, Lock, Globe
 } from 'lucide-react';
 import { Blog } from '../types';
+import CardInteractions from './CardInteractions';
 
 export default function Blogs() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -547,6 +548,9 @@ export default function Blogs() {
                 <div className="text-stone-800 dark:text-stone-200 text-sm sm:text-base leading-relaxed whitespace-pre-line font-medium space-y-4 max-w-none">
                   {selectedBlog.content}
                 </div>
+
+                {/* Card Interactions: Comments & Reactions */}
+                <CardInteractions itemType="blog" itemId={selectedBlog.id} />
 
               </div>
             </article>
