@@ -89,7 +89,7 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
 
   // Streak calculations
   const getStreakStats = () => {
-    if (submissions.length === 0) return { current: 0, best: 2 };
+    if (submissions.length === 0) return { current: 0, best: 0 };
     
     // Extract unique dates of submissions (YYYY-MM-DD)
     const datesSet = new Set<string>(submissions.map(s => {
@@ -98,7 +98,7 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
     }));
     const dates = Array.from(datesSet).sort((a, b) => b.localeCompare(a)); // sorted descending
 
-    if (dates.length === 0) return { current: 0, best: 2 };
+    if (dates.length === 0) return { current: 0, best: 0 };
 
     const parseLocalDate = (dateStr: string) => {
       const [y, m, d] = dateStr.split('-').map(Number);
@@ -106,7 +106,7 @@ export default function ReportCard({ onNavigate }: ReportCardProps) {
     };
 
     let currentStreak = 0;
-    let bestStreak = 2; // Default starting reference
+    let bestStreak = 0; // Default starting reference
     
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;

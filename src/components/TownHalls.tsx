@@ -305,6 +305,8 @@ export default function TownHalls({ darkMode }: TownHallsProps) {
         setInputText('');
         setReplyingTo(null);
         setError(null);
+      } else {
+        setError(data.error || "Failed to deliver message");
       }
     } catch (err) {
       console.error("Error sending message:", err);

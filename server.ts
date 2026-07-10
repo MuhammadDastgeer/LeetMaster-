@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,8 +13,35 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize SQLite Database
-const db = new Database("leetmaster.db");
+// Determine safe database path (especially for serverless environments like Cloud Run)
+let dbPath = "leetmaster.db";
+
+function isWritable(dir: string): boolean {
+  try {
+    const testFile = path.resolve(dir, `.test_write_${Date.now()}`);
+    fs.writeFileSync(testFile, "test");
+    fs.unlinkSync(testFile);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+if (!isWritable(process.cwd())) {
+  dbPath = "/tmp/leetmaster.db";
+  console.log(`Current directory is not writable. Initializing database at ${dbPath}`);
+} else {
+  dbPath = path.resolve(process.cwd(), "leetmaster.db");
+  console.log(`Initializing database at ${dbPath}`);
+}
+
+let db: Database.Database;
+try {
+  db = new Database(dbPath);
+} catch (err) {
+  console.error(`Failed to initialize SQLite at ${dbPath}, falling back to in-memory database:`, err);
+  db = new Database(":memory:");
+}
 
 // Create table if not exists
 db.exec(`
@@ -29,6 +57,19 @@ db.exec(`
     parentId TEXT DEFAULT NULL
   )
 `);
+
+// Safe migrations to ensure newly added columns exist in older/existing database instances
+try {
+  db.exec("ALTER TABLE messages ADD COLUMN avatar TEXT NOT NULL DEFAULT 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop'");
+} catch (e) {}
+
+try {
+  db.exec("ALTER TABLE messages ADD COLUMN reactions TEXT NOT NULL DEFAULT '[]'");
+} catch (e) {}
+
+try {
+  db.exec("ALTER TABLE messages ADD COLUMN parentId TEXT DEFAULT NULL");
+} catch (e) {}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS profiles (
@@ -250,46 +291,11 @@ db.exec(`
   )
 `);
 
-// Seed dsa_submissions if empty
+// Clear dsa_submissions table to ensure 0 progress initially
 try {
-  const submissionsCheck = db.prepare("SELECT COUNT(*) as count FROM dsa_submissions");
-  const result = submissionsCheck.get() as { count: number };
-  if (result && result.count === 0) {
-    const insertSub = db.prepare(`
-      INSERT INTO dsa_submissions (id, problemId, problemTitle, difficulty, category, language, timestamp, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    const seedSubs = [
-      // Easy (12 Solves)
-      ['sub-1', 'prob-2', 'Two Sum', 'Easy', 'Arrays & Hashing', 'python', '2026-07-08T17:26:00Z', 'Accepted'],
-      ['sub-2', 'prob-8', 'Assign Cookies', 'Easy', 'Greedy', 'python', '2026-07-07T16:45:00Z', 'Accepted'],
-      ['sub-3', 'prob-3', 'Checking for Palindrome Numbers', 'Easy', 'Two Pointers', 'javascript', '2026-07-06T21:12:00Z', 'Accepted'],
-      ['sub-4', 'prob-ga-1', 'Flood Fill', 'Easy', 'Graphs', 'python', '2026-07-05T23:30:00Z', 'Accepted'],
-      ['sub-5', 'prob-9', 'Reverse Linked List', 'Easy', 'Linked List', 'python', '2026-06-20T16:30:00Z', 'Accepted'],
-      ['sub-6', 'prob-11', 'Single Number', 'Easy', 'Bit Manipulation', 'javascript', '2026-06-10T18:20:00Z', 'Accepted'],
-      ['sub-7', 'prob-12', 'Number of 1 Bits', 'Easy', 'Bit Manipulation', 'python', '2026-06-05T23:15:00Z', 'Accepted'],
-      ['sub-8', 'prob-custom-1', 'Find the Missing Number', 'Easy', 'Arrays', 'python', '2026-07-08T18:45:00Z', 'Accepted'],
-      ['sub-9', 'prob-custom-2', 'Remove Duplicates from Sorted Collection', 'Easy', 'Arrays', 'python', '2026-07-05T16:46:00Z', 'Accepted'],
-      ['sub-10', 'prob-4', 'Finding the Longest Common Starting Letters', 'Easy', 'Strings', 'python', '2026-05-25T18:40:00Z', 'Accepted'],
-      ['sub-11', 'prob-5', 'Sum of Two Binary Strings', 'Easy', 'Bit Manipulation', 'python', '2026-05-18T17:12:00Z', 'Accepted'],
-      ['sub-12', 'prob-15', 'Contains Duplicate', 'Easy', 'Arrays & Hashing', 'javascript', '2026-05-15T16:25:00Z', 'Accepted'],
-
-      // Medium (6 Solves)
-      ['sub-13', 'prob-ga-2', 'Number of Islands', 'Medium', 'Graphs', 'python', '2026-07-04T18:24:00Z', 'Accepted'],
-      ['sub-14', 'prob-ga-3', 'Clone Graph', 'Medium', 'Graphs', 'python', '2026-07-03T22:52:00Z', 'Accepted'],
-      ['sub-15', 'prob-6', 'Gas Station', 'Medium', 'Greedy', 'python', '2026-06-28T01:10:00Z', 'Accepted'],
-      ['sub-16', 'prob-7', 'Jump Game', 'Medium', 'Greedy', 'python', '2026-06-25T20:05:00Z', 'Accepted'],
-      ['sub-17', 'prob-10', 'Kth Largest Element in an Array', 'Medium', 'Heap', 'python', '2026-06-15T17:45:00Z', 'Accepted'],
-      ['sub-18', 'prob-custom-3', 'Unique Cars in a Row', 'Medium', 'Simulation', 'python', '2026-07-07T17:15:00Z', 'Accepted']
-    ];
-
-    for (const sub of seedSubs) {
-      insertSub.run(sub[0], sub[1], sub[2], sub[3], sub[4], sub[5], sub[6], sub[7]);
-    }
-  }
+  db.exec("DELETE FROM dsa_submissions");
 } catch (err) {
-  console.error("Failed to seed dsa_submissions table:", err);
+  console.error("Failed to clear dsa_submissions table:", err);
 }
 
 // Migrate existing tables to support status column if missing
@@ -905,14 +911,15 @@ app.post("/api/messages", (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    const msgId = id || `msg-${Date.now()}`;
+    const msgId = id || `msg-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
     const msgTimestamp = timestamp || 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const defaultAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop";
 
     insertStmt.run(
       msgId,
       channel,
       sender,
-      avatar,
+      avatar || defaultAvatar,
       isAdmin ? 1 : 0,
       msgTimestamp,
       content,
@@ -924,6 +931,10 @@ app.post("/api/messages", (req, res) => {
     const getStmt = db.prepare("SELECT * FROM messages WHERE id = ?");
     const newRow = getStmt.get(msgId) as any;
     
+    if (!newRow) {
+      return res.status(500).json({ success: false, error: "Message was not inserted correctly." });
+    }
+
     res.json({ 
       success: true, 
       message: {

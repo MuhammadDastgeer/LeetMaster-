@@ -5,9 +5,9 @@ import { HackathonProject } from '../types';
 
 export default function HackathonsAI() {
   const [project, setProject] = useState<HackathonProject>({
-    name: 'Travelo',
-    repo: 'github.com/team/travelo',
-    deployedUrl: 'travelo.vercel.app',
+    name: '',
+    repo: '',
+    deployedUrl: '',
     track: 'Web Dev'
   });
 
