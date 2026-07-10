@@ -240,13 +240,13 @@ export default function ProjectsDashboard() {
       </div>
 
       {/* Dual Tab Switcher: All Projects vs My Projects */}
-      <div className="flex border-b border-stone-250 dark:border-stone-800/80 p-1 bg-stone-100/50 dark:bg-stone-950/30 rounded-2xl max-w-sm">
+      <div className="flex border-b border-stone-200 dark:border-stone-800/80 p-1 bg-stone-100/50 dark:bg-stone-950/30 rounded-2xl max-w-sm">
         <button
           onClick={() => setActiveTab('all')}
           className={`flex-1 py-2 text-center text-xs font-black rounded-xl transition-all cursor-pointer ${
             activeTab === 'all'
               ? 'bg-white dark:bg-stone-900 text-[#ff6b2b] shadow-sm border border-stone-200/50 dark:border-stone-800/50'
-              : 'text-stone-500 hover:text-stone-800 dark:text-stone-450 dark:hover:text-stone-200'
+              : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
           }`}
         >
           All Projects
@@ -256,7 +256,7 @@ export default function ProjectsDashboard() {
           className={`flex-1 py-2 text-center text-xs font-black rounded-xl transition-all cursor-pointer ${
             activeTab === 'my'
               ? 'bg-white dark:bg-stone-900 text-[#ff6b2b] shadow-sm border border-stone-200/50 dark:border-stone-800/50'
-              : 'text-stone-500 hover:text-stone-800 dark:text-stone-450 dark:hover:text-stone-200'
+              : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
           }`}
         >
           My Projects
@@ -264,7 +264,7 @@ export default function ProjectsDashboard() {
       </div>
 
       {/* Interactive Filters Control Bar */}
-      <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-850/80 rounded-3xl p-5 space-y-4">
+      <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-800/80 rounded-3xl p-5 space-y-4">
         <div className="flex items-center gap-2 text-stone-800 dark:text-stone-200 font-extrabold text-xs tracking-wider uppercase">
           <Filter className="w-3.5 h-3.5 text-[#ff6b2b]" />
           <span>Search & Filter Projects</span>
@@ -407,7 +407,7 @@ export default function ProjectsDashboard() {
                             e.stopPropagation();
                             startEditProject(project);
                           }}
-                          className="p-2 bg-stone-100 hover:bg-stone-250 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90 cursor-pointer hover:text-[#ff6b2b] dark:hover:text-[#ff6b2b]"
+                          className="p-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90 cursor-pointer hover:text-[#ff6b2b] dark:hover:text-[#ff6b2b]"
                           title="Edit Project"
                         >
                           <PenSquare className="w-4 h-4" />
@@ -418,7 +418,7 @@ export default function ProjectsDashboard() {
                             e.stopPropagation();
                             handleDeleteProject(project.id);
                           }}
-                          className="p-2 bg-stone-100 hover:bg-stone-250 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90 cursor-pointer hover:text-red-500 dark:hover:text-red-400"
+                          className="p-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90 cursor-pointer hover:text-red-500 dark:hover:text-red-400"
                           title="Delete Project"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -430,7 +430,7 @@ export default function ProjectsDashboard() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="p-2 bg-stone-100 hover:bg-[#ff6b2b] text-stone-700 hover:text-white dark:bg-stone-850 dark:hover:bg-[#ff6b2b] dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90"
+                      className="p-2 bg-stone-100 hover:bg-[#ff6b2b] text-stone-700 hover:text-white dark:bg-stone-800 dark:hover:bg-[#ff6b2b] dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90"
                       title="View Code Repository"
                     >
                       <Github className="w-4 h-4" />
@@ -441,7 +441,7 @@ export default function ProjectsDashboard() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-2 bg-stone-100 hover:bg-[#ff6b2b] text-stone-700 hover:text-white dark:bg-stone-850 dark:hover:bg-[#ff6b2b] dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90"
+                        className="p-2 bg-stone-100 hover:bg-[#ff6b2b] text-stone-700 hover:text-white dark:bg-stone-800 dark:hover:bg-[#ff6b2b] dark:text-stone-300 rounded-xl transition-all border border-stone-200/30 active:scale-90"
                         title="Open Live Deployment"
                       >
                         <Globe className="w-4 h-4" />
@@ -469,7 +469,7 @@ export default function ProjectsDashboard() {
               {/* Close Button */}
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -615,7 +615,7 @@ export default function ProjectsDashboard() {
                     <button
                       type="button"
                       onClick={() => setIsAddModalOpen(false)}
-                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -656,7 +656,7 @@ export default function ProjectsDashboard() {
               {/* Close Button */}
               <button
                 onClick={() => setEditingProject(null)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -802,7 +802,7 @@ export default function ProjectsDashboard() {
                     <button
                       type="button"
                       onClick={() => setEditingProject(null)}
-                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -843,7 +843,7 @@ export default function ProjectsDashboard() {
               {/* Close Button */}
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -873,7 +873,7 @@ export default function ProjectsDashboard() {
                 </div>
 
                 {/* Project Description */}
-                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-850/40 p-4 rounded-2xl border border-stone-150 dark:border-stone-800/40">
+                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-800/40 p-4 rounded-2xl border border-stone-200 dark:border-stone-800/40">
                   {selectedProject.description}
                 </div>
 

@@ -201,11 +201,11 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
 
       {/* Info Warning Bar if empty in My Hackathons */}
       {isMyOnly && displayedHackathons.length === 0 && !loading && (
-        <div className="flex gap-3 bg-stone-100/60 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 text-sm text-stone-600 dark:text-stone-450 items-start">
+        <div className="flex gap-3 bg-stone-100/60 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 text-sm text-stone-600 dark:text-stone-400 items-start">
           <Info className="w-5 h-5 text-[#ff6b2b] flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-extrabold text-stone-800 dark:text-stone-200">No hackathons built yet</p>
-            <p className="text-xs mt-1 text-stone-500 dark:text-stone-450">
+            <p className="text-xs mt-1 text-stone-500 dark:text-stone-400">
               Click the **Add Hackathon** button on the top-right of this tab to build your own custom hackathon challenges. They will immediately become visible to other participants in the main dashboard!
             </p>
           </div>
@@ -213,7 +213,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
       )}
 
       {/* Search Filter Bar */}
-      <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-850/80 rounded-3xl p-5">
+      <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-800/80 rounded-3xl p-5">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
           <input
@@ -283,7 +283,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     </div>
                     
                     {/* Deadline indicator with Calendar */}
-                    <div className="flex items-center gap-1 text-[11px] font-bold text-stone-450 dark:text-stone-500 font-mono flex-shrink-0">
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-stone-400 dark:text-stone-500 font-mono flex-shrink-0">
                       <Calendar className="w-3.5 h-3.5 text-[#ff6b2b]" />
                       <span>{hack.deadline}</span>
                     </div>
@@ -305,7 +305,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                   <Trophy className="w-4 h-4 text-amber-500 fill-amber-500/10 flex-shrink-0" />
                   <div className="space-y-0.5">
                     <p className="text-[10px] font-bold text-amber-800 dark:text-amber-500 uppercase tracking-widest leading-none">prizes & awards</p>
-                    <p className="text-xs font-black text-stone-850 dark:text-amber-400 font-mono leading-tight">{hack.prizes}</p>
+                    <p className="text-xs font-black text-stone-800 dark:text-amber-400 font-mono leading-tight">{hack.prizes}</p>
                   </div>
                 </div>
 
@@ -318,7 +318,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                       {hack.author ? hack.author.trim().charAt(0).toUpperCase() : 'H'}
                     </div>
                     <div>
-                      <p className="text-xs font-extrabold text-stone-800 dark:text-stone-250 leading-none">
+                      <p className="text-xs font-extrabold text-stone-800 dark:text-stone-200 leading-none">
                         {hack.author}
                       </p>
                       {hack.isUserHackathon && (
@@ -334,7 +334,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     <div className="flex items-center gap-1.5 z-25 relative">
                       <button
                         onClick={(e) => openEditModal(hack, e)}
-                        className="p-1.5 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 hover:dark:bg-stone-750 text-stone-600 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-700 transition-all cursor-pointer hover:text-[#ff6b2b] hover:dark:text-[#ff804a]"
+                        className="p-1.5 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 hover:dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-700 transition-all cursor-pointer hover:text-[#ff6b2b] hover:dark:text-[#ff804a]"
                         title="Edit Hackathon"
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -370,7 +370,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
               {/* Close Button */}
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -470,7 +470,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
-                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold cursor-pointer"
                     >
                       <option value="public">🌍 Public (Visible to everyone)</option>
                       <option value="private">🔒 Private (Only visible in 'My Hackathons')</option>
@@ -482,7 +482,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     <button
                       type="button"
                       onClick={() => setIsAddModalOpen(false)}
-                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -514,7 +514,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
               {/* Close Button */}
               <button
                 onClick={() => setEditingHackathon(null)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -614,7 +614,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
-                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold cursor-pointer"
                     >
                       <option value="public">🌍 Public (Visible to everyone)</option>
                       <option value="private">🔒 Private (Only visible in 'My Hackathons')</option>
@@ -626,7 +626,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     <button
                       type="button"
                       onClick={() => setEditingHackathon(null)}
-                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -658,7 +658,7 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
               {/* Close Button */}
               <button
                 onClick={() => setSelectedHackathon(null)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -695,21 +695,21 @@ export default function HackathonsDashboard({ isMyOnly }: HackathonsDashboardPro
                     <Trophy className="w-5 h-5 text-amber-500 fill-amber-500/10 flex-shrink-0" />
                     <div>
                       <p className="text-[10px] font-bold text-amber-800 dark:text-amber-500 uppercase tracking-wider leading-none">prizes & awards</p>
-                      <p className="text-xs font-black text-stone-850 dark:text-amber-400 font-mono mt-1">{selectedHackathon.prizes}</p>
+                      <p className="text-xs font-black text-stone-800 dark:text-amber-400 font-mono mt-1">{selectedHackathon.prizes}</p>
                     </div>
                   </div>
 
-                  <div className="bg-stone-100 dark:bg-stone-850 border border-stone-200/20 rounded-2xl p-4 flex items-center gap-3">
+                  <div className="bg-stone-100 dark:bg-stone-800 border border-stone-200/20 rounded-2xl p-4 flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-[#ff6b2b] flex-shrink-0" />
                     <div>
                       <p className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider leading-none">submission deadline</p>
-                      <p className="text-xs font-black text-stone-850 dark:text-stone-300 font-mono mt-1">{selectedHackathon.deadline}</p>
+                      <p className="text-xs font-black text-stone-800 dark:text-stone-300 font-mono mt-1">{selectedHackathon.deadline}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Hackathon Description */}
-                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-850/40 p-4 rounded-2xl border border-stone-150 dark:border-stone-800/40">
+                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-800/40 p-4 rounded-2xl border border-stone-200 dark:border-stone-800/40">
                   {selectedHackathon.description}
                 </div>
 

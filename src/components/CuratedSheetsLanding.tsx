@@ -73,7 +73,7 @@ export default function CuratedSheetsLanding({ onNavigate }: CuratedSheetsLandin
           <h2 className="text-3xl sm:text-4xl font-sans font-extrabold text-stone-900 dark:text-white tracking-tight">
             Structure Your DSA Journey.
           </h2>
-          <p className="text-stone-550 dark:text-zinc-300 text-base sm:text-lg font-medium leading-relaxed">
+          <p className="text-stone-500 dark:text-zinc-300 text-base sm:text-lg font-medium leading-relaxed">
             Stop solving random problems. Follow our structured, peer-powered sheets curated specifically for competitive programmers and tech giants' interviews.
           </p>
         </div>
@@ -113,7 +113,7 @@ export default function CuratedSheetsLanding({ onNavigate }: CuratedSheetsLandin
                       <div
                         key={sheetName}
                         onClick={() => onNavigate('/dsa-sheets')}
-                        className="flex items-center justify-between p-3 bg-stone-50 hover:bg-orange-50/50 dark:bg-zinc-900/20 dark:hover:bg-orange-950/10 border border-stone-150/60 dark:border-zinc-800/50 rounded-2xl transition-all cursor-pointer group/item hover:border-[#ff6b2b]/40 dark:hover:border-orange-500/30"
+                        className="flex items-center justify-between p-3 bg-stone-50 hover:bg-orange-50/50 dark:bg-zinc-900/20 dark:hover:bg-orange-950/10 border border-stone-200/60 dark:border-zinc-800/50 rounded-2xl transition-all cursor-pointer group/item hover:border-[#ff6b2b]/40 dark:hover:border-orange-500/30"
                       >
                         <span className="text-[13px] font-extrabold text-stone-800 dark:text-stone-200 group-hover/item:text-[#ff6b2b] dark:group-hover/item:text-orange-400 transition-colors truncate">
                           {sheetName}

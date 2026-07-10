@@ -357,7 +357,7 @@ export default function ProfessionalProfile() {
 
         {/* Avatar container with dynamic name-based avatar icon */}
         <div className="relative group flex-shrink-0 select-none">
-          <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#ffefe7] to-[#ffe0d0] dark:from-orange-950/40 dark:to-orange-900/10 border-4 border-[#fff1e6] dark:border-stone-850 shadow-md flex flex-col items-center justify-center font-black text-5xl text-[#ff6b2b] dark:text-[#ff804a] transition-transform duration-300 group-hover:scale-[1.02] relative overflow-hidden">
+          <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#ffefe7] to-[#ffe0d0] dark:from-orange-950/40 dark:to-orange-900/10 border-4 border-[#fff1e6] dark:border-stone-800 shadow-md flex flex-col items-center justify-center font-black text-5xl text-[#ff6b2b] dark:text-[#ff804a] transition-transform duration-300 group-hover:scale-[1.02] relative overflow-hidden">
             <div className="absolute inset-0 bg-[#ff6b2b]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <span>{fullName ? fullName.trim().charAt(0).toUpperCase() : 'D'}</span>
             <span className="text-[9px] font-bold tracking-wider text-[#ff6b2b]/60 dark:text-[#ff804a]/60 uppercase mt-1">MEMBER</span>
@@ -385,7 +385,7 @@ export default function ProfessionalProfile() {
                 href={linkedin} 
                 target="_blank" 
                 rel="noreferrer" 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#fff1e6] hover:bg-[#ffe2cc] dark:bg-stone-850 dark:hover:bg-stone-800 text-[#ff6b2b] text-xs font-bold transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#fff1e6] hover:bg-[#ffe2cc] dark:bg-stone-800 dark:hover:bg-stone-700 text-[#ff6b2b] text-xs font-bold transition-all"
               >
                 <Linkedin className="w-3.5 h-3.5" />
                 <span>LinkedIn Profile</span>
@@ -396,7 +396,7 @@ export default function ProfessionalProfile() {
                 href={github} 
                 target="_blank" 
                 rel="noreferrer" 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-bold transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-bold transition-all"
               >
                 <Github className="w-3.5 h-3.5" />
                 <span>GitHub</span>
@@ -407,7 +407,7 @@ export default function ProfessionalProfile() {
                 href={website} 
                 target="_blank" 
                 rel="noreferrer" 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-bold transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-bold transition-all"
               >
                 <Globe className="w-3.5 h-3.5" />
                 <span>Portfolio</span>
@@ -849,7 +849,7 @@ export default function ProfessionalProfile() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-stone-100 dark:border-stone-850">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-stone-100 dark:border-stone-800">
                 
                 {/* Years of experience */}
                 <div className="space-y-1.5">
@@ -927,7 +927,7 @@ export default function ProfessionalProfile() {
                     <button 
                       type="button" 
                       onClick={() => handleRemoveExperience(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-stone-850 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                      className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1024,7 +1024,7 @@ export default function ProfessionalProfile() {
                     <button 
                       type="button" 
                       onClick={() => handleRemoveCertification(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-stone-850 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                      className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1118,7 +1118,7 @@ export default function ProfessionalProfile() {
                     <button 
                       type="button" 
                       onClick={() => handleRemoveEducation(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-stone-850 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                      className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1214,7 +1214,7 @@ export default function ProfessionalProfile() {
                     <button 
                       type="button" 
                       onClick={() => handleRemoveProject(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-stone-850 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                      className="p-2 bg-stone-50 dark:bg-[#1c1917] hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1298,7 +1298,7 @@ export default function ProfessionalProfile() {
               setActiveTab(tabs[nextIdx]);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-750 text-stone-800 dark:text-stone-200 text-sm font-bold px-6 py-3.5 rounded-full transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 text-sm font-bold px-6 py-3.5 rounded-full transition-all cursor-pointer"
           >
             <span>Next Tab</span>
             <ChevronRight className="w-4 h-4" />

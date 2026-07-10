@@ -123,7 +123,7 @@ export default function CardInteractions({ itemType, itemId }: CardInteractionsP
   };
 
   return (
-    <div className="border-t border-stone-150 dark:border-stone-800/60 pt-6 mt-8 space-y-8">
+    <div className="border-t border-stone-200 dark:border-stone-800 pt-6 mt-8 space-y-8">
       {/* Reactions Section */}
       <div className="space-y-3">
         <h4 className="text-xs font-black uppercase tracking-widest text-[#ff6b2b] flex items-center gap-1.5 font-mono">
@@ -145,12 +145,12 @@ export default function CardInteractions({ itemType, itemId }: CardInteractionsP
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-sm font-bold border transition-all cursor-pointer ${
                   userReacted
                     ? 'bg-orange-100/80 border-[#ff6b2b]/30 text-orange-950 dark:bg-[#ff6b2b]/20 dark:border-[#ff6b2b]/40 dark:text-orange-300 shadow-sm'
-                    : 'bg-stone-50 dark:bg-stone-850/60 border-stone-200/50 dark:border-stone-800/50 hover:border-[#ff6b2b]/30 text-stone-600 dark:text-stone-300'
+                    : 'bg-stone-50 dark:bg-stone-800/60 border-stone-200 dark:border-stone-800 hover:border-[#ff6b2b]/30 text-stone-700 dark:text-stone-200'
                 }`}
               >
                 <span>{emoji}</span>
                 {count > 0 && (
-                  <span className={`text-xs font-black ${userReacted ? 'text-[#ff6b2b]' : 'text-stone-400 dark:text-stone-500'}`}>
+                  <span className={`text-xs font-black ${userReacted ? 'text-[#ff6b2b]' : 'text-stone-500 dark:text-stone-400'}`}>
                     {count}
                   </span>
                 )}
@@ -170,11 +170,11 @@ export default function CardInteractions({ itemType, itemId }: CardInteractionsP
         {isLoading ? (
           <div className="flex items-center gap-2 py-4">
             <div className="w-4 h-4 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
-            <span className="text-xs font-bold text-stone-400 font-mono">Retrieving comments...</span>
+            <span className="text-xs font-bold text-stone-500 font-mono">Retrieving comments...</span>
           </div>
         ) : comments.length === 0 ? (
-          <div className="p-6 text-center border border-dashed border-stone-200/60 dark:border-stone-850 rounded-2xl bg-stone-50/50 dark:bg-stone-900/30">
-            <p className="text-xs font-semibold text-stone-400 dark:text-stone-550">
+          <div className="p-6 text-center border border-dashed border-stone-200 dark:border-stone-800 rounded-2xl bg-stone-50/50 dark:bg-stone-900/30">
+            <p className="text-xs font-semibold text-stone-500 dark:text-stone-400">
               No comments posted yet. Start the conversation!
             </p>
           </div>
@@ -186,21 +186,21 @@ export default function CardInteractions({ itemType, itemId }: CardInteractionsP
                   key={comment.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex gap-3 p-3.5 rounded-2xl bg-[#faf9f6]/90 dark:bg-stone-850/40 border border-stone-200/30 dark:border-stone-800/30"
+                  className="flex gap-3 p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800"
                 >
                   <div className="w-8 h-8 rounded-full bg-[#ffefe7] dark:bg-orange-950/40 border border-[#ff6b2b]/20 text-[#ff6b2b] dark:text-[#ff804a] flex items-center justify-center font-black text-xs select-none flex-shrink-0">
                     {comment.author ? comment.author.charAt(0).toUpperCase() : 'C'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-extrabold text-stone-800 dark:text-stone-200 block truncate">
+                      <span className="text-xs font-extrabold text-stone-950 dark:text-stone-50 block truncate">
                         {comment.author}
                       </span>
-                      <span className="text-[10px] text-stone-400 dark:text-stone-550 font-mono font-medium shrink-0">
+                      <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono font-medium shrink-0">
                         {formatCommentTime(comment.timestamp)}
                       </span>
                     </div>
-                    <p className="text-xs font-medium text-stone-600 dark:text-stone-300 mt-1.5 whitespace-pre-line leading-relaxed">
+                    <p className="text-xs font-semibold text-stone-900 dark:text-stone-100 mt-1.5 whitespace-pre-line leading-relaxed">
                       {comment.content}
                     </p>
                   </div>
@@ -223,7 +223,7 @@ export default function CardInteractions({ itemType, itemId }: CardInteractionsP
             placeholder="Share your thoughts or feedback..."
             rows={1}
             disabled={isSubmitting}
-            className="w-full pl-4 pr-12 py-2 text-xs font-medium bg-white dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#ff6b2b] focus:border-[#ff6b2b] text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-550 resize-none min-h-[40px] max-h-[120px] shadow-sm font-sans"
+            className="w-full pl-4 pr-12 py-2.5 text-xs font-semibold bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-800 rounded-2xl focus:outline-none focus:ring-1 focus:ring-[#ff6b2b] focus:border-[#ff6b2b] text-stone-950 dark:text-white placeholder-stone-500 dark:placeholder-stone-400 resize-none min-h-[44px] max-h-[120px] shadow-sm font-sans"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -234,7 +234,7 @@ export default function CardInteractions({ itemType, itemId }: CardInteractionsP
           <button
             type="submit"
             disabled={isSubmitting || !newComment.trim()}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 bg-orange-100 hover:bg-[#ff6b2b] hover:text-white text-[#ff6b2b] rounded-xl transition-all cursor-pointer active:scale-90 disabled:opacity-50 disabled:pointer-events-none"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 bg-orange-100 dark:bg-orange-950 hover:bg-[#ff6b2b] hover:dark:bg-[#ff6b2b] text-[#ff6b2b] dark:text-orange-300 hover:text-white hover:dark:text-white rounded-xl transition-all cursor-pointer active:scale-90 disabled:opacity-50 disabled:pointer-events-none"
           >
             <Send className="w-3.5 h-3.5" />
           </button>

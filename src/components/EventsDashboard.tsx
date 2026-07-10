@@ -195,7 +195,7 @@ export default function EventsDashboard() {
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex border-b border-stone-200 dark:border-stone-850 gap-6">
+      <div className="flex border-b border-stone-200 dark:border-stone-800 gap-6">
         <button
           onClick={() => setActiveSubTab('all')}
           className={`pb-3.5 text-sm font-extrabold relative transition-all cursor-pointer ${
@@ -232,11 +232,11 @@ export default function EventsDashboard() {
 
       {/* Info warning if empty in My Events */}
       {activeSubTab === 'my' && displayedEvents.length === 0 && !loading && (
-        <div className="flex gap-3 bg-stone-100/60 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 text-sm text-stone-600 dark:text-stone-450 items-start">
+        <div className="flex gap-3 bg-stone-100/60 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 text-sm text-stone-600 dark:text-stone-400 items-start">
           <Info className="w-5 h-5 text-[#ff6b2b] flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-extrabold text-stone-800 dark:text-stone-200">No events added by you yet</p>
-            <p className="text-xs mt-1 text-stone-500 dark:text-stone-450">
+            <p className="text-xs mt-1 text-stone-500 dark:text-stone-400">
               Click the **Add Event** button above to coordinate your own webinars, peer discussions, and Q&A code review sessions.
             </p>
           </div>
@@ -244,7 +244,7 @@ export default function EventsDashboard() {
       )}
 
       {/* Search Bar */}
-      <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-850/80 rounded-3xl p-5">
+      <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-800/80 rounded-3xl p-5">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
           <input
@@ -348,7 +348,7 @@ export default function EventsDashboard() {
                       {ev.author ? ev.author.trim().charAt(0).toUpperCase() : 'E'}
                     </div>
                     <div>
-                      <p className="text-xs font-extrabold text-stone-800 dark:text-stone-250 leading-none">
+                      <p className="text-xs font-extrabold text-stone-800 dark:text-stone-200 leading-none">
                         {ev.author}
                       </p>
                       {ev.isUserEvent && (
@@ -364,7 +364,7 @@ export default function EventsDashboard() {
                     <div className="flex items-center gap-1.5 z-25 relative">
                       <button
                         onClick={(e) => openEditModal(ev, e)}
-                        className="p-1.5 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 hover:dark:bg-stone-750 text-stone-600 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-700 transition-all cursor-pointer hover:text-[#ff6b2b] hover:dark:text-[#ff804a]"
+                        className="p-1.5 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 hover:dark:bg-stone-700 text-stone-600 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-700 transition-all cursor-pointer hover:text-[#ff6b2b] hover:dark:text-[#ff804a]"
                         title="Edit Event"
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -399,7 +399,7 @@ export default function EventsDashboard() {
             >
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -518,7 +518,7 @@ export default function EventsDashboard() {
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
-                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold cursor-pointer"
                     >
                       <option value="public">🌍 Public (Visible to everyone)</option>
                       <option value="private">🔒 Private (Only visible in 'My Events')</option>
@@ -530,7 +530,7 @@ export default function EventsDashboard() {
                     <button
                       type="button"
                       onClick={() => setIsAddModalOpen(false)}
-                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -561,7 +561,7 @@ export default function EventsDashboard() {
             >
               <button
                 onClick={() => setEditingEvent(null)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -680,7 +680,7 @@ export default function EventsDashboard() {
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as 'public' | 'private')}
-                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold cursor-pointer"
+                      className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold cursor-pointer"
                     >
                       <option value="public">🌍 Public (Visible to everyone)</option>
                       <option value="private">🔒 Private (Only visible in 'My Events')</option>
@@ -692,7 +692,7 @@ export default function EventsDashboard() {
                     <button
                       type="button"
                       onClick={() => setEditingEvent(null)}
-                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2 text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -724,7 +724,7 @@ export default function EventsDashboard() {
               {/* Close Button */}
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -776,7 +776,7 @@ export default function EventsDashboard() {
                 </div>
 
                 {/* Event Description */}
-                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-850/40 p-4 rounded-2xl border border-stone-150 dark:border-stone-800/40">
+                <div className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line font-medium bg-[#faf9f6] dark:bg-stone-800/40 p-4 rounded-2xl border border-stone-200 dark:border-stone-800/40">
                   {selectedEvent.description}
                 </div>
 

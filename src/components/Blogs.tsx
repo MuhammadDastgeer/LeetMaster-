@@ -266,13 +266,13 @@ export default function Blogs() {
             </div>
 
             {/* Custom 2-Tab Navigation (My Blogs vs All Blogs) */}
-            <div className="flex border-b border-stone-250 dark:border-stone-800/80 p-1 bg-stone-100/50 dark:bg-stone-950/30 rounded-2xl max-w-sm">
+            <div className="flex border-b border-stone-200 dark:border-stone-800/80 p-1 bg-stone-100/50 dark:bg-stone-950/30 rounded-2xl max-w-sm">
               <button
                 onClick={() => setActiveTab('all')}
                 className={`flex-1 py-2 text-center text-xs font-black rounded-xl transition-all cursor-pointer ${
                   activeTab === 'all'
                     ? 'bg-white dark:bg-stone-900 text-[#ff6b2b] shadow-sm border border-stone-200/50 dark:border-stone-800/50'
-                    : 'text-stone-500 hover:text-stone-800 dark:text-stone-450 dark:hover:text-stone-200'
+                    : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
                 }`}
               >
                 All Blogs
@@ -282,7 +282,7 @@ export default function Blogs() {
                 className={`flex-1 py-2 text-center text-xs font-black rounded-xl transition-all cursor-pointer ${
                   activeTab === 'my'
                     ? 'bg-white dark:bg-stone-900 text-[#ff6b2b] shadow-sm border border-stone-200/50 dark:border-stone-800/50'
-                    : 'text-stone-500 hover:text-stone-800 dark:text-stone-450 dark:hover:text-stone-200'
+                    : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
                 }`}
               >
                 My Blogs
@@ -290,7 +290,7 @@ export default function Blogs() {
             </div>
 
             {/* Filtering Control Bar */}
-            <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-850/80 rounded-3xl p-5 space-y-4">
+            <div className="bg-stone-50 dark:bg-[#151412] border border-stone-200/70 dark:border-stone-800/80 rounded-3xl p-5 space-y-4">
               <div className="flex items-center gap-2 text-stone-800 dark:text-stone-200 font-extrabold text-xs tracking-wider uppercase">
                 <Filter className="w-3.5 h-3.5 text-[#ff6b2b]" />
                 <span>Filter & Search Posts</span>
@@ -401,14 +401,13 @@ export default function Blogs() {
                               </span>
                             )}
                           </div>
-                          
-                          <div className="flex items-center gap-2">
+                                                 <div className="flex items-center gap-2">
                             {blog.isUserBlog && (
                               <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                                 <button
                                   type="button"
                                   onClick={(e) => startEditBlog(blog, e)}
-                                  className="p-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-all hover:text-[#ff6b2b] dark:hover:text-[#ff6b2b] cursor-pointer"
+                                  className="p-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-750 text-stone-600 dark:text-stone-300 transition-all hover:text-[#ff6b2b] dark:hover:text-[#ff6b2b] cursor-pointer"
                                   title="Edit Post"
                                 >
                                   <PenSquare className="w-3.5 h-3.5" />
@@ -416,14 +415,14 @@ export default function Blogs() {
                                 <button
                                   type="button"
                                   onClick={(e) => handleDeleteBlog(blog.id, e)}
-                                  className="p-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-all hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
+                                  className="p-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-750 text-stone-600 dark:text-stone-300 transition-all hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
                                   title="Delete Post"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                               </div>
                             )}
-                            <span className="text-[11px] font-bold text-stone-400 dark:text-stone-500 font-mono">
+                            <span className="text-[11px] font-bold text-stone-400 dark:text-stone-550 font-mono">
                               {blog.timestamp}
                             </span>
                           </div>
@@ -447,7 +446,7 @@ export default function Blogs() {
                             {blog.author ? blog.author.trim().charAt(0).toUpperCase() : 'B'}
                           </div>
                           <div>
-                            <p className="text-xs font-extrabold text-stone-800 dark:text-stone-250 leading-none">
+                            <p className="text-xs font-extrabold text-stone-850 dark:text-stone-200 leading-none">
                               {blog.author}
                             </p>
                             {blog.isUserBlog && (
@@ -571,7 +570,7 @@ export default function Blogs() {
               {/* Close Button */}
               <button
                 onClick={() => setIsWriteModalOpen(false)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -611,7 +610,7 @@ export default function Blogs() {
                     <select
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value)}
-                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-800 dark:text-stone-250 font-semibold transition-all cursor-pointer"
+                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold transition-all cursor-pointer"
                     >
                       {CATEGORIES.map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
@@ -627,7 +626,7 @@ export default function Blogs() {
                     <select
                       value={newStatus}
                       onChange={(e) => setNewStatus(e.target.value as 'public' | 'private')}
-                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold transition-all cursor-pointer"
+                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold transition-all cursor-pointer"
                     >
                       <option value="public">🌍 Public (Visible to everyone)</option>
                       <option value="private">🔒 Private (Only visible in 'My Blogs')</option>
@@ -654,7 +653,7 @@ export default function Blogs() {
                     <button
                       type="button"
                       onClick={() => setIsWriteModalOpen(false)}
-                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -695,7 +694,7 @@ export default function Blogs() {
               {/* Close Button */}
               <button
                 onClick={() => setEditingBlog(null)}
-                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-750 transition-all cursor-pointer active:scale-95"
+                className="absolute right-5 top-5 p-2 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-800 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200 hover:dark:bg-stone-700 transition-all cursor-pointer active:scale-95"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -735,7 +734,7 @@ export default function Blogs() {
                     <select
                       value={editCategory}
                       onChange={(e) => setEditCategory(e.target.value)}
-                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-800 dark:text-stone-250 font-semibold transition-all cursor-pointer"
+                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold transition-all cursor-pointer"
                     >
                       {CATEGORIES.map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
@@ -751,7 +750,7 @@ export default function Blogs() {
                     <select
                       value={editStatus}
                       onChange={(e) => setEditStatus(e.target.value as 'public' | 'private')}
-                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-850 dark:text-stone-200 font-semibold transition-all cursor-pointer"
+                      className="w-full px-4 py-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-2xl text-sm focus:outline-none focus:border-[#ff6b2b] text-stone-900 dark:text-stone-200 font-semibold transition-all cursor-pointer"
                     >
                       <option value="public">🌍 Public (Visible to everyone)</option>
                       <option value="private">🔒 Private (Only visible in 'My Blogs')</option>
@@ -778,7 +777,7 @@ export default function Blogs() {
                     <button
                       type="button"
                       onClick={() => setEditingBlog(null)}
-                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
+                      className="px-5 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-black rounded-xl transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
