@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import mascotImage from '../assets/images/leetmaster_mascot_1783434307641.jpg';
 import { 
   Trophy, Brain, FileText, GraduationCap, ArrowRight, Sparkles, 
   Flame, Award, Star, ShieldCheck, Users, Code, Monitor, BookOpen
@@ -137,7 +138,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                 className="absolute inset-8 rounded-full bg-white dark:bg-stone-900 border-[3px] border-stone-900 dark:border-stone-800 shadow-[12px_12px_0px_0px_#ff6b2b] dark:shadow-[12px_12px_0px_0px_rgba(255,107,43,0.25)] overflow-hidden flex items-center justify-center z-10 hover:rotate-1 hover:scale-[1.01] transition-all duration-300"
               >
                 <img
-                  src="/src/assets/images/leetmaster_mascot_1783434307641.jpg"
+                  src={mascotImage}
                   alt="LeetMaster Scholar Mascot"
                   className="w-full h-full object-cover"
                   onError={(e) => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import mascotImage from '../assets/images/leetmaster_mascot_1783434307641.jpg';
 import { 
   Play, CheckCircle2, ChevronRight, Award, Flame, 
   RefreshCw, Layers, ArrowLeft, Sun, Moon, Sparkles, Code2, 
@@ -1992,7 +1993,7 @@ export default function DsaSheets() {
                     <div className="flex items-center gap-3.5">
                       <div className="relative">
                         <img 
-                          src="/src/assets/images/leetmaster_mascot_1783434307641.jpg" 
+                          src={mascotImage} 
                           alt="LeetMaster mascot"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
