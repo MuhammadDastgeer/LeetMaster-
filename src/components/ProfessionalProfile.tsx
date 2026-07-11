@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   User, Briefcase, Award, GraduationCap, Code, FolderGit, 
   Globe, Github, Linkedin, Twitter, Youtube, Instagram, BookOpen, FileText,
-  MapPin, Trash2, Plus, Save, Sparkles, AlertCircle, CheckCircle2, ChevronRight, X, Camera
+  MapPin, Trash2, Plus, Save, Sparkles, AlertCircle, CheckCircle2, ChevronRight, X, Camera,
+  Trophy, Lock, Unlock, Flame, Target
 } from 'lucide-react';
 
 interface ExperienceItem {
@@ -96,6 +97,7 @@ export default function ProfessionalProfile() {
   const [certifications, setCertifications] = useState<CertificationItem[]>([]);
   const [education, setEducation] = useState<EducationItem[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [achievementsSubTab, setAchievementsSubTab] = useState<'Unlocked' | 'Locked'>('Unlocked');
 
   // Fetch Profile on mount
   useEffect(() => {
@@ -1286,6 +1288,7 @@ export default function ProfessionalProfile() {
 
           </div>
         )}
+
 
         {/* Global Save and Next Actions */}
         <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 sm:p-8 flex items-center justify-between gap-4">

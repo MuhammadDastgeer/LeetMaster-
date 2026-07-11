@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   GraduationCap, BookOpen, PlayCircle, CheckCircle, Clock, Star, 
@@ -193,7 +193,27 @@ const INITIAL_COURSES: Course[] = [
 ];
 
 export default function Courses() {
-  const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
+  const [courses, setCourses] = useState<Course[]>(() => {
+    const saved = localStorage.getItem('leetmaster_courses_state');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error loading initial courses state:', e);
+      }
+    }
+    return INITIAL_COURSES;
+  });
+
+  useEffect(() => {
+    if (courses && courses.length > 0) {
+      localStorage.setItem('leetmaster_courses_state', JSON.stringify(courses));
+    }
+  }, [courses]);
+
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);

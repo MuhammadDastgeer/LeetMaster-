@@ -183,7 +183,7 @@ export default function App() {
     '/dsa-sheets', '/dsasheets',
     '/profile', '/professional-profile',
     '/report-card', '/reportcard',
-    '/quiz-tab', '/courses'
+    '/quiz-tab', '/courses', '/achievements'
   ].includes(currentPath);
 
   if (isDashboardPath) {

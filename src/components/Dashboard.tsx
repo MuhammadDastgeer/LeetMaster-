@@ -20,6 +20,7 @@ import EventsDashboard from './EventsDashboard';
 import ProjectsDashboard from './ProjectsDashboard';
 import ReportCard from './ReportCard';
 import Courses from './Courses';
+import Achievements from './Achievements';
 
 interface DashboardProps {
   darkMode: boolean;
@@ -53,7 +54,8 @@ const pathToTab: Record<string, string> = {
   '/report-card': 'Report Card',
   '/reportcard': 'Report Card',
   '/quiz-tab': 'Quiz',
-  '/courses': 'Courses'
+  '/courses': 'Courses',
+  '/achievements': 'Achievements'
 };
 
 const tabToPath: Record<string, string> = {
@@ -69,7 +71,8 @@ const tabToPath: Record<string, string> = {
   'Professional Profile': '/professional-profile',
   'Report Card': '/report-card',
   'Quiz': '/quiz-tab',
-  'Courses': '/courses'
+  'Courses': '/courses',
+  'Achievements': '/achievements'
 };
 
 export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBackToHome, currentPath }: DashboardProps) {
@@ -164,6 +167,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
     { name: 'Courses', icon: GraduationCap },
     { name: 'Quiz', icon: Brain },
     { name: 'Professional Profile', icon: User },
+    { name: 'Achievements', icon: Trophy },
     { name: 'Report Card', icon: ClipboardList }
   ];
 
@@ -1038,8 +1042,21 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
             </motion.div>
           )}
 
+          {/* Achievements Section */}
+          {activeTab === 'Achievements' && (
+            <motion.div
+              key="achievements-tab-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full"
+            >
+              <Achievements />
+            </motion.div>
+          )}
+
           {/* Placeholders/Sub-integrations for other Sidebar tabs */}
-          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && activeTab !== 'Events' && activeTab !== 'Projects' && activeTab !== 'Report Card' && activeTab !== 'Courses' && (
+          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && activeTab !== 'Events' && activeTab !== 'Projects' && activeTab !== 'Report Card' && activeTab !== 'Courses' && activeTab !== 'Achievements' && (
             <motion.div
               key="fallback-tabs"
               initial={{ opacity: 0 }}
