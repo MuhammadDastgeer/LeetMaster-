@@ -6,6 +6,7 @@ import {
   Globe, CheckCircle2, Brain, BookOpen, Zap, Star, ShieldAlert,
   PlayCircle, Share2, Copy, Check, Twitter, X
 } from 'lucide-react';
+import { getPresetQuizzes } from '../data/quizDatabase';
 
 interface Submission {
   id: string;
@@ -132,6 +133,19 @@ export default function Achievements() {
             const parsed = JSON.parse(quizScoresRaw);
             if (Array.isArray(parsed)) {
               setCompletedQuizzes(parsed);
+            } else if (parsed && typeof parsed === 'object') {
+              // Convert Record<string, number> (Quiz.tsx format) to Array of { id, score: "X/total" }
+              const presetQuizzes = getPresetQuizzes();
+              const converted = Object.entries(parsed).map(([id, correctCount]) => {
+                const q = presetQuizzes.find((pq: any) => pq.id === id);
+                const totalQuestions = q ? q.questions.length : 15;
+                const scoreStr = `${correctCount}/${totalQuestions}`;
+                return {
+                  id,
+                  score: scoreStr
+                };
+              });
+              setCompletedQuizzes(converted);
             }
           } catch (e) {
             console.error('Error parsing quiz scores', e);

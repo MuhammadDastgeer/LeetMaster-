@@ -10,6 +10,7 @@ import MobileContests from './components/MobileContests';
 import HackathonsAI from './components/HackathonsAI';
 import Dashboard from './components/Dashboard';
 import CuratedSheetsLanding from './components/CuratedSheetsLanding';
+import { getPresetQuizzes } from './data/quizDatabase';
 import { 
   Coffee, Flame, Heart, Github, Linkedin, ArrowUp, BookOpen, 
   Check, CheckCircle2, AlertCircle, Award, Sparkles, 
@@ -28,6 +29,145 @@ export default function App() {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
+
+  // 100 achievements progress counts state
+  const [solvedCount, setSolvedCount] = useState(0);
+  const [quizCount, setQuizCount] = useState(0);
+  const [highScoreQuizCount, setHighScoreQuizCount] = useState(0);
+  const [enrolledCount, setEnrolledCount] = useState(0);
+  const [completedLessonsCount, setCompletedLessonsCount] = useState(0);
+  const [userBlogsCount, setUserBlogsCount] = useState(0);
+  const [userHackathonsCount, setUserHackathonsCount] = useState(0);
+
+  // Function to initialize/sync counts from APIs and localStorage
+  const initializeCounts = async () => {
+    try {
+      // 1. Fetch DSA submissions
+      try {
+        const dsaRes = await fetch('/api/dsa/submissions');
+        if (dsaRes.ok) {
+          const dsaData = await dsaRes.json();
+          if (dsaData && dsaData.success && Array.isArray(dsaData.submissions)) {
+            const uniqueSolved = new Set(
+              dsaData.submissions
+                .filter((s: any) => s && s.status === 'Accepted' && s.problemId)
+                .map((s: any) => s.problemId)
+            );
+            setSolvedCount(uniqueSolved.size);
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching DSA submissions for counts:', e);
+      }
+
+      // 2. Fetch Blogs
+      try {
+        const blogsRes = await fetch('/api/blogs');
+        if (blogsRes.ok) {
+          const blogsData = await blogsRes.json();
+          if (blogsData && blogsData.success && Array.isArray(blogsData.blogs)) {
+            const myBlogs = blogsData.blogs.filter((b: any) => b && b.isUserBlog).length;
+            setUserBlogsCount(myBlogs);
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching blogs for counts:', e);
+      }
+
+      // 3. Fetch Hackathons
+      try {
+        const hackathonsRes = await fetch('/api/hackathons');
+        if (hackathonsRes.ok) {
+          const hackathonsData = await hackathonsRes.json();
+          if (hackathonsData && hackathonsData.success && Array.isArray(hackathonsData.hackathons)) {
+            const myHacks = hackathonsData.hackathons.filter((h: any) => h && h.isUserHackathon).length;
+            setUserHackathonsCount(myHacks);
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching hackathons for counts:', e);
+      }
+
+      // 4. Load Quizzes from localStorage
+      const quizScoresRaw = localStorage.getItem('leetmaster_quiz_completed_scores');
+      if (quizScoresRaw) {
+        try {
+          const parsed = JSON.parse(quizScoresRaw);
+          if (Array.isArray(parsed)) {
+            setQuizCount(parsed.length);
+            const highCount = parsed.filter((q: any) => {
+              if (!q) return false;
+              if (typeof q.score === 'number') return q.score >= 80;
+              if (typeof q.score === 'string') {
+                const parts = q.score.split('/');
+                if (parts.length === 2) {
+                  const scoreVal = parseFloat(parts[0]);
+                  const totalVal = parseFloat(parts[1]);
+                  if (totalVal > 0) return (scoreVal / totalVal) >= 0.8;
+                }
+                const num = parseFloat(q.score);
+                if (!isNaN(num)) return num >= 80;
+              }
+              return false;
+            }).length;
+            setHighScoreQuizCount(highCount);
+          } else if (parsed && typeof parsed === 'object') {
+            const keys = Object.keys(parsed);
+            setQuizCount(keys.length);
+            const presetQuizzes = getPresetQuizzes();
+            const highCount = Object.entries(parsed).filter(([id, score]) => {
+              const num = parseFloat(score as any);
+              const q = presetQuizzes.find((pq: any) => pq.id === id);
+              const totalQuestions = q ? q.questions.length : 15;
+              if (!isNaN(num)) {
+                // If the score is a direct correctCount (which is small), check if ratio is >= 80%
+                if (num <= totalQuestions) {
+                  return (num / totalQuestions) >= 0.8;
+                }
+                return num >= 80;
+              }
+              return false;
+            }).length;
+            setHighScoreQuizCount(highCount);
+          }
+        } catch (e) {
+          console.error('Error parsing quiz scores for counts:', e);
+        }
+      }
+
+      // 5. Load Courses from localStorage
+      const coursesRaw = localStorage.getItem('leetmaster_courses_state');
+      if (coursesRaw) {
+        try {
+          const parsed = JSON.parse(coursesRaw);
+          if (Array.isArray(parsed)) {
+            const enrolled = parsed.filter((c: any) => c && c.enrolled).length;
+            setEnrolledCount(enrolled);
+            let lessonCount = 0;
+            parsed.forEach((c: any) => {
+              if (c && Array.isArray(c.modules)) {
+                c.modules.forEach((m: any) => {
+                  if (m && Array.isArray(m.lessons)) {
+                    lessonCount += m.lessons.filter((l: any) => l && l.completed).length;
+                  }
+                });
+              }
+            });
+            setCompletedLessonsCount(lessonCount);
+          }
+        } catch (e) {
+          console.error('Error parsing courses state for counts:', e);
+        }
+      }
+    } catch (err) {
+      console.error('Error initializing counts:', err);
+    }
+  };
+
+  // Sync state on path or tab change and on mount
+  useEffect(() => {
+    initializeCounts();
+  }, [currentPath]);
 
   useEffect(() => {
     // Scroll behavior
@@ -163,11 +303,109 @@ export default function App() {
     });
     setQuizScore(score);
     setQuizSubmitted(true);
+
+    // Save this completion to localStorage!
+    try {
+      const saved = localStorage.getItem('leetmaster_quiz_completed_scores');
+      let scoresObj: Record<string, number> = {};
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            scoresObj = parsed;
+          }
+        } catch (e) {}
+      }
+      scoresObj['weekly_challenge_scholar'] = score;
+      localStorage.setItem('leetmaster_quiz_completed_scores', JSON.stringify(scoresObj));
+      
+      // Sync Achievements XP
+      const savedXp = localStorage.getItem('leetmaster_user_xp');
+      const currentXp = savedXp ? parseInt(savedXp, 10) : 450;
+      localStorage.setItem('leetmaster_user_xp', (currentXp + score * 10).toString());
+    } catch (e) {
+      console.error('Error saving weekly quiz score to localStorage:', e);
+    }
+
+    // Force refresh the counts
+    initializeCounts();
   };
 
   const handleEnroll = (courseId: string) => {
     if (enrolledCourses.includes(courseId)) return;
     setEnrolledCourses(prev => [...prev, courseId]);
+
+    // Sync with leetmaster_courses_state
+    try {
+      const saved = localStorage.getItem('leetmaster_courses_state');
+      let coursesList: any[] = [];
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            coursesList = parsed;
+          }
+        } catch (e) {}
+      }
+
+      const idMap: Record<string, string> = {
+        'dsa-pro': 'dsa-cpp',
+        'fullstack-eng': 'web-react-next',
+        'sys-design': 'sys-design-hld'
+      };
+
+      const targetId = idMap[courseId] || courseId;
+
+      if (coursesList.length === 0) {
+        const defaultCourseIds = ['dsa-cpp', 'sys-design-hld', 'web-react-next', 'faang-interview-bootcamp'];
+        coursesList = defaultCourseIds.map(id => ({
+          id,
+          enrolled: id === targetId,
+          progress: id === targetId ? 10 : 0, // start with some progress
+          modules: []
+        }));
+      } else {
+        coursesList = coursesList.map(c => {
+          if (c.id === targetId) {
+            return { ...c, enrolled: true, progress: Math.max(c.progress || 0, 10) };
+          }
+          return c;
+        });
+      }
+      localStorage.setItem('leetmaster_courses_state', JSON.stringify(coursesList));
+    } catch (e) {
+      console.error('Error saving course enrollment to localStorage:', e);
+    }
+
+    // Force refresh the counts
+    initializeCounts();
+  };
+
+  const handleHackathonGradingComplete = async (name: string, track: string, repo: string) => {
+    try {
+      const res = await fetch('/api/hackathons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `${name} Hackathon Build`,
+          description: `AI Graded Project: ${name} in the ${track} track. Repository: ${repo}`,
+          tags: `${track}, AI Graded`,
+          prizes: "$5,000 Scholar Credits",
+          deadline: "Completed",
+          status: "public",
+          author: 'Dastgeer',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        console.log('Successfully recorded AI graded hackathon completion!');
+      }
+    } catch (e) {
+      console.error('Error logging hackathon completion:', e);
+    }
+    // Refresh our counts
+    initializeCounts();
   };
 
   const isDashboardPath = [
@@ -232,7 +470,7 @@ export default function App() {
 
           {/* Hackathon AI Grading Section */}
           <div id="hackathons">
-            <HackathonsAI />
+            <HackathonsAI onGradingComplete={handleHackathonGradingComplete} />
           </div>
         </div>
 

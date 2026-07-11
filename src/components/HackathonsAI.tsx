@@ -3,7 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Cpu, Github, ExternalLink, RefreshCw, BarChart2, CheckCircle2, AlertTriangle, Lightbulb, Sparkles } from 'lucide-react';
 import { HackathonProject } from '../types';
 
-export default function HackathonsAI() {
+interface HackathonsAIProps {
+  onGradingComplete?: (name: string, track: string, repo: string) => void;
+}
+
+export default function HackathonsAI({ onGradingComplete }: HackathonsAIProps) {
   const [project, setProject] = useState<HackathonProject>({
     name: '',
     repo: '',
@@ -35,6 +39,9 @@ export default function HackathonsAI() {
     setTimeout(() => {
       setIsGrading(false);
       setShowReport(true);
+      if (onGradingComplete) {
+        onGradingComplete(project.name || 'Unnamed Hack Project', project.track, project.repo || 'github.com/dastgeer/hack-project');
+      }
     }, 3000);
   };
 
