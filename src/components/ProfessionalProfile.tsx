@@ -3,7 +3,7 @@ import {
   User, Briefcase, Award, GraduationCap, Code, FolderGit, 
   Globe, Github, Linkedin, Twitter, Youtube, Instagram, BookOpen, FileText,
   MapPin, Trash2, Plus, Save, Sparkles, AlertCircle, CheckCircle2, ChevronRight, X, Camera,
-  Trophy, Lock, Unlock, Flame, Target
+  Trophy, Lock, Unlock, Flame, Target, Pencil
 } from 'lucide-react';
 
 interface ExperienceItem {
@@ -99,6 +99,11 @@ export default function ProfessionalProfile() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [achievementsSubTab, setAchievementsSubTab] = useState<'Unlocked' | 'Locked'>('Unlocked');
 
+  const [editingExpId, setEditingExpId] = useState<string | null>(null);
+  const [editingCertId, setEditingCertId] = useState<string | null>(null);
+  const [editingEduId, setEditingEduId] = useState<string | null>(null);
+  const [editingProjId, setEditingProjId] = useState<string | null>(null);
+
   // Fetch Profile on mount
   useEffect(() => {
     fetchProfile();
@@ -158,62 +163,131 @@ export default function ProfessionalProfile() {
     }
   };
 
-  const handleSave = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const saveProfileData = async (updatedFields: {
+    experienceList?: ExperienceItem[];
+    certificationsList?: CertificationItem[];
+    educationList?: EducationItem[];
+    projectsList?: ProjectItem[];
+    professionalData?: ProfessionalData;
+    fullNameStr?: string;
+    usernameStr?: string;
+    bioStr?: string;
+    companyStr?: string;
+    jobTitleStr?: string;
+    locationStr?: string;
+    institutionStr?: string;
+    websiteStr?: string;
+    githubStr?: string;
+    linkedinStr?: string;
+    twitterStr?: string;
+    youtubeStr?: string;
+    instagramStr?: string;
+    leetcodeStr?: string;
+    mediumStr?: string;
+    hashnodeStr?: string;
+    peerlistStr?: string;
+    addressLineStr?: string;
+    cityStr?: string;
+    stateStr?: string;
+    pinCodeStr?: string;
+    phoneStr?: string;
+    tshirtSizeStr?: string;
+    avatarStr?: string;
+  } = {}) => {
     try {
       setSaving(true);
       setSuccessMsg(null);
       setErrorMsg(null);
 
+      const bodyData = {
+        fullName: updatedFields.fullNameStr !== undefined ? updatedFields.fullNameStr : fullName,
+        username: updatedFields.usernameStr !== undefined ? updatedFields.usernameStr : username,
+        bio: updatedFields.bioStr !== undefined ? updatedFields.bioStr : bio,
+        company: updatedFields.companyStr !== undefined ? updatedFields.companyStr : company,
+        jobTitle: updatedFields.jobTitleStr !== undefined ? updatedFields.jobTitleStr : jobTitle,
+        location: updatedFields.locationStr !== undefined ? updatedFields.locationStr : location,
+        institution: updatedFields.institutionStr !== undefined ? updatedFields.institutionStr : institution,
+        website: updatedFields.websiteStr !== undefined ? updatedFields.websiteStr : website,
+        github: updatedFields.githubStr !== undefined ? updatedFields.githubStr : github,
+        linkedin: updatedFields.linkedinStr !== undefined ? updatedFields.linkedinStr : linkedin,
+        twitter: updatedFields.twitterStr !== undefined ? updatedFields.twitterStr : twitter,
+        youtube: updatedFields.youtubeStr !== undefined ? updatedFields.youtubeStr : youtube,
+        instagram: updatedFields.instagramStr !== undefined ? updatedFields.instagramStr : instagram,
+        leetcode: updatedFields.leetcodeStr !== undefined ? updatedFields.leetcodeStr : leetcode,
+        medium: updatedFields.mediumStr !== undefined ? updatedFields.mediumStr : medium,
+        hashnode: updatedFields.hashnodeStr !== undefined ? updatedFields.hashnodeStr : hashnode,
+        peerlist: updatedFields.peerlistStr !== undefined ? updatedFields.peerlistStr : peerlist,
+        addressLine: updatedFields.addressLineStr !== undefined ? updatedFields.addressLineStr : addressLine,
+        city: updatedFields.cityStr !== undefined ? updatedFields.cityStr : city,
+        state: updatedFields.stateStr !== undefined ? updatedFields.stateStr : state,
+        pinCode: updatedFields.pinCodeStr !== undefined ? updatedFields.pinCodeStr : pinCode,
+        phone: updatedFields.phoneStr !== undefined ? updatedFields.phoneStr : phone,
+        tshirtSize: updatedFields.tshirtSizeStr !== undefined ? updatedFields.tshirtSizeStr : tshirtSize,
+        avatar: updatedFields.avatarStr !== undefined ? updatedFields.avatarStr : avatar,
+        professional: updatedFields.professionalData !== undefined ? updatedFields.professionalData : professional,
+        experience: updatedFields.experienceList !== undefined ? updatedFields.experienceList : experience,
+        certifications: updatedFields.certificationsList !== undefined ? updatedFields.certificationsList : certifications,
+        education: updatedFields.educationList !== undefined ? updatedFields.educationList : education,
+        projects: updatedFields.projectsList !== undefined ? updatedFields.projectsList : projects
+      };
+
       const response = await fetch('/api/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName, username, bio, company, jobTitle, location, institution,
-          website, github, linkedin, twitter, youtube, instagram, leetcode, medium, hashnode, peerlist,
-          addressLine, city, state, pinCode, phone, tshirtSize, avatar,
-          professional, experience, certifications, education, projects
-        })
+        body: JSON.stringify(bodyData)
       });
 
       const resData = await response.json();
       if (resData.success) {
-        setSuccessMsg("Professional Profile saved successfully to database!");
-        setTimeout(() => setSuccessMsg(null), 4000);
+        setSuccessMsg("Professional Profile updated successfully!");
+        setTimeout(() => setSuccessMsg(null), 3000);
       } else {
         setErrorMsg("Error: " + (resData.error || "Could not save profile."));
       }
     } catch (err: any) {
       console.error("Error saving profile:", err);
-      setErrorMsg("Failed to reach server. Please try again.");
+      setErrorMsg("Failed to reach server to save. Please try again.");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    await saveProfileData();
   };
 
   // Avatar changer helper
   const handleRandomizeAvatar = () => {
     const ids = [1507003211169, 1539571696357, 1500648767791, 1519345182560, 1620712943543, 1506794778202];
     const randId = ids[Math.floor(Math.random() * ids.length)];
-    setAvatar(`https://images.unsplash.com/photo-${randId}?q=80&w=128&auto=format&fit=crop`);
+    const newAv = `https://images.unsplash.com/photo-${randId}?q=80&w=128&auto=format&fit=crop`;
+    setAvatar(newAv);
+    saveProfileData({ avatarStr: newAv });
   };
 
   // Helper lists CRUD
   const handleAddSkill = () => {
     if (newSkill.trim() && !professional.skills.includes(newSkill.trim())) {
-      setProfessional(prev => ({
-        ...prev,
-        skills: [...prev.skills, newSkill.trim()]
-      }));
+      const updatedSkills = [...professional.skills, newSkill.trim()];
+      const updatedProfessional = {
+        ...professional,
+        skills: updatedSkills
+      };
+      setProfessional(updatedProfessional);
       setNewSkill('');
+      saveProfileData({ professionalData: updatedProfessional });
     }
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    setProfessional(prev => ({
-      ...prev,
-      skills: prev.skills.filter(s => s !== skillToRemove)
-    }));
+    const updatedSkills = professional.skills.filter(s => s !== skillToRemove);
+    const updatedProfessional = {
+      ...professional,
+      skills: updatedSkills
+    };
+    setProfessional(updatedProfessional);
+    saveProfileData({ professionalData: updatedProfessional });
   };
 
   // Experience List CRUD
@@ -222,24 +296,55 @@ export default function ProfessionalProfile() {
   const [expDuration, setExpDuration] = useState('');
   const [expDesc, setExpDesc] = useState('');
 
+  const handleEditExperience = (item: ExperienceItem) => {
+    setEditingExpId(item.id);
+    setExpTitle(item.title);
+    setExpCompany(item.company);
+    setExpDuration(item.duration);
+    setExpDesc(item.description || '');
+  };
+
   const handleAddExperience = () => {
     if (!expTitle || !expCompany) return;
-    const item: ExperienceItem = {
-      id: `exp-${Date.now()}`,
-      title: expTitle,
-      company: expCompany,
-      duration: expDuration || 'Present',
-      description: expDesc
-    };
-    setExperience(prev => [...prev, item]);
+    let updatedList: ExperienceItem[];
+
+    if (editingExpId) {
+      updatedList = experience.map(item =>
+        item.id === editingExpId
+          ? { ...item, title: expTitle, company: expCompany, duration: expDuration || 'Present', description: expDesc }
+          : item
+      );
+      setEditingExpId(null);
+    } else {
+      const item: ExperienceItem = {
+        id: `exp-${Date.now()}`,
+        title: expTitle,
+        company: expCompany,
+        duration: expDuration || 'Present',
+        description: expDesc
+      };
+      updatedList = [...experience, item];
+    }
+
+    setExperience(updatedList);
     setExpTitle('');
     setExpCompany('');
     setExpDuration('');
     setExpDesc('');
+    saveProfileData({ experienceList: updatedList });
   };
 
   const handleRemoveExperience = (id: string) => {
-    setExperience(prev => prev.filter(item => item.id !== id));
+    const updatedList = experience.filter(item => item.id !== id);
+    setExperience(updatedList);
+    if (editingExpId === id) {
+      setEditingExpId(null);
+      setExpTitle('');
+      setExpCompany('');
+      setExpDuration('');
+      setExpDesc('');
+    }
+    saveProfileData({ experienceList: updatedList });
   };
 
   // Certifications List CRUD
@@ -248,24 +353,55 @@ export default function ProfessionalProfile() {
   const [certDate, setCertDate] = useState('');
   const [certId, setCertId] = useState('');
 
+  const handleEditCertification = (item: CertificationItem) => {
+    setEditingCertId(item.id);
+    setCertName(item.name);
+    setCertOrg(item.organization);
+    setCertDate(item.date || '');
+    setCertId(item.credentialId || '');
+  };
+
   const handleAddCertification = () => {
     if (!certName || !certOrg) return;
-    const item: CertificationItem = {
-      id: `cert-${Date.now()}`,
-      name: certName,
-      organization: certOrg,
-      date: certDate,
-      credentialId: certId
-    };
-    setCertifications(prev => [...prev, item]);
+    let updatedList: CertificationItem[];
+
+    if (editingCertId) {
+      updatedList = certifications.map(item =>
+        item.id === editingCertId
+          ? { ...item, name: certName, organization: certOrg, date: certDate, credentialId: certId }
+          : item
+      );
+      setEditingCertId(null);
+    } else {
+      const item: CertificationItem = {
+        id: `cert-${Date.now()}`,
+        name: certName,
+        organization: certOrg,
+        date: certDate,
+        credentialId: certId
+      };
+      updatedList = [...certifications, item];
+    }
+
+    setCertifications(updatedList);
     setCertName('');
     setCertOrg('');
     setCertDate('');
     setCertId('');
+    saveProfileData({ certificationsList: updatedList });
   };
 
   const handleRemoveCertification = (id: string) => {
-    setCertifications(prev => prev.filter(item => item.id !== id));
+    const updatedList = certifications.filter(item => item.id !== id);
+    setCertifications(updatedList);
+    if (editingCertId === id) {
+      setEditingCertId(null);
+      setCertName('');
+      setCertOrg('');
+      setCertDate('');
+      setCertId('');
+    }
+    saveProfileData({ certificationsList: updatedList });
   };
 
   // Education List CRUD
@@ -274,24 +410,55 @@ export default function ProfessionalProfile() {
   const [eduYear, setEduYear] = useState('');
   const [eduGpa, setEduGpa] = useState('');
 
+  const handleEditEducation = (item: EducationItem) => {
+    setEditingEduId(item.id);
+    setEduDegree(item.degree);
+    setEduInst(item.institution);
+    setEduYear(item.year || '');
+    setEduGpa(item.gpa || '');
+  };
+
   const handleAddEducation = () => {
     if (!eduDegree || !eduInst) return;
-    const item: EducationItem = {
-      id: `edu-${Date.now()}`,
-      degree: eduDegree,
-      institution: eduInst,
-      year: eduYear,
-      gpa: eduGpa
-    };
-    setEducation(prev => [...prev, item]);
+    let updatedList: EducationItem[];
+
+    if (editingEduId) {
+      updatedList = education.map(item =>
+        item.id === editingEduId
+          ? { ...item, degree: eduDegree, institution: eduInst, year: eduYear, gpa: eduGpa }
+          : item
+      );
+      setEditingEduId(null);
+    } else {
+      const item: EducationItem = {
+        id: `edu-${Date.now()}`,
+        degree: eduDegree,
+        institution: eduInst,
+        year: eduYear,
+        gpa: eduGpa
+      };
+      updatedList = [...education, item];
+    }
+
+    setEducation(updatedList);
     setEduDegree('');
     setEduInst('');
     setEduYear('');
     setEduGpa('');
+    saveProfileData({ educationList: updatedList });
   };
 
   const handleRemoveEducation = (id: string) => {
-    setEducation(prev => prev.filter(item => item.id !== id));
+    const updatedList = education.filter(item => item.id !== id);
+    setEducation(updatedList);
+    if (editingEduId === id) {
+      setEditingEduId(null);
+      setEduDegree('');
+      setEduInst('');
+      setEduYear('');
+      setEduGpa('');
+    }
+    saveProfileData({ educationList: updatedList });
   };
 
   // Projects List CRUD
@@ -300,24 +467,55 @@ export default function ProfessionalProfile() {
   const [projLink, setProjLink] = useState('');
   const [projDesc, setProjDesc] = useState('');
 
+  const handleEditProject = (item: ProjectItem) => {
+    setEditingProjId(item.id);
+    setProjTitle(item.title);
+    setProjStack(item.techStack || '');
+    setProjLink(item.link || '');
+    setProjDesc(item.description || '');
+  };
+
   const handleAddProject = () => {
     if (!projTitle) return;
-    const item: ProjectItem = {
-      id: `proj-${Date.now()}`,
-      title: projTitle,
-      techStack: projStack,
-      link: projLink,
-      description: projDesc
-    };
-    setProjects(prev => [...prev, item]);
+    let updatedList: ProjectItem[];
+
+    if (editingProjId) {
+      updatedList = projects.map(item =>
+        item.id === editingProjId
+          ? { ...item, title: projTitle, techStack: projStack, link: projLink, description: projDesc }
+          : item
+      );
+      setEditingProjId(null);
+    } else {
+      const item: ProjectItem = {
+        id: `proj-${Date.now()}`,
+        title: projTitle,
+        techStack: projStack,
+        link: projLink,
+        description: projDesc
+      };
+      updatedList = [...projects, item];
+    }
+
+    setProjects(updatedList);
     setProjTitle('');
     setProjStack('');
     setProjLink('');
     setProjDesc('');
+    saveProfileData({ projectsList: updatedList });
   };
 
   const handleRemoveProject = (id: string) => {
-    setProjects(prev => prev.filter(item => item.id !== id));
+    const updatedList = projects.filter(item => item.id !== id);
+    setProjects(updatedList);
+    if (editingProjId === id) {
+      setEditingProjId(null);
+      setProjTitle('');
+      setProjStack('');
+      setProjLink('');
+      setProjDesc('');
+    }
+    saveProfileData({ projectsList: updatedList });
   };
 
   if (loading) {
@@ -687,12 +885,6 @@ export default function ProfessionalProfile() {
                 <h3 className="text-base font-black text-stone-800 dark:text-white tracking-tight">
                   Shipping Details
                 </h3>
-
-                {/* We only ship in India notice - Yellow alert box */}
-                <div className="bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500 text-amber-900 dark:text-amber-400 p-4 rounded-r-2xl flex items-center gap-3 text-xs font-semibold">
-                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>We only ship in India for now.</span>
-                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -926,13 +1118,24 @@ export default function ProfessionalProfile() {
                       <p className="text-xs text-[#ff6b2b] font-bold font-mono">{item.duration}</p>
                       <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-medium">{item.description}</p>
                     </div>
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveExperience(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => handleEditExperience(item)}
+                        className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-orange-50 hover:text-[#ff6b2b] rounded-xl transition-all text-stone-400"
+                        title="Edit Entry"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveExperience(item.id)}
+                        className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                        title="Delete Entry"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -940,7 +1143,9 @@ export default function ProfessionalProfile() {
 
             {/* Experience addition Form */}
             <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 sm:p-8 space-y-6">
-              <h3 className="text-base font-black text-stone-900 dark:text-white">Add Professional Experience</h3>
+              <h3 className="text-base font-black text-stone-900 dark:text-white">
+                {editingExpId ? 'Edit Professional Experience' : 'Add Professional Experience'}
+              </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
@@ -990,14 +1195,32 @@ export default function ProfessionalProfile() {
 
               </div>
 
-              <button 
-                type="button" 
-                onClick={handleAddExperience}
-                className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Experience Entry</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  type="button" 
+                  onClick={handleAddExperience}
+                  className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                >
+                  {editingExpId ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  <span>{editingExpId ? 'Update Experience Entry' : 'Add Experience Entry'}</span>
+                </button>
+                {editingExpId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingExpId(null);
+                      setExpTitle('');
+                      setExpCompany('');
+                      setExpDuration('');
+                      setExpDesc('');
+                    }}
+                    className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancel Edit</span>
+                  </button>
+                )}
+              </div>
             </div>
 
           </div>
@@ -1023,20 +1246,33 @@ export default function ProfessionalProfile() {
                         <p className="text-xs text-stone-500 font-mono font-bold">Credential ID: {item.credentialId}</p>
                       )}
                     </div>
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveCertification(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => handleEditCertification(item)}
+                        className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-orange-50 hover:text-[#ff6b2b] rounded-xl transition-all text-stone-400"
+                        title="Edit Entry"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveCertification(item.id)}
+                        className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                        title="Delete Entry"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
 
             <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 sm:p-8 space-y-6">
-              <h3 className="text-base font-black text-stone-900 dark:text-white">Add Professional Certifications</h3>
+              <h3 className="text-base font-black text-stone-900 dark:text-white">
+                {editingCertId ? 'Edit Professional Certification' : 'Add Professional Certifications'}
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
@@ -1086,14 +1322,32 @@ export default function ProfessionalProfile() {
 
               </div>
 
-              <button 
-                type="button" 
-                onClick={handleAddCertification}
-                className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Certification</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  type="button" 
+                  onClick={handleAddCertification}
+                  className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                >
+                  {editingCertId ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  <span>{editingCertId ? 'Update Certification' : 'Add Certification'}</span>
+                </button>
+                {editingCertId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingCertId(null);
+                      setCertName('');
+                      setCertOrg('');
+                      setCertDate('');
+                      setCertId('');
+                    }}
+                    className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancel Edit</span>
+                  </button>
+                )}
+              </div>
             </div>
 
           </div>
@@ -1117,20 +1371,33 @@ export default function ProfessionalProfile() {
                         <p className="text-xs text-stone-500 font-mono font-bold">GPA / Percentage: {item.gpa}</p>
                       )}
                     </div>
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveEducation(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => handleEditEducation(item)}
+                        className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-orange-50 hover:text-[#ff6b2b] rounded-xl transition-all text-stone-400"
+                        title="Edit Entry"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveEducation(item.id)}
+                        className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                        title="Delete Entry"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
 
             <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 sm:p-8 space-y-6">
-              <h3 className="text-base font-black text-stone-900 dark:text-white">Add Education History</h3>
+              <h3 className="text-base font-black text-stone-900 dark:text-white">
+                {editingEduId ? 'Edit Education History' : 'Add Education History'}
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
@@ -1180,14 +1447,32 @@ export default function ProfessionalProfile() {
 
               </div>
 
-              <button 
-                type="button" 
-                onClick={handleAddEducation}
-                className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Education Entry</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  type="button" 
+                  onClick={handleAddEducation}
+                  className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                >
+                  {editingEduId ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  <span>{editingEduId ? 'Update Education Entry' : 'Add Education Entry'}</span>
+                </button>
+                {editingEduId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingEduId(null);
+                      setEduDegree('');
+                      setEduInst('');
+                      setEduYear('');
+                      setEduGpa('');
+                    }}
+                    className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancel Edit</span>
+                  </button>
+                )}
+              </div>
             </div>
 
           </div>
@@ -1213,20 +1498,33 @@ export default function ProfessionalProfile() {
                       <p className="text-xs text-stone-400 font-mono">Tech Stack: {item.techStack}</p>
                       <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-medium">{item.description}</p>
                     </div>
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveProject(item.id)}
-                      className="p-2 bg-stone-50 dark:bg-[#1c1917] hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => handleEditProject(item)}
+                        className="p-2 bg-stone-50 dark:bg-stone-800 hover:bg-orange-50 hover:text-[#ff6b2b] rounded-xl transition-all text-stone-400"
+                        title="Edit Entry"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveProject(item.id)}
+                        className="p-2 bg-stone-50 dark:bg-[#1c1917] hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-all text-stone-400"
+                        title="Delete Entry"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
 
             <div className="bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 sm:p-8 space-y-6">
-              <h3 className="text-base font-black text-stone-900 dark:text-white">Add Professional Projects</h3>
+              <h3 className="text-base font-black text-stone-900 dark:text-white">
+                {editingProjId ? 'Edit Professional Project' : 'Add Professional Projects'}
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
@@ -1276,14 +1574,32 @@ export default function ProfessionalProfile() {
 
               </div>
 
-              <button 
-                type="button" 
-                onClick={handleAddProject}
-                className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Project</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  type="button" 
+                  onClick={handleAddProject}
+                  className="inline-flex items-center gap-2 bg-[#fff1e6] hover:bg-[#ffe2cc] text-[#ff6b2b] text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                >
+                  {editingProjId ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  <span>{editingProjId ? 'Update Project' : 'Add Project'}</span>
+                </button>
+                {editingProjId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingProjId(null);
+                      setProjTitle('');
+                      setProjStack('');
+                      setProjLink('');
+                      setProjDesc('');
+                    }}
+                    className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 text-xs font-black px-4 py-3 rounded-xl transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Cancel Edit</span>
+                  </button>
+                )}
+              </div>
             </div>
 
           </div>
