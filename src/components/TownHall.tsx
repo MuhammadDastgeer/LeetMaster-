@@ -87,6 +87,8 @@ export default function TownHall() {
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
   const [myHandRaised, setMyHandRaised] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [dbMessages, setDbMessages] = useState<any[]>([]);
+  const [profileName, setProfileName] = useState("Dastgeer");
 
   const emojiIdCounter = useRef(0);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -94,61 +96,137 @@ export default function TownHall() {
   const currentCohort = cohorts.find(c => c.id === activeCohortId) || cohorts[0];
 
   useEffect(() => {
+    try {
+      const savedProfile = localStorage.getItem('leetmaster_user_profile');
+      if (savedProfile) {
+        const parsed = JSON.parse(savedProfile);
+        if (parsed && parsed.fullName) {
+          setProfileName(parsed.fullName);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch("/api/messages");
+      const data = await res.json();
+      if (data.success) {
+        setDbMessages(data.messages);
+      }
+    } catch (err) {
+      console.error("Error fetching messages for TownHall:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const dbChannelId = `${activeCohortId}_${activeChannel}`;
+  const dbMessagesForChannel = dbMessages.filter(m => m.channel === dbChannelId);
+
+  const getDisplayMessages = () => {
+    if (dbMessagesForChannel.length > 0) {
+      return dbMessagesForChannel.map(m => ({
+        id: m.id,
+        sender: m.sender || 'Anonymous',
+        avatar: m.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop',
+        time: m.timestamp,
+        text: m.content,
+        isMe: m.sender === profileName || m.sender === 'You'
+      }));
+    }
+    
+    // Default mock fallback
+    return currentCohort.messages.map(m => ({
+      ...m,
+      isMe: m.sender === profileName || m.sender === 'You'
+    }));
+  };
+
+  const filteredMessages = getDisplayMessages();
+
+  useEffect(() => {
     // Scroll only the local chat body container to the bottom, without scrolling the main window
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [activeCohortId, currentCohort.messages]);
+  }, [activeCohortId, activeChannel, filteredMessages.length]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
-    const newMsg: ChatMessage = {
-      id: Date.now().toString(),
-      sender: 'You',
-      avatar: 'Y',
-      time: 'Just now',
-      text: chatInput,
-      isMe: true
+    const messageData = {
+      channel: dbChannelId,
+      sender: profileName,
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop",
+      isAdmin: false,
+      content: chatInput,
+      timestamp: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    // Update active cohort's message history
-    const updatedCohorts = cohorts.map(c => {
-      if (c.id === activeCohortId) {
-        return {
-          ...c,
-          messages: [...c.messages, newMsg]
-        };
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(messageData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDbMessages(prev => [...prev, data.message]);
+        setChatInput('');
       }
-      return c;
-    });
-
-    setCohorts(updatedCohorts);
-    setChatInput('');
+    } catch (err) {
+      console.error("Error sending message to DB:", err);
+      // Fallback local update if network fails
+      const fallbackMsg: ChatMessage = {
+        id: Date.now().toString(),
+        sender: profileName,
+        avatar: 'Y',
+        time: 'Just now',
+        text: chatInput,
+        isMe: true
+      };
+      setCohorts(prev => prev.map(c => {
+        if (c.id === activeCohortId) {
+          return {
+            ...c,
+            messages: [...c.messages, fallbackMsg]
+          };
+        }
+        return c;
+      }));
+      setChatInput('');
+    }
 
     // Trigger an automatic peer reply for realistic action
     setTimeout(() => {
-      const peerReply: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+      const peerReply = {
+        channel: dbChannelId,
         sender: 'Aman',
-        avatar: 'AM',
-        time: 'Just now',
-        text: `Nice point! Check out the pins or join the "${activeVoiceRoom || 'Voice channel'}" voice call to whiteboard it.`
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=128&auto=format&fit=crop',
+        isAdmin: false,
+        content: `Nice point! Check out the pins or join the "${activeVoiceRoom || 'Voice channel'}" voice call to whiteboard it.`,
+        timestamp: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
-      setCohorts(prevCohorts =>
-        prevCohorts.map(c => {
-          if (c.id === activeCohortId) {
-            return {
-              ...c,
-              messages: [...c.messages, peerReply]
-            };
+      fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(peerReply)
+      }).then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setDbMessages(prev => [...prev, data.message]);
           }
-          return c;
-        })
-      );
-    }, 1500);
+        }).catch(err => console.error(err));
+    }, 2000);
   };
 
   // Trigger floating reactions from the voice deck
@@ -210,6 +288,26 @@ export default function TownHall() {
               </div>
 
               <div>
+                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Text Channels</h4>
+                <div className="space-y-1">
+                  {currentCohort.channels.text.map((ch) => (
+                    <button
+                      key={ch}
+                      onClick={() => setActiveChannel(ch)}
+                      className={`w-full text-left px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+                        ch === activeChannel
+                          ? 'bg-black text-white dark:bg-zinc-800 shadow-sm'
+                          : 'text-[#4a4a4a] dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800/50'
+                      }`}
+                    >
+                      <Hash className="w-4 h-4 text-[#ff6b2b]" />
+                      <span className="truncate">#{ch}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
                 <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Voice Channels</h4>
                 <div className="space-y-1">
                   {currentCohort.channels.voice.map((vc) => (
@@ -260,28 +358,44 @@ export default function TownHall() {
 
             {/* Chat Body */}
             <div ref={chatContainerRef} className="p-5 flex-1 overflow-y-auto space-y-4">
-              {currentCohort.messages.map((m) => (
-                <div key={m.id} className={`flex items-start gap-3 ${m.isMe ? 'justify-end' : ''}`}>
-                  {!m.isMe && (
-                    <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center text-xs font-bold font-mono text-gray-600 dark:text-zinc-400">
-                      {m.avatar}
+              {filteredMessages.map((m) => {
+                const renderAvatarElement = () => {
+                  if (m.avatar && (m.avatar.startsWith('http') || m.avatar.startsWith('/'))) {
+                    return (
+                      <img 
+                        src={m.avatar} 
+                        alt={m.sender} 
+                        referrerPolicy="no-referrer"
+                        className="w-7 h-7 rounded-full object-cover border border-black/10 dark:border-zinc-700" 
+                      />
+                    );
+                  }
+                  return (
+                    <div className="w-7 h-7 rounded-full bg-orange-100 dark:bg-zinc-800 text-[#ff6b2b] dark:text-zinc-300 flex items-center justify-center text-xs font-bold font-mono border border-black/10 dark:border-zinc-700">
+                      {(m.sender || 'U').charAt(0).toUpperCase()}
                     </div>
-                  )}
-                  <div className={`max-w-[75%] rounded-2xl p-3 text-xs ${
-                    m.isMe 
-                      ? 'bg-black dark:bg-zinc-800 text-white rounded-tr-none' 
-                      : 'bg-slate-50 dark:bg-zinc-950/40 text-slate-700 dark:text-zinc-300 border border-slate-100 dark:border-zinc-800 rounded-tl-none'
-                  }`}>
-                    <div className="flex items-center justify-between gap-4 mb-1">
-                      <span className={`font-black text-[11px] ${m.isMe ? 'text-orange-200' : 'text-black dark:text-white'}`}>
-                        {m.sender}
-                      </span>
-                      <span className="text-[9px] text-gray-400 font-mono">{m.time}</span>
+                  );
+                };
+
+                return (
+                  <div key={m.id} className={`flex items-start gap-3 ${m.isMe ? 'justify-end' : ''}`}>
+                    {!m.isMe && renderAvatarElement()}
+                    <div className={`max-w-[75%] rounded-2xl p-3 text-xs ${
+                      m.isMe 
+                        ? 'bg-black dark:bg-zinc-800 text-white rounded-tr-none' 
+                        : 'bg-slate-50 dark:bg-zinc-950/40 text-slate-700 dark:text-zinc-300 border border-slate-100 dark:border-zinc-800 rounded-tl-none'
+                    }`}>
+                      <div className="flex items-center justify-between gap-4 mb-1">
+                        <span className={`font-black text-[11px] ${m.isMe ? 'text-orange-200' : 'text-black dark:text-white'}`}>
+                          {m.sender}
+                        </span>
+                        <span className="text-[9px] text-gray-400 font-mono">{m.time}</span>
+                      </div>
+                      <p className="leading-relaxed font-medium whitespace-pre-wrap">{m.text}</p>
                     </div>
-                    <p className="leading-relaxed font-medium">{m.text}</p>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {/* Chat End */}
             </div>
 
