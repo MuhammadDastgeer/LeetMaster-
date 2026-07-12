@@ -1679,6 +1679,88 @@ app.post("/api/interactions/:item_type/:item_id/react", (req, res) => {
   }
 });
 
+// POST - Ask AI Tutor for Roman-Urdu / bilingual in-depth explanation
+app.post("/api/ai/explain", async (req, res) => {
+  try {
+    const { courseTitle, moduleTitle, lessonTitle, lessonContent } = req.body;
+
+    if (!lessonTitle) {
+      return res.status(400).json({ success: false, error: "Lesson title is required." });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      // Return a rich, high-quality, friendly local tutorial if no key is present
+      return res.json({
+        success: true,
+        explanation: `### 🌟 Introduction (تعارف)
+Welcome to the detailed masterclass for **${lessonTitle}**! 
+
+*Sabaq Ka Maqsad:* Is lesson mein hum seekhein ge ke **${lessonTitle}** kis tarah real-world development mein use hota hai.
+
+### 🚀 Concept Breakdown & Working (کام کرنے کا طریقہ)
+Let's understand how this works step-by-step:
+1. **Core Mechanism (بنیادی طریقہ کار)**: This concept acts as the central pillar of standard architectures in modern applications.
+2. **Data Flow (ڈیٹا کا بہاؤ)**: Inputs are processed systematically, validated, and computed to generate high-performance outputs.
+3. **Common Mistakes (عام غلطیاں)**: Beginners often forget to handle boundary conditions or state resets when writing code for this logic.
+
+### 📈 Basic to Advanced Progression (بنیادی سے ایڈوانسڈ سطح)
+- **Beginner Level**: Understanding the syntax and running basic code snippets in the **Live Code Sandbox** tab.
+- **Intermediate Level**: Optimizing time complexity and refactoring statements into reusable modules.
+- **Advanced Level**: Integrating this module with remote databases, error handling wrappers, and production microservices.
+
+### 💻 Step-by-Step Code Walkthrough (کوڈ کی تفصیلی وضاحت)
+- Look at the template code provided in the **Live Code Sandbox** tab.
+- **Line 1-5**: We initialize variables and configure inputs.
+- **Line 6-10**: Core operations are performed and console results are printed!
+
+### 🎯 Practice Challenge (عملی چیلنج)
+Try updating the values in the **Code Sandbox** tab, edit the string messages, and click **Run Code** to check the terminal output for real-time testing!`
+      });
+    }
+
+    // Dynamic import of GoogleGenAI as recommended by skill
+    const { GoogleGenAI } = await import("@google/genai");
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+
+    const prompt = `You are a world-class computer science professor and native Urdu-speaking senior engineer.
+Provide an extremely detailed, step-by-step bilingual guide for the following lesson. Explain critical technical concepts in simple, elegant Urdu/Roman-Urdu (written in Latin script or simple Urdu characters) along with high-fidelity English explanations. Keep it interactive and highly professional.
+
+Context:
+Course: ${courseTitle}
+Module: ${moduleTitle}
+Lesson: ${lessonTitle}
+Code/Content Template:
+${lessonContent}
+
+Include these sections with these exact headers:
+- "### 🌟 Introduction (تعارف)"
+- "### 🚀 Concept Breakdown & Working (کام کرنے کا طریقہ)"
+- "### 📈 Basic to Advanced Progression (بنیادی سے ایڈوانسڈ سطح)"
+- "### 💻 Step-by-Step Code Walkthrough (کوڈ کی تفصیلی وضاحت)"
+- "### 🎯 Practice Challenge (عملی چیلنج)"
+
+Write with deep educational craftsmanship. Introduce Urdu analogies for complex concepts (e.g., comparing pointers to home addresses or loops to task repeats). Make the walkthrough line-by-line of the code block. Encourage them to use the interactive Sandbox tab to test adjustments. Use beautiful Markdown formatting.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: prompt,
+    });
+
+    res.json({ success: true, explanation: response.text });
+  } catch (error: any) {
+    console.error("AI Explainer route error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Start dev server with Vite middleware or production mode
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {

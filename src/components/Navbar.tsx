@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flame, Menu, X, Coffee, Moon, Sun } from 'lucide-react';
+import { Flame, Menu, X, Code2, Moon, Sun } from 'lucide-react';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -29,7 +29,7 @@ export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavi
           >
             <div className="w-9 h-9 rounded-xl bg-black dark:bg-zinc-800 flex items-center justify-center text-white relative overflow-hidden">
               <div className="absolute inset-0 bg-[#ff6b2b] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <Coffee className="w-5 h-5 relative z-10 text-white" />
+              <Code2 className="w-5 h-5 relative z-10 text-white" />
             </div>
             <span className="font-sans font-extrabold text-xl tracking-tight text-black dark:text-white">
               leetmaster<span className="text-[#ff6b2b]">.</span>

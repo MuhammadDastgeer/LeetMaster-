@@ -12,7 +12,7 @@ import Dashboard from './components/Dashboard';
 import CuratedSheetsLanding from './components/CuratedSheetsLanding';
 import { getPresetQuizzes } from './data/quizDatabase';
 import { 
-  Coffee, Flame, Heart, Github, Linkedin, ArrowUp, BookOpen, 
+  Code2, Flame, Heart, Github, Linkedin, ArrowUp, BookOpen, 
   Check, CheckCircle2, AlertCircle, Award, Sparkles, 
   ChevronRight, Users, GraduationCap, Code, Star, Trophy
 } from 'lucide-react';
@@ -783,8 +783,8 @@ export default function App() {
             {/* Column 1: Brand details */}
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#ff6b2b] flex items-center justify-center text-white font-extrabold text-sm">
-                  L
+                <div className="w-9 h-9 rounded-xl bg-[#ff6b2b] flex items-center justify-center text-white relative overflow-hidden">
+                  <Code2 className="w-5 h-5 text-white" />
                 </div>
                 <span className="font-sans font-extrabold text-lg tracking-tight text-white">
                   leetmaster<span className="text-[#ff6b2b]">.</span>

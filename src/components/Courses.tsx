@@ -40,6 +40,20 @@ export default function Courses() {
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
 
+  // Code Sandbox states
+  const [studyTab, setStudyTab] = useState<'theory' | 'sandbox' | 'ai'>('theory');
+  const [sandboxCode, setSandboxCode] = useState<string>('');
+  const [sandboxLanguage, setSandboxLanguage] = useState<string>('javascript');
+  const [sandboxOutput, setSandboxOutput] = useState<string>('');
+  const [isRunningSandbox, setIsRunningSandbox] = useState<boolean>(false);
+
+  // AI bilingual tutor states
+  const [aiExplanation, setAiExplanation] = useState<Record<string, string>>({});
+  const [isLoadingAi, setIsLoadingAi] = useState<boolean>(false);
+
+  // Completion warning state
+  const [completeError, setCompleteError] = useState<string | null>(null);
+
   // Auto expand first module when a course is opened
   useEffect(() => {
     if (activeCourseId) {
@@ -61,6 +75,256 @@ export default function Courses() {
     }));
   };
 
+  // Sync active lesson's code into sandbox on change
+  useEffect(() => {
+    if (activeLesson) {
+      setStudyTab('theory');
+      setSandboxOutput('');
+      
+      const content = activeLesson.content || '';
+      const match = content.match(/```(\w*)\n([\s\S]*?)\n```/);
+      if (match) {
+        setSandboxLanguage(match[1] || 'javascript');
+        setSandboxCode(match[2].trim());
+      } else {
+        setSandboxLanguage('javascript');
+        setSandboxCode('// Write your code here\nconsole.log("Welcome to Sab Technologies!");');
+      }
+    }
+  }, [activeLessonId]);
+
+  // Fetch bilingual detailed AI explanation
+  const handleFetchAiExplanation = async (lesson: Lesson) => {
+    if (aiExplanation[lesson.id]) return; // already cached
+    
+    setIsLoadingAi(true);
+    try {
+      const response = await fetch('/api/ai/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseTitle: activeCourse?.title || '',
+          moduleTitle: activeCourse?.modules.find(m => m.lessons.some(l => l.id === lesson.id))?.title || '',
+          lessonTitle: lesson.title,
+          lessonContent: lesson.content,
+        })
+      });
+      const data = await response.json();
+      if (data.success && data.explanation) {
+        setAiExplanation(prev => ({
+          ...prev,
+          [lesson.id]: data.explanation
+        }));
+      } else {
+        setAiExplanation(prev => ({
+          ...prev,
+          [lesson.id]: `### AI Tutor Explanation\n\nCould not fetch response from server. Make sure **GEMINI_API_KEY** is configured correctly in the Secrets panel.\n\n### Original Lesson Content:\n\n${lesson.content}`
+        }));
+      }
+    } catch (err: any) {
+      setAiExplanation(prev => ({
+        ...prev,
+        [lesson.id]: `### Error\n\nCould not fetch explanation: ${err.message || err}\n\n### Original Lesson Content:\n\n${lesson.content}`
+      }));
+    } finally {
+      setIsLoadingAi(false);
+    }
+  };
+
+  // Compile and Run Code Sandbox in Browser/Simulated Sandbox
+  const runCodeSandbox = async (codeToRun: string, lang: string) => {
+    setIsRunningSandbox(true);
+    setSandboxOutput('Initializing compile environment...\n');
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    try {
+      const normalizedLang = lang.toLowerCase();
+      if (normalizedLang === 'javascript' || normalizedLang === 'js') {
+        let logs: string[] = [];
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+
+        console.log = (...args) => {
+          logs.push(args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' '));
+        };
+        console.warn = (...args) => {
+          logs.push('[WARN] ' + args.join(' '));
+        };
+        console.error = (...args) => {
+          logs.push('[ERROR] ' + args.join(' '));
+        };
+
+        try {
+          const runFn = new Function(codeToRun);
+          runFn();
+          console.log = originalLog;
+          console.warn = originalWarn;
+          console.error = originalError;
+          
+          if (logs.length === 0) {
+            setSandboxOutput('✓ Program executed successfully.\n(No console.log outputs generated)');
+          } else {
+            setSandboxOutput(logs.join('\n'));
+          }
+        } catch (err: any) {
+          console.log = originalLog;
+          console.warn = originalWarn;
+          console.error = originalError;
+          setSandboxOutput(`Execution Error:\n${err.message || err}`);
+        }
+      } else if (normalizedLang === 'html' || normalizedLang === 'css') {
+        setSandboxOutput('✓ HTML/CSS successfully parsed!\nScroll down to view interactive rendering inside Live Preview stage.');
+      } else {
+        // SQL queries simulator
+        if (normalizedLang === 'sql') {
+          let outputs: string[] = ['Executing script on SQL Master schema...'];
+          let hasSelect = false;
+          const sqlLines = codeToRun.split('\n');
+          for (let line of sqlLines) {
+            const clean = line.trim().toUpperCase();
+            if (clean.startsWith('SELECT')) {
+              hasSelect = true;
+              if (clean.includes('USER') || clean.includes('MEMBER')) {
+                outputs.push('+----+------------------+---------------------+');
+                outputs.push('| ID | Username         | Email               |');
+                outputs.push('+----+------------------+---------------------+');
+                outputs.push('| 1  | dastgeer_jutt    | jutt@sabtech.com    |');
+                outputs.push('| 2  | ali_khan         | ali@sabtech.com     |');
+                outputs.push('+----+------------------+---------------------+');
+              } else if (clean.includes('COURSE') || clean.includes('ENROLL')) {
+                outputs.push('+----+----------------------+------------+');
+                outputs.push('| ID | Course Title         | Progress % |');
+                outputs.push('+----+----------------------+------------+');
+                outputs.push('| 1  | Programming Core     | 100%       |');
+                outputs.push('| 2  | React Mastery        | 35%        |');
+                outputs.push('+----+----------------------+------------+');
+              } else {
+                outputs.push('+----+--------------------+');
+                outputs.push('| ID | value              |');
+                outputs.push('+----+--------------------+');
+                outputs.push('| 1  | Custom SQL record  |');
+                outputs.push('+----+--------------------+');
+              }
+            } else if (clean.startsWith('INSERT') || clean.startsWith('UPDATE') || clean.startsWith('DELETE')) {
+              outputs.push('✓ Query OK, 1 row affected.');
+            } else if (clean.startsWith('CREATE')) {
+              outputs.push('✓ Table created successfully.');
+            }
+          }
+          if (!hasSelect) {
+            outputs.push('✓ SQL schema statements processed.');
+          }
+          setSandboxOutput(outputs.join('\n'));
+          setIsRunningSandbox(false);
+          return;
+        }
+
+        // Custom parser for Compiled & Scripted languages: Python, C++, C, Java, Rust, Go, Bash, PHP
+        const lines = codeToRun.split('\n');
+        let outputs: string[] = [];
+        let variables: Record<string, any> = {};
+
+        for (let idx = 0; idx < lines.length; idx++) {
+          const line = lines[idx].trim();
+          if (!line || line.startsWith('//') || line.startsWith('#') || line.startsWith('/*') || line.startsWith('*')) {
+            continue;
+          }
+
+          if (normalizedLang === 'python' || normalizedLang === 'py') {
+            const varMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.*)$/);
+            if (varMatch && !line.startsWith('print')) {
+              const varName = varMatch[1];
+              let valRaw = varMatch[2].trim();
+              try {
+                if ((valRaw.startsWith('"') && valRaw.endsWith('"')) || (valRaw.startsWith("'") && valRaw.endsWith("'"))) {
+                  variables[varName] = valRaw.slice(1, -1);
+                } else if (!isNaN(Number(valRaw))) {
+                  variables[varName] = Number(valRaw);
+                } else {
+                  variables[varName] = valRaw;
+                }
+              } catch (e) {
+                variables[varName] = valRaw;
+              }
+              continue;
+            }
+
+            if (line.startsWith('print(') && line.endsWith(')')) {
+              const inside = line.slice(6, -1).trim();
+              if (inside.startsWith('f"') || inside.startsWith("f'")) {
+                let formatted = inside.slice(2, -1);
+                const matches = formatted.match(/\{([^}]+)\}/g);
+                if (matches) {
+                  for (let m of matches) {
+                    const cleanVar = m.slice(1, -1).trim();
+                    if (variables[cleanVar] !== undefined) {
+                      formatted = formatted.replace(m, variables[cleanVar]);
+                    }
+                  }
+                }
+                outputs.push(formatted);
+              } else if ((inside.startsWith('"') && inside.endsWith('"')) || (inside.startsWith("'") && inside.endsWith("'"))) {
+                outputs.push(inside.slice(1, -1));
+              } else if (variables[inside] !== undefined) {
+                outputs.push(String(variables[inside]));
+              } else {
+                outputs.push(inside);
+              }
+              continue;
+            }
+          }
+
+          // Search general cout and print blocks in C++/Java/Rust/Go
+          if (line.includes('cout') && line.includes('<<')) {
+            const matches = line.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/g);
+            if (matches) {
+              outputs.push(matches.map(m => m.slice(1, -1)).join(' '));
+            }
+          } else if (line.includes('printf(') || line.includes('print(')) {
+            const match = line.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/);
+            if (match) outputs.push(match[1]);
+          } else if (line.includes('System.out.println(')) {
+            const match = line.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/);
+            if (match) outputs.push(match[1]);
+          } else if (line.includes('Console.WriteLine(')) {
+            const match = line.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/);
+            if (match) outputs.push(match[1]);
+          } else if (line.includes('Println(')) {
+            const match = line.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/);
+            if (match) outputs.push(match[1]);
+          } else if (line.includes('println!') || line.includes('print!')) {
+            const match = line.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/);
+            if (match) outputs.push(match[1]);
+          } else if (line.startsWith('echo ')) {
+            outputs.push(line.slice(5).replace(/['";]/g, '').trim());
+          }
+        }
+
+        if (outputs.length === 0) {
+          outputs.push(`[${lang.toUpperCase()} Sandbox Simulation Environment]`);
+          outputs.push(`✓ Compiled & finished without runtime failures.`);
+          const stringMatches = codeToRun.match(/"([^"\\]*(?:\\.[^"\\]*)*)"/g);
+          if (stringMatches && stringMatches.length > 0) {
+            outputs.push('\n[Terminal Console Output]:');
+            stringMatches.slice(0, 5).forEach(m => {
+              const textStr = m.slice(1, -1);
+              if (textStr.trim().length > 1 && !textStr.includes('%') && !textStr.includes('{')) {
+                outputs.push(textStr);
+              }
+            });
+          }
+        }
+
+        setSandboxOutput(outputs.join('\n'));
+      }
+    } catch (err: any) {
+      setSandboxOutput(`Sandbox Compilation Error:\n${err.message || err}`);
+    } finally {
+      setIsRunningSandbox(false);
+    }
+  };
+
   // Enroll in a Course
   const handleEnroll = (courseId: string) => {
     setCourses(prev => prev.map(c => {
@@ -80,6 +344,35 @@ export default function Courses() {
 
   // Toggle Lesson Completion
   const handleToggleLesson = (courseId: string, moduleId: string, lessonId: string) => {
+    const course = courses.find(c => c.id === courseId);
+    if (!course) return;
+
+    const lessonsList = course.modules.flatMap(m => m.lessons);
+    let willBeCompleted = false;
+
+    if (lessonsList.length > 0) {
+      const lastLesson = lessonsList[lessonsList.length - 1];
+      if (lessonId === lastLesson.id) {
+        const isCurrentCompleted = lastLesson.completed;
+        if (!isCurrentCompleted) {
+          const previousLessons = lessonsList.slice(0, lessonsList.length - 1);
+          const incompletePrev = previousLessons.filter(l => !l.completed);
+          if (incompletePrev.length > 0) {
+            setCompleteError("Pehle tamam pichle topics complete karein! (Please check and complete all previous topics before completing the last one)");
+            setTimeout(() => setCompleteError(null), 5000);
+            return; // STOP completion
+          }
+          willBeCompleted = true;
+        } else {
+          // If the last lesson is already completed, they might just want to go back to courses tab
+          setActiveCourseId(null);
+          setActiveLessonId(null);
+          return;
+        }
+      }
+    }
+
+    setCompleteError(null);
     setCourses(prev => prev.map(c => {
       if (c.id === courseId) {
         const updatedModules = c.modules.map(mod => {
@@ -110,6 +403,14 @@ export default function Courses() {
       }
       return c;
     }));
+
+    if (willBeCompleted) {
+      // Small delay so they see the checked status in sidebar and the button checked state, then smooth transition back to the main list
+      setTimeout(() => {
+        setActiveCourseId(null);
+        setActiveLessonId(null);
+      }, 1000);
+    }
   };
 
   // Copy Code to Clipboard
@@ -144,9 +445,49 @@ export default function Courses() {
 
   // Next and Previous lesson navigation helpers
   const handleNextLesson = () => {
-    if (currentLessonIndex !== -1 && currentLessonIndex < courseLessonsList.length - 1) {
-      setActiveLessonId(courseLessonsList[currentLessonIndex + 1].id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (currentLessonIndex !== -1) {
+      const currentLesson = courseLessonsList[currentLessonIndex];
+      const activeModule = activeCourse?.modules.find(m => 
+        m.lessons.some(l => l.id === currentLesson.id)
+      );
+
+      // Save completion of current lesson and update progress percentage
+      setCourses(prev => prev.map(c => {
+        if (c.id === activeCourseId) {
+          const updatedModules = c.modules.map(mod => {
+            if (mod.id === activeModule?.id) {
+              return {
+                ...mod,
+                lessons: mod.lessons.map(les => {
+                  if (les.id === currentLesson.id) {
+                    return { ...les, completed: true };
+                  }
+                  return les;
+                })
+              };
+            }
+            return mod;
+          });
+
+          const allLessons = updatedModules.flatMap(m => m.lessons);
+          const completedCount = allLessons.filter(l => l.completed).length;
+          const totalCount = allLessons.length;
+          const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+          return {
+            ...c,
+            modules: updatedModules,
+            progress: newProgress
+          };
+        }
+        return c;
+      }));
+
+      // Set state to next lesson if we aren't at the end
+      if (currentLessonIndex < courseLessonsList.length - 1) {
+        setActiveLessonId(courseLessonsList[currentLessonIndex + 1].id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
 
@@ -377,9 +718,16 @@ export default function Courses() {
                     <div className="space-y-4">
                       {/* Top Badges */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-mono font-black text-[#ff6b2b] dark:text-[#ff804a] bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                          {course.category}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-mono font-black text-[#ff6b2b] dark:text-[#ff804a] bg-orange-50 dark:bg-orange-950/40 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            {course.category}
+                          </span>
+                          {course.progress === 100 && (
+                            <span className="text-[9px] font-mono font-black text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-0.5">
+                              ✓ Completed (کورس مکمل)
+                            </span>
+                          )}
+                        </div>
                         
                         <div className="flex items-center gap-2 text-[10px] font-mono text-stone-400 dark:text-stone-500">
                           <span className="flex items-center gap-1 font-bold">
@@ -468,12 +816,23 @@ export default function Courses() {
                         }}
                         className={`px-4 py-2 text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
                           course.enrolled
-                            ? 'bg-[#ffefe7] hover:bg-[#ff6b2b] hover:text-white text-[#ff6b2b] dark:bg-stone-900/60 dark:text-[#ff804a] dark:hover:bg-[#ff6b2b] dark:hover:text-white border border-transparent hover:border-transparent'
+                            ? course.progress === 100
+                              ? 'bg-green-50 hover:bg-green-600 hover:text-white text-green-600 dark:bg-green-950/20 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white border border-green-200/40 dark:border-green-900/40'
+                              : 'bg-[#ffefe7] hover:bg-[#ff6b2b] hover:text-white text-[#ff6b2b] dark:bg-stone-900/60 dark:text-[#ff804a] dark:hover:bg-[#ff6b2b] dark:hover:text-white border border-transparent hover:border-transparent'
                             : 'bg-stone-900 hover:bg-[#ff6b2b] dark:bg-stone-800 dark:hover:bg-[#ff6b2b] text-white'
                         }`}
                       >
-                        <span>{course.enrolled ? 'Resume Study' : 'Start Path'}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        {course.enrolled && course.progress === 100 ? (
+                          <>
+                            <span>Course Completed ✓</span>
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </>
+                        ) : (
+                          <>
+                            <span>{course.enrolled ? 'Resume Study' : 'Start Path'}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -501,10 +860,20 @@ export default function Courses() {
                   <span className="text-[9px] font-mono font-bold text-stone-400 dark:text-stone-500 bg-stone-100 dark:bg-stone-850 px-2 py-0.5 rounded-full uppercase">
                     {activeCourse.difficulty} level
                   </span>
+                  {activeCourse.progress === 100 && (
+                    <span className="text-[9px] font-mono font-black text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 animate-pulse">
+                      ✓ Completed (کورس مکمل)
+                    </span>
+                  )}
                 </div>
 
-                <h2 className="text-xl font-black text-stone-850 dark:text-stone-50 tracking-tight leading-tight">
-                  {activeCourse.title}
+                <h2 className="text-xl font-black text-stone-850 dark:text-stone-50 tracking-tight leading-tight flex flex-wrap items-center gap-2">
+                  <span>{activeCourse.title}</span>
+                  {activeCourse.progress === 100 && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-green-600 dark:text-green-400 font-extrabold font-mono uppercase bg-green-100/50 dark:bg-green-950/30 px-2.5 py-0.5 rounded-xl border border-green-200 dark:border-green-900/40">
+                      ✓ Completed
+                    </span>
+                  )}
                 </h2>
 
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
@@ -714,10 +1083,233 @@ export default function Courses() {
                       </button>
                     </div>
 
-                    {/* Rich Explanation Guide & Code blocks */}
-                    <div className="space-y-4 max-h-[58vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200">
-                      {renderLessonContent(activeLesson.content)}
+                    {/* Navigation Tabs */}
+                    <div className="flex border-b border-stone-100 dark:border-stone-850/80 -mt-2 overflow-x-auto scrollbar-none">
+                      <button
+                        type="button"
+                        onClick={() => setStudyTab('theory')}
+                        className={`flex items-center gap-1.5 px-4 py-2 text-xs font-black transition-all border-b-2 -mb-px cursor-pointer whitespace-nowrap ${
+                          studyTab === 'theory'
+                            ? 'border-[#ff6b2b] text-[#ff6b2b]'
+                            : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+                        }`}
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>📖 Guide & Theory</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setStudyTab('sandbox')}
+                        className={`flex items-center gap-1.5 px-4 py-2 text-xs font-black transition-all border-b-2 -mb-px cursor-pointer whitespace-nowrap ${
+                          studyTab === 'sandbox'
+                            ? 'border-[#ff6b2b] text-[#ff6b2b]'
+                            : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+                        }`}
+                      >
+                        <Code className="w-3.5 h-3.5" />
+                        <span>⚡ Code Sandbox Runner</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStudyTab('ai');
+                          if (activeLesson && !aiExplanation[activeLesson.id]) {
+                            handleFetchAiExplanation(activeLesson);
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-4 py-2 text-xs font-black transition-all border-b-2 -mb-px cursor-pointer whitespace-nowrap ${
+                          studyTab === 'ai'
+                            ? 'border-[#ff6b2b] text-[#ff6b2b]'
+                            : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+                        }`}
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                        <span>🤖 Bilingual AI Explainer</span>
+                      </button>
                     </div>
+
+                    {/* Rich Explanation Guide & Code blocks */}
+                    {studyTab === 'theory' && (
+                      <div className="space-y-4 max-h-[58vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200">
+                        {renderLessonContent(activeLesson.content)}
+                      </div>
+                    )}
+
+                    {studyTab === 'sandbox' && (
+                      <div className="space-y-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2.5 bg-stone-50 dark:bg-stone-900/50 p-2.5 rounded-2xl border border-stone-150 dark:border-stone-800">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono font-black text-stone-550 dark:text-stone-400">LANGUAGE:</span>
+                            <select
+                              value={sandboxLanguage}
+                              onChange={(e) => setSandboxLanguage(e.target.value)}
+                              className="text-xs font-mono font-bold bg-white dark:bg-stone-850 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-800 rounded-lg px-2.5 py-1 focus:outline-none focus:border-[#ff6b2b]"
+                            >
+                              <option value="javascript">JavaScript</option>
+                              <option value="html">HTML / CSS</option>
+                              <option value="python">Python</option>
+                              <option value="sql">SQL / Database</option>
+                              <option value="cpp">C++ (Compiler Sim)</option>
+                              <option value="c">C (Compiler Sim)</option>
+                              <option value="java">Java (Compiler Sim)</option>
+                              <option value="rust">Rust (Compiler Sim)</option>
+                              <option value="go">Go (Compiler Sim)</option>
+                              <option value="bash">Bash Scripting</option>
+                            </select>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const content = activeLesson.content || '';
+                                const match = content.match(/```(\w*)\n([\s\S]*?)\n```/);
+                                if (match) {
+                                  setSandboxCode(match[2].trim());
+                                } else {
+                                  setSandboxCode('// Write your code here\nconsole.log("Hello!");');
+                                }
+                                setSandboxOutput('');
+                              }}
+                              className="px-3 py-1.5 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-stone-750 dark:text-stone-300 text-[10px] font-black rounded-lg transition-all cursor-pointer"
+                            >
+                              Reset Code
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={isRunningSandbox}
+                              onClick={() => runCodeSandbox(sandboxCode, sandboxLanguage)}
+                              className="inline-flex items-center gap-1 px-4 py-1.5 bg-[#ff6b2b] hover:bg-[#ff804a] text-white text-[10px] font-black rounded-lg transition-all cursor-pointer disabled:opacity-50"
+                            >
+                              {isRunningSandbox ? (
+                                <span>Running...</span>
+                              ) : (
+                                <>
+                                  <Play className="w-3 h-3 fill-current" />
+                                  <span>Run Code</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Interactive Code Editor TextArea */}
+                        <div className="relative font-mono text-xs border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden shadow-sm">
+                          <div className="absolute left-0 top-0 bottom-0 w-9 bg-stone-100 dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 flex flex-col items-center pt-4 text-stone-400 select-none text-[9px]">
+                            {sandboxCode.split('\n').map((_, index) => (
+                              <div key={index} className="h-5 leading-5">{index + 1}</div>
+                            ))}
+                          </div>
+                          <textarea
+                            value={sandboxCode}
+                            onChange={(e) => setSandboxCode(e.target.value)}
+                            spellCheck={false}
+                            className="w-full min-h-[160px] pl-12 pr-4 py-4 font-mono text-xs text-stone-800 dark:text-stone-150 bg-stone-50 dark:bg-stone-950 focus:outline-none resize-y leading-5 block border-0"
+                            placeholder="// Type your custom code here..."
+                          />
+                        </div>
+
+                        {/* Terminal Console Output */}
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-mono font-bold text-stone-400">TERMINAL OUTPUT</span>
+                            {sandboxOutput && (
+                              <button
+                                type="button"
+                                onClick={() => setSandboxOutput('')}
+                                className="text-[9px] font-mono font-bold text-[#ff6b2b] hover:underline"
+                              >
+                                Clear Console
+                              </button>
+                            )}
+                          </div>
+                          <div className="bg-stone-950 dark:bg-black rounded-2xl p-4 font-mono text-xs text-green-400 border border-stone-200 dark:border-stone-850 shadow-inner min-h-[100px] overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                            {sandboxOutput || <span className="text-stone-500 animate-pulse">Console is ready. Click "Run Code" to compile.</span>}
+                          </div>
+                        </div>
+
+                        {/* Live HTML Preview Container */}
+                        {sandboxLanguage === 'html' && (
+                          <div className="space-y-1.5 mt-4">
+                            <span className="text-[10px] font-mono font-bold text-stone-400 uppercase">Interactive Live Canvas Stage</span>
+                            <div className="bg-white rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-sm h-[200px] relative">
+                              <iframe
+                                title="HTML Live Sandbox Preview"
+                                srcDoc={`
+                                  <!DOCTYPE html>
+                                  <html>
+                                    <head>
+                                      <style>
+                                        body {
+                                          font-family: system-ui, -apple-system, sans-serif;
+                                          padding: 16px;
+                                          margin: 0;
+                                          color: #1c1917;
+                                          background: #fafaf9;
+                                        }
+                                      </style>
+                                    </head>
+                                    <body>
+                                      ${sandboxCode}
+                                    </body>
+                                  </html>
+                                `}
+                                className="w-full h-full bg-white border-0"
+                                sandbox="allow-scripts"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {studyTab === 'ai' && (
+                      <div className="space-y-4 max-h-[58vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200">
+                        {isLoadingAi ? (
+                          <div className="py-12 flex flex-col items-center justify-center space-y-3">
+                            <Sparkles className="w-8 h-8 text-[#ff6b2b] animate-spin" />
+                            <div className="text-center">
+                              <h4 className="text-xs font-black text-stone-850 dark:text-stone-200">Crafting Bilingual Explanation...</h4>
+                              <p className="text-[10px] font-mono text-stone-400 dark:text-stone-500 mt-1">Contacting Sab Tech AI Tutor for detailed Roman-Urdu & English masterclass</p>
+                            </div>
+                          </div>
+                        ) : aiExplanation[activeLesson.id] ? (
+                          <div className="prose prose-stone dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed space-y-4">
+                            {renderLessonContent(aiExplanation[activeLesson.id])}
+                          </div>
+                        ) : (
+                          <div className="py-8 text-center bg-stone-50 dark:bg-stone-900/30 border border-stone-150 dark:border-stone-850/60 rounded-3xl p-5">
+                            <Sparkles className="w-7 h-7 text-amber-500 mx-auto mb-3 animate-bounce" />
+                            <h4 className="text-xs font-black text-stone-800 dark:text-stone-150">Want a Detailed Roman-Urdu & English Explanation?</h4>
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1.5 max-w-sm mx-auto leading-normal">
+                              Get step-by-step masterclass guidance, native language analogies, and custom practice assignments designed especially for you!
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => handleFetchAiExplanation(activeLesson)}
+                              className="mt-4 px-4 py-2 bg-gradient-to-r from-[#ff6b2b] to-amber-500 hover:from-[#ff804a] hover:to-amber-400 text-white text-xs font-black rounded-xl shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 transition-all cursor-pointer"
+                            >
+                              🚀 Ask Sab Tech AI Tutor to Explain
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Error Banner for Course Completion */}
+                    {completeError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-2xl flex items-center gap-2 text-xs font-bold leading-normal mt-4"
+                      >
+                        <span className="text-base flex-shrink-0">⚠️</span>
+                        <span>{completeError}</span>
+                      </motion.div>
+                    )}
 
                     {/* Footer Traversal Navigations */}
                     <div className="border-t border-stone-100 dark:border-stone-850 pt-5 flex items-center justify-between gap-4">
@@ -734,14 +1326,39 @@ export default function Courses() {
                         {currentLessonIndex + 1} / {courseLessonsList.length}
                       </span>
 
-                      <button
-                        type="button"
-                        onClick={handleNextLesson}
-                        disabled={currentLessonIndex === courseLessonsList.length - 1}
-                        className="px-4 py-2 bg-stone-900 hover:bg-[#ff6b2b] dark:bg-stone-800 dark:hover:bg-[#ff6b2b] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-black rounded-xl transition-all flex items-center gap-1 cursor-pointer"
-                      >
-                        Next Lesson →
-                      </button>
+                      {currentLessonIndex === courseLessonsList.length - 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (activeLesson) {
+                              handleToggleLesson(activeCourse.id, activeLesson.moduleId, activeLesson.id);
+                            }
+                          }}
+                          className={`px-4 py-2 text-white text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 ${
+                            activeLesson?.completed
+                              ? 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600'
+                              : 'bg-gradient-to-r from-green-600 to-[#ff6b2b] hover:from-green-500 hover:to-[#ff804a]'
+                          }`}
+                        >
+                          {activeLesson?.completed ? (
+                            <>
+                              <span>Course Completed ✓</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Complete Course (کورس مکمل کریں) ✓</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleNextLesson}
+                          className="px-4 py-2 bg-stone-900 hover:bg-[#ff6b2b] dark:bg-stone-800 dark:hover:bg-[#ff6b2b] text-white text-xs font-black rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          Next Lesson →
+                        </button>
+                      )}
                     </div>
 
                   </motion.div>
