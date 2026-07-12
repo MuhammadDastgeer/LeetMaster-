@@ -106,35 +106,165 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
       .catch(err => console.error("Error fetching profile inside Dashboard:", err));
   }, []);
 
+  const fetchData = async () => {
+    try {
+      const [resBlogs, resProjects, resHackathons, resEvents] = await Promise.all([
+        fetch('/api/blogs').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/projects').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/hackathons').then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/events').then(r => r.json()).catch(() => ({ success: false }))
+      ]);
+
+      if (resBlogs && resBlogs.success) setBlogs(resBlogs.blogs || []);
+      if (resProjects && resProjects.success) setProjects(resProjects.projects || []);
+      if (resHackathons && resHackathons.success) setHackathons(resHackathons.hackathons || []);
+      if (resEvents && resEvents.success) setEvents(resEvents.events || []);
+      setStatsLoading(false);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      setStatsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let active = true;
-    const fetchData = async () => {
-      try {
-        const [resBlogs, resProjects, resHackathons, resEvents] = await Promise.all([
-          fetch('/api/blogs').then(r => r.json()).catch(() => ({ success: false })),
-          fetch('/api/projects').then(r => r.json()).catch(() => ({ success: false })),
-          fetch('/api/hackathons').then(r => r.json()).catch(() => ({ success: false })),
-          fetch('/api/events').then(r => r.json()).catch(() => ({ success: false }))
-        ]);
-
-        if (active) {
-          if (resBlogs && resBlogs.success) setBlogs(resBlogs.blogs || []);
-          if (resProjects && resProjects.success) setProjects(resProjects.projects || []);
-          if (resHackathons && resHackathons.success) setHackathons(resHackathons.hackathons || []);
-          if (resEvents && resEvents.success) setEvents(resEvents.events || []);
-          setStatsLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching dashboard stats:", error);
-        if (active) setStatsLoading(false);
-      }
-    };
-
     fetchData();
-    return () => {
-      active = false;
-    };
   }, [activeTab]);
+
+  // Dynamic statistics state variables
+  const [enrolledCount, setEnrolledCount] = useState(0);
+  const [completedCoursesCount, setCompletedCoursesCount] = useState(0);
+  const [ongoingCoursesCount, setOngoingCoursesCount] = useState(0);
+  const [coursesList, setCoursesList] = useState<any[]>([]);
+  const [dsaProblemsSolved, setDsaProblemsSolved] = useState(0);
+  const [dsaSheetsSolved, setDsaSheetsSolved] = useState(0);
+  const [quizzesCompletedCount, setQuizzesCompletedCount] = useState(0);
+  const [quizzesHighScoreCount, setQuizzesHighScoreCount] = useState(0);
+
+  // UI state for drapes (sliding drawers)
+  const [isStreakDrapeOpen, setIsStreakDrapeOpen] = useState(false);
+  const [isSyllabusDrapeOpen, setIsSyllabusDrapeOpen] = useState(false);
+  const [isQuickCreateDrapeOpen, setIsQuickCreateDrapeOpen] = useState(false);
+  const [quickCreateType, setQuickCreateType] = useState<'project' | 'blog' | 'hackathon'>('project');
+
+  // Quick create form inputs
+  const [quickTitle, setQuickTitle] = useState('');
+  const [quickContent, setQuickContent] = useState('');
+  const [quickExtraField, setQuickExtraField] = useState(''); // e.g. Link or Deadline
+
+  // Sync state stats from localStorage
+  useEffect(() => {
+    // 1. Courses progress and enrollment counts
+    const coursesRaw = localStorage.getItem('sab_tech_courses_state_v3');
+    if (coursesRaw) {
+      try {
+        const parsed = JSON.parse(coursesRaw);
+        if (Array.isArray(parsed)) {
+          setCoursesList(parsed);
+          const enrolled = parsed.filter(c => c && c.enrolled).length;
+          const completed = parsed.filter(c => c && c.enrolled && c.progress === 100).length;
+          setEnrolledCount(enrolled);
+          setCompletedCoursesCount(completed);
+          setOngoingCoursesCount(enrolled - completed);
+        }
+      } catch (e) {
+        console.error('Error reading courses state in dashboard:', e);
+      }
+    } else {
+      setEnrolledCount(1);
+      setCompletedCoursesCount(0);
+      setOngoingCoursesCount(1);
+    }
+
+    // 2. DSA solved problems and sheets
+    const sheetsRaw = localStorage.getItem('leetmaster_dsa_sheets_v1');
+    if (sheetsRaw) {
+      try {
+        const parsed = JSON.parse(sheetsRaw);
+        if (Array.isArray(parsed)) {
+          let solvedCount = 0;
+          let sheetsSolved = 0;
+          parsed.forEach(s => {
+            if (s && Array.isArray(s.problems)) {
+              const solvedProblems = s.problems.filter(p => p && p.solved).length;
+              solvedCount += solvedProblems;
+              if (solvedProblems === s.totalCount && s.totalCount > 0) {
+                sheetsSolved += 1;
+              }
+            }
+          });
+          setDsaProblemsSolved(solvedCount);
+          setDsaSheetsSolved(sheetsSolved);
+        }
+      } catch (e) {
+        console.error('Error reading DSA sheets state in dashboard:', e);
+      }
+    } else {
+      setDsaProblemsSolved(4);
+      setDsaSheetsSolved(1);
+    }
+
+    // 3. Completed quizzes and high scores
+    const savedQuizRaw = localStorage.getItem('leetmaster_quiz_completed');
+    if (savedQuizRaw) {
+      try {
+        const parsed = JSON.parse(savedQuizRaw);
+        if (Array.isArray(parsed)) {
+          setQuizzesCompletedCount(parsed.length);
+          const highScores = parsed.filter((q: any) => q.score >= 80).length;
+          setQuizzesHighScoreCount(highScores);
+        }
+      } catch (e) {
+        console.error('Error reading quiz state in dashboard:', e);
+      }
+    } else {
+      setQuizzesCompletedCount(2);
+      setQuizzesHighScoreCount(1);
+    }
+  }, [activeTab, currentPath]);
+
+  // Handle checking/unchecking a lesson from the dynamic Syllabus Checklist drape
+  const handleToggleSyllabusLesson = (courseId: string, moduleId: string, lessonId: string) => {
+    const updatedCourses = coursesList.map(c => {
+      if (c.id === courseId) {
+        const updatedModules = c.modules.map((mod: any) => {
+          if (mod.id === moduleId) {
+            return {
+              ...mod,
+              lessons: mod.lessons.map((les: any) => {
+                if (les.id === lessonId) {
+                  return { ...les, completed: !les.completed };
+                }
+                return les;
+              })
+            };
+          }
+          return mod;
+        });
+
+        const allLessons = updatedModules.flatMap((m: any) => m.lessons);
+        const completedCount = allLessons.filter((l: any) => l.completed).length;
+        const totalCount = allLessons.length;
+        const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+        return {
+          ...c,
+          modules: updatedModules,
+          progress: newProgress
+        };
+      }
+      return c;
+    });
+
+    setCoursesList(updatedCourses);
+    localStorage.setItem('sab_tech_courses_state_v3', JSON.stringify(updatedCourses));
+    
+    // Sync state metrics immediately in Dashboard
+    const enrolled = updatedCourses.filter(c => c && c.enrolled).length;
+    const completed = updatedCourses.filter(c => c && c.enrolled && c.progress === 100).length;
+    setEnrolledCount(enrolled);
+    setCompletedCoursesCount(completed);
+    setOngoingCoursesCount(enrolled - completed);
+  };
 
   // Computed values for Projects
   const totalProjects = projects.length;
@@ -434,8 +564,20 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
             </div>
 
             <div className="flex items-center gap-3 self-start sm:self-center">
+              {/* Quick Add Button */}
+              <button 
+                onClick={() => setIsQuickCreateDrapeOpen(true)}
+                className="bg-[#ff6b2b] hover:bg-[#e0561a] text-white text-xs font-black px-4 py-2 rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Quick Add</span>
+              </button>
+
               {/* Notice Board Button */}
-              <button className="bg-[#e7e5e4] dark:bg-stone-800 hover:bg-[#d6d3d1] dark:hover:bg-stone-750 text-stone-800 dark:text-stone-200 text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer">
+              <button 
+                onClick={() => setIsStreakDrapeOpen(true)}
+                className="bg-[#e7e5e4] dark:bg-stone-800 hover:bg-[#d6d3d1] dark:hover:bg-stone-750 text-stone-800 dark:text-stone-200 text-xs font-bold px-4 py-2 rounded-xl transition-all cursor-pointer"
+              >
                 Notice Board
               </button>
 
@@ -473,40 +615,42 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                     
                     {/* CARD 1: Projects */}
                     <div 
                       onClick={() => onNavigate('/projects')}
-                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden"
+                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[220px]"
                     >
                       <div className="absolute top-0 right-0 w-16 h-16 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
-                      <div className="flex items-start justify-between relative z-10">
-                        <h3 className="text-sm font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Projects</h3>
-                        <Folder className="w-5 h-5 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                      <div>
+                        <div className="flex items-start justify-between relative z-10">
+                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Projects</h3>
+                          <Folder className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                        </div>
+                        <div className="mt-3 mb-4 relative z-10">
+                          <span className="text-4xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
+                            {totalProjects}
+                          </span>
+                        </div>
                       </div>
-                      <div className="mt-4 mb-5 relative z-10">
-                        <span className="text-5xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
-                          {totalProjects}
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-2 pt-3 border-t border-stone-100 dark:border-stone-850 text-[11px] font-bold text-stone-500 dark:text-stone-400">
+                      <div className="flex flex-col gap-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-850 text-[10px] font-bold text-stone-500 dark:text-stone-400">
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             🌍 Public
                           </span>
                           <span className="font-mono text-stone-900 dark:text-white">{publicProjects}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-amber-500" />
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                             🔒 Private
                           </span>
                           <span className="font-mono text-stone-900 dark:text-white">{privateProjects}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[10px] text-[#ff6b2b]">
-                          <span>👤 Added by you</span>
+                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[9px] text-[#ff6b2b]">
+                          <span>👤 Created</span>
                           <span className="font-mono">{myProjects}</span>
                         </div>
                       </div>
@@ -515,35 +659,37 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                     {/* CARD 2: Blogs */}
                     <div 
                       onClick={() => onNavigate('/blogs')}
-                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden"
+                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[220px]"
                     >
                       <div className="absolute top-0 right-0 w-16 h-16 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
-                      <div className="flex items-start justify-between relative z-10">
-                        <h3 className="text-sm font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Blogs</h3>
-                        <PenTool className="w-5 h-5 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                      <div>
+                        <div className="flex items-start justify-between relative z-10">
+                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Blogs</h3>
+                          <PenTool className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                        </div>
+                        <div className="mt-3 mb-4 relative z-10">
+                          <span className="text-4xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
+                            {totalBlogs}
+                          </span>
+                        </div>
                       </div>
-                      <div className="mt-4 mb-5 relative z-10">
-                        <span className="text-5xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
-                          {totalBlogs}
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-2 pt-3 border-t border-stone-100 dark:border-stone-850 text-[11px] font-bold text-stone-500 dark:text-stone-400">
+                      <div className="flex flex-col gap-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-850 text-[10px] font-bold text-stone-500 dark:text-stone-400">
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                            🌍 Public
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            🌍 Published
                           </span>
                           <span className="font-mono text-stone-900 dark:text-white">{publicBlogs}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-amber-500" />
-                            🔒 Private
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                            🔒 Drafts
                           </span>
                           <span className="font-mono text-stone-900 dark:text-white">{privateBlogs}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[10px] text-[#ff6b2b]">
-                          <span>👤 Added by you</span>
+                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[9px] text-[#ff6b2b]">
+                          <span>👤 By You</span>
                           <span className="font-mono">{myBlogs}</span>
                         </div>
                       </div>
@@ -552,35 +698,37 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                     {/* CARD 3: Hackathons */}
                     <div 
                       onClick={() => onNavigate('/hackathons-dashboard')}
-                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden"
+                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[220px]"
                     >
                       <div className="absolute top-0 right-0 w-16 h-16 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
-                      <div className="flex items-start justify-between relative z-10">
-                        <h3 className="text-sm font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Hackathons</h3>
-                        <Trophy className="w-5 h-5 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                      <div>
+                        <div className="flex items-start justify-between relative z-10">
+                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Hackathons</h3>
+                          <Trophy className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                        </div>
+                        <div className="mt-3 mb-4 relative z-10">
+                          <span className="text-4xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
+                            {totalHackathons}
+                          </span>
+                        </div>
                       </div>
-                      <div className="mt-4 mb-5 relative z-10">
-                        <span className="text-5xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
-                          {totalHackathons}
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-2 pt-3 border-t border-stone-100 dark:border-stone-850 text-[11px] font-bold text-stone-500 dark:text-stone-400">
+                      <div className="flex flex-col gap-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-850 text-[10px] font-bold text-stone-500 dark:text-stone-400">
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             🌍 Public
                           </span>
                           <span className="font-mono text-stone-900 dark:text-white">{publicHackathons}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-amber-500" />
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                             🔒 Private
                           </span>
                           <span className="font-mono text-stone-900 dark:text-white">{privateHackathons}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[10px] text-[#ff6b2b]">
-                          <span>🏆 Participating</span>
+                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[9px] text-[#ff6b2b]">
+                          <span>🏆 Registered</span>
                           <span className="font-mono">{myHackathons}</span>
                         </div>
                       </div>
@@ -588,37 +736,117 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
 
                     {/* CARD 4: Courses */}
                     <div 
-                      onClick={() => onNavigate('/quiz-tab')}
-                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden"
+                      onClick={() => onNavigate('/courses')}
+                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[220px]"
                     >
                       <div className="absolute top-0 right-0 w-16 h-16 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
-                      <div className="flex items-start justify-between relative z-10">
-                        <h3 className="text-sm font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Courses</h3>
-                        <GraduationCap className="w-5 h-5 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                      <div>
+                        <div className="flex items-start justify-between relative z-10">
+                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Courses</h3>
+                          <GraduationCap className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                        </div>
+                        <div className="mt-3 mb-4 relative z-10">
+                          <span className="text-4xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
+                            {enrolledCount}
+                          </span>
+                        </div>
                       </div>
-                      <div className="mt-4 mb-5 relative z-10">
-                        <span className="text-5xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
-                          1
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-2 pt-3 border-t border-stone-100 dark:border-stone-850 text-[11px] font-bold text-stone-500 dark:text-stone-400">
+                      <div className="flex flex-col gap-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-850 text-[10px] font-bold text-stone-500 dark:text-stone-400">
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                            <Check className="w-3 h-3 stroke-[3]" />
                             Completed
                           </span>
-                          <span className="font-mono text-stone-900 dark:text-white">0</span>
+                          <span className="font-mono text-stone-900 dark:text-white">{completedCoursesCount}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-rose-500" />
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-rose-500 rounded-full" />
                             Ongoing
                           </span>
-                          <span className="font-mono text-stone-900 dark:text-white">1</span>
+                          <span className="font-mono text-stone-900 dark:text-white">{ongoingCoursesCount}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[10px] text-stone-400">
-                          <span>Scholar quiz rewards</span>
-                          <span className="font-mono">+30 XP</span>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsSyllabusDrapeOpen(true);
+                          }}
+                          className="w-full mt-1 text-center py-1 rounded bg-[#ff6b2b]/10 hover:bg-[#ff6b2b]/25 text-[#ff6b2b] font-black text-[9px] uppercase tracking-wider transition-colors cursor-pointer block"
+                        >
+                          Quick Syllabus &rarr;
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* CARD 5: DSA Problem Solver */}
+                    <div 
+                      onClick={() => onNavigate('/dsa-sheets')}
+                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[220px]"
+                    >
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
+                      <div>
+                        <div className="flex items-start justify-between relative z-10">
+                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">DSA sheets</h3>
+                          <Code className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                        </div>
+                        <div className="mt-3 mb-4 relative z-10">
+                          <span className="text-4xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
+                            {dsaProblemsSolved}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-850 text-[10px] font-bold text-stone-500 dark:text-stone-400 font-sans">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Completed Sheets
+                          </span>
+                          <span className="font-mono text-stone-900 dark:text-white">{dsaSheetsSolved}</span>
+                        </div>
+                        <div className="w-full bg-stone-100 dark:bg-stone-850 h-1 rounded-full overflow-hidden my-0.5">
+                          <div className="h-full bg-[#ff6b2b] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (dsaProblemsSolved / 15) * 100)}%` }} />
+                        </div>
+                        <div className="flex items-center justify-between text-[9px] text-stone-400">
+                          <span>Target: 15 problems</span>
+                          <span className="font-mono font-bold text-[#ff6b2b]">{Math.round((dsaProblemsSolved / 15) * 100)}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CARD 6: Brain Gym & Quizzes */}
+                    <div 
+                      onClick={() => onNavigate('/quiz-tab')}
+                      className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[220px]"
+                    >
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
+                      <div>
+                        <div className="flex items-start justify-between relative z-10">
+                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Quizzes</h3>
+                          <Brain className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                        </div>
+                        <div className="mt-3 mb-4 relative z-10">
+                          <span className="text-4xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
+                            {quizzesCompletedCount}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-850 text-[10px] font-bold text-stone-500 dark:text-stone-400">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1.5 text-orange-500">
+                            <Star className="w-3.5 h-3.5 fill-current" />
+                            High Scores (&ge;80%)
+                          </span>
+                          <span className="font-mono text-stone-900 dark:text-white">{quizzesHighScoreCount}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1 text-stone-400">
+                            ⭐ Performance
+                          </span>
+                          <span className="font-semibold text-stone-700 dark:text-stone-300">Elite</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[9px] text-[#ff6b2b]">
+                          <span>⚡ Quick IQ Boost</span>
+                          <span>+20 XP</span>
                         </div>
                       </div>
                     </div>
@@ -1085,6 +1313,356 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                 <p className="text-xs text-stone-400 max-w-sm">Every action is tracked for your daily scholar streak. Complete peer reviews to gain extra marks.</p>
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ========================================================= */}
+        {/* DRAPES / SLIDING DRAWERS (HIGH INTERACTIVITY & INTENSITY) */}
+        {/* ========================================================= */}
+
+        <AnimatePresence>
+          {/* DRAPE 1: FLAME STREAK & LOGS DRAPE */}
+          {isStreakDrapeOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsStreakDrapeOpen(false)}
+                className="fixed inset-0 bg-stone-950/40 backdrop-blur-xs z-50 cursor-pointer"
+              />
+              
+              {/* Drawer Content */}
+              <motion.div 
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 shadow-2xl z-55 flex flex-col p-6 overflow-y-auto"
+              >
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-850 pb-4 mb-6">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
+                    <h3 className="font-black text-base text-stone-900 dark:text-white font-sans uppercase tracking-wider">Scholar Streak &amp; Activity</h3>
+                  </div>
+                  <button 
+                    onClick={() => setIsStreakDrapeOpen(false)}
+                    className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Flame Streak Indicator */}
+                <div className="bg-[#fffefe] dark:bg-stone-950 border border-stone-200/60 dark:border-stone-850 rounded-2xl p-6 text-center shadow-sm mb-6 flex flex-col items-center justify-center">
+                  <div className="relative mb-3">
+                    <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-xl scale-125" />
+                    <Flame className="w-16 h-16 text-[#ff6b2b] relative animate-bounce" />
+                  </div>
+                  <h4 className="text-3xl font-black text-stone-900 dark:text-white font-sans tracking-tight">5 Day Streak</h4>
+                  <p className="text-xs font-semibold text-stone-400 mt-1">Keep coding daily to earn 2x Scholar XP multipliers!</p>
+                  
+                  {/* Streak Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-2 w-full mt-5">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => {
+                      const isComplete = idx < 5; // Mon-Fri complete
+                      return (
+                        <div key={day} className="flex flex-col items-center">
+                          <span className="text-[9px] font-bold text-stone-400 dark:text-stone-500 font-mono mb-1">{day}</span>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${isComplete ? 'bg-[#ff6b2b]/15 text-[#ff6b2b] border border-[#ff6b2b]/30' : 'bg-stone-50 dark:bg-stone-850 text-stone-300 border border-stone-100 dark:border-stone-800'}`}>
+                            {isComplete ? '🔥' : '•'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Learning Logs */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase text-stone-400 dark:text-stone-500 tracking-wider font-mono">Academic Activity log</h4>
+                  <div className="space-y-3">
+                    {[
+                      { title: 'Joined LeetMaster Academic Ecosystem', date: 'Just now', type: 'System', xp: '+100 XP' },
+                      { title: 'Enrolled in Full-Stack Developer Course', date: '1 hour ago', type: 'Course', xp: '+50 XP' },
+                      { title: 'Solved DSA Problem: Two Sum (Easy)', date: '3 hours ago', type: 'DSA', xp: '+20 XP' },
+                      { title: 'Created community blog about State Sync', date: '1 day ago', type: 'Blog', xp: '+40 XP' },
+                      { title: 'Participated in Developer Hackathon Round 1', date: '2 days ago', type: 'Event', xp: '+80 XP' }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-3 p-3 bg-[#faf9f6] dark:bg-stone-950/30 border border-stone-100 dark:border-stone-850 rounded-xl">
+                        <div className="w-1.5 h-1.5 bg-[#ff6b2b] rounded-full mt-1.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-stone-800 dark:text-stone-200 leading-tight">{item.title}</p>
+                          <div className="flex items-center gap-2 mt-1 text-[10px] text-stone-400 font-semibold">
+                            <span>{item.type}</span>
+                            <span>•</span>
+                            <span>{item.date}</span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-mono font-black text-[#ff6b2b]">{item.xp}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+
+          {/* DRAPE 2: INTERACTIVE SYLLABUS CHECKLIST DRAPE */}
+          {isSyllabusDrapeOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsSyllabusDrapeOpen(false)}
+                className="fixed inset-0 bg-stone-950/40 backdrop-blur-xs z-50 cursor-pointer"
+              />
+              
+              {/* Drawer Content */}
+              <motion.div 
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 shadow-2xl z-55 flex flex-col p-6 overflow-y-auto"
+              >
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-850 pb-4 mb-6">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-orange-500" />
+                    <h3 className="font-black text-base text-stone-900 dark:text-white font-sans uppercase tracking-wider">Academic Syllabus Checklist</h3>
+                  </div>
+                  <button 
+                    onClick={() => setIsSyllabusDrapeOpen(false)}
+                    className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {coursesList.filter(c => c && c.enrolled).length === 0 ? (
+                  <div className="flex flex-col items-center justify-center text-center py-12 px-4 h-full">
+                    <BookOpen className="w-12 h-12 text-stone-300 dark:text-stone-700 mb-3" />
+                    <h4 className="text-sm font-bold text-stone-800 dark:text-stone-200">No enrolled courses found</h4>
+                    <p className="text-xs text-stone-400 max-w-xs mt-1.5">You are not enrolled in any developer courses. Start your curriculum now!</p>
+                    <button 
+                      onClick={() => {
+                        setIsSyllabusDrapeOpen(false);
+                        onNavigate('/courses');
+                      }}
+                      className="mt-4 px-4 py-2 bg-[#ff6b2b] hover:bg-[#e0561a] text-white text-xs font-black rounded-lg transition-colors cursor-pointer"
+                    >
+                      Browse Courses
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6 flex-1">
+                    <p className="text-xs font-medium text-stone-500 dark:text-stone-400">
+                      Check lessons off your syllabus below to study modules. Changes will instantly update your course metrics and ratings in real-time.
+                    </p>
+
+                    {coursesList.filter(c => c && c.enrolled).map((course) => (
+                      <div key={course.id} className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50/50 dark:bg-stone-950/20">
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="text-sm font-black text-stone-900 dark:text-stone-100 line-clamp-1">{course.title}</h4>
+                          <span className="text-[10px] font-black font-mono text-[#ff6b2b] bg-orange-50 dark:bg-orange-950/20 px-2 py-0.5 rounded-full">{course.progress}%</span>
+                        </div>
+                        
+                        {/* Modules & Lessons */}
+                        <div className="space-y-4 mt-3">
+                          {course.modules?.map((mod: any) => (
+                            <div key={mod.id} className="space-y-1.5">
+                              <h5 className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-wider font-mono">{mod.title}</h5>
+                              <div className="space-y-1 pl-1">
+                                {mod.lessons?.map((lesson: any) => (
+                                  <div 
+                                    key={lesson.id} 
+                                    onClick={() => handleToggleSyllabusLesson(course.id, mod.id, lesson.id)}
+                                    className="flex items-center gap-2.5 p-2 bg-white dark:bg-stone-900 border border-stone-100 dark:border-stone-850 hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b] rounded-lg cursor-pointer transition-all"
+                                  >
+                                    <div className={`w-4 h-4 rounded-full flex items-center justify-center border transition-all ${lesson.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-stone-300 dark:border-stone-700 bg-transparent'}`}>
+                                      {lesson.completed && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                    </div>
+                                    <span className={`text-[11px] font-bold select-none ${lesson.completed ? 'text-stone-400 line-through' : 'text-stone-700 dark:text-stone-300'}`}>
+                                      {lesson.title}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            </>
+          )}
+
+          {/* DRAPE 3: QUICK CREATE DYNAMIC FORM DRAPE */}
+          {isQuickCreateDrapeOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsQuickCreateDrapeOpen(false)}
+                className="fixed inset-0 bg-stone-950/40 backdrop-blur-xs z-50 cursor-pointer"
+              />
+              
+              {/* Drawer Content */}
+              <motion.div 
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 shadow-2xl z-55 flex flex-col p-6 overflow-y-auto"
+              >
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-850 pb-4 mb-6">
+                  <div className="flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-[#ff6b2b]" />
+                    <h3 className="font-black text-base text-stone-900 dark:text-white font-sans uppercase tracking-wider">Quick Create Asset</h3>
+                  </div>
+                  <button 
+                    onClick={() => setIsQuickCreateDrapeOpen(false)}
+                    className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Select Asset Type Tabs */}
+                <div className="grid grid-cols-3 gap-2 bg-[#faf9f6] dark:bg-stone-950 p-1.5 rounded-xl border border-stone-100 dark:border-stone-850 mb-6">
+                  {['project', 'blog', 'hackathon'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => {
+                        setQuickCreateType(type as any);
+                        setQuickTitle('');
+                        setQuickContent('');
+                        setQuickExtraField('');
+                      }}
+                      className={`text-center py-2 rounded-lg font-black text-[10px] uppercase tracking-wider cursor-pointer transition-colors ${quickCreateType === type ? 'bg-[#ff6b2b] text-white' : 'text-stone-500 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-850'}`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Form */}
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!quickTitle.trim() || !quickContent.trim()) return;
+                  
+                  try {
+                    let endpoint = '';
+                    let body: any = {};
+
+                    if (quickCreateType === 'project') {
+                      endpoint = '/api/projects';
+                      body = {
+                        title: quickTitle,
+                        description: quickContent,
+                        codeLink: quickExtraField || 'https://github.com/dastgeer/leetmaster-project',
+                        deployLink: 'https://leetmaster-app.live',
+                        startDate: new Date().toISOString().split('T')[0],
+                        endDate: '',
+                        status: 'public'
+                      };
+                    } else if (quickCreateType === 'blog') {
+                      endpoint = '/api/blogs';
+                      body = {
+                        title: quickTitle,
+                        content: quickContent,
+                        category: quickExtraField || 'Web Development',
+                        status: 'public',
+                        author: 'Dastgeer',
+                        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop'
+                      };
+                    } else if (quickCreateType === 'hackathon') {
+                      endpoint = '/api/hackathons';
+                      body = {
+                        title: quickTitle,
+                        description: quickContent,
+                        tags: 'React, Tailwind, sqlite3',
+                        prizes: '$500 Scholar Grant',
+                        deadline: quickExtraField || 'August 31, 2026',
+                        status: 'public',
+                        author: 'Dastgeer',
+                        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop'
+                      };
+                    }
+
+                    const res = await fetch(endpoint, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      await fetchData(); // re-fetch dynamic stats
+                      setQuickTitle('');
+                      setQuickContent('');
+                      setQuickExtraField('');
+                      setIsQuickCreateDrapeOpen(false);
+                    }
+                  } catch (err) {
+                    console.error('Failed to submit quick create form:', err);
+                  }
+                }} className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-stone-400 dark:text-stone-500 tracking-wider mb-1 font-mono">Title</label>
+                    <input 
+                      type="text" 
+                      value={quickTitle}
+                      onChange={(e) => setQuickTitle(e.target.value)}
+                      placeholder={quickCreateType === 'project' ? 'My NextJS App' : quickCreateType === 'blog' ? 'Understanding SQLite Hooks' : 'CodeSprint Hackathon'}
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl text-xs font-bold text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#ff6b2b]"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-stone-400 dark:text-stone-500 tracking-wider mb-1 font-mono">
+                      {quickCreateType === 'project' ? 'Project Description' : quickCreateType === 'blog' ? 'Blog Content' : 'Hackathon Mission'}
+                    </label>
+                    <textarea 
+                      rows={4}
+                      value={quickContent}
+                      onChange={(e) => setQuickContent(e.target.value)}
+                      placeholder={quickCreateType === 'project' ? 'Explain what you built...' : quickCreateType === 'blog' ? 'Write your thoughts here...' : 'Explain the hackathon criteria...'}
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl text-xs font-bold text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#ff6b2b]"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-stone-400 dark:text-stone-500 tracking-wider mb-1 font-mono">
+                      {quickCreateType === 'project' ? 'GitHub Link (Optional)' : quickCreateType === 'blog' ? 'Category / Tag (Optional)' : 'Deadline (Optional)'}
+                    </label>
+                    <input 
+                      type="text" 
+                      value={quickExtraField}
+                      onChange={(e) => setQuickExtraField(e.target.value)}
+                      placeholder={quickCreateType === 'project' ? 'https://github.com/...' : quickCreateType === 'blog' ? 'Web Development' : 'August 31, 2026'}
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl text-xs font-bold text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#ff6b2b]"
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    className="w-full py-3 bg-[#ff6b2b] hover:bg-[#e0561a] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm cursor-pointer mt-4"
+                  >
+                    Publish {quickCreateType}
+                  </button>
+                </form>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 

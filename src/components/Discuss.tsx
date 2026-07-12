@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   MessageSquare, Heart, ThumbsUp, Flame, Sparkles, Plus, Search, 
   Send, User, Clock, ChevronDown, Filter, MessageCircle, Share2, 
-  Check, X, ThumbsDown, BookOpen, MessageSquareCode
+  Check, X, ThumbsDown, BookOpen, MessageSquareCode, Edit2, Trash2
 } from 'lucide-react';
 
 interface Comment {
@@ -45,73 +45,7 @@ interface DiscussionPost {
   tags: string[];
 }
 
-const DEFAULT_POSTS: DiscussionPost[] = [
-  {
-    id: 'post-1',
-    title: 'Python vs Javascript: Best Language for Backend Development in 2026?',
-    category: 'Backend Development',
-    author: 'Dastgeer',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=128&auto=format&fit=crop',
-    role: 'Instructor',
-    timestamp: '2 hours ago',
-    content: 'With Node.js having amazing ecosystem and Python having superior AI/ML libraries, which one do you prefer for building scalable enterprise backend APIs? I personally lean towards FastAPI for performance and Node.js for heavy asynchronous payloads.',
-    reactions: { thumbsUp: 18, heart: 12, fire: 8, insightful: 15 },
-    userReactions: { thumbsUp: false, heart: false, fire: false, insightful: false },
-    tags: ['Python', 'NodeJS', 'FastAPI', 'Backend'],
-    comments: [
-      {
-        id: 'c1',
-        author: 'Shivam',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop',
-        text: 'FastAPI combined with Pydantic is a lifesaver. Hard to go back to Javascript boilerplate after using that.',
-        timestamp: '1 hour ago'
-      },
-      {
-        id: 'c2',
-        author: 'Kunal',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=128&auto=format&fit=crop',
-        text: 'Javascript/TypeScript for the win! Single language fullstack development speeds up startups like crazy.',
-        timestamp: '45 mins ago'
-      }
-    ]
-  },
-  {
-    id: 'post-2',
-    title: 'How to practice DSA consistently without feeling burned out?',
-    category: 'DSA Prep',
-    author: 'Anirudh',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=128&auto=format&fit=crop',
-    role: 'Mentor',
-    timestamp: '5 hours ago',
-    content: "Doing 10 problems a day is a recipe for burnout. It is better to focus on 1-2 patterns (like Two Pointers, Sliding Window) deeply per week. Quality over quantity always wins interviews.",
-    reactions: { thumbsUp: 34, heart: 22, fire: 19, insightful: 28 },
-    userReactions: { thumbsUp: false, heart: false, fire: false, insightful: false },
-    tags: ['LeetCode', 'Interview', 'Consistency', 'StudyTips'],
-    comments: [
-      {
-        id: 'c3',
-        author: 'Ayesha',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=128&auto=format&fit=crop',
-        text: 'This advice changed my preparation completely. Sticking to one pattern per week made me enjoy coding again!',
-        timestamp: '3 hours ago'
-      }
-    ]
-  },
-  {
-    id: 'post-3',
-    title: 'Why relational SQL databases are still king over NoSQL for most SaaS apps',
-    category: 'Databases',
-    author: 'Riya Sharma',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=128&auto=format&fit=crop',
-    role: 'SDE-2 at Microsoft',
-    timestamp: '1 day ago',
-    content: "ACID transactions, structured schemas, and robust JOIN queries are essential for SaaS financials and permissions. Starting with MongoDB often results in writing simulated join logic in application code.",
-    reactions: { thumbsUp: 29, heart: 14, fire: 10, insightful: 22 },
-    userReactions: { thumbsUp: false, heart: false, fire: false, insightful: false },
-    tags: ['SQL', 'PostgreSQL', 'NoSQL', 'DatabaseDesign'],
-    comments: []
-  }
-];
+const DEFAULT_POSTS: DiscussionPost[] = [];
 
 const CATEGORIES = [
   'All Discussions',
@@ -139,6 +73,18 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
   const [userName, setUserName] = useState('Dastgeer');
   const [userAvatar, setUserAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=128&auto=format&fit=crop');
 
+  // Edit states
+  const [isEditPostOpen, setIsEditPostOpen] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editCategory, setEditCategory] = useState('General Discussion');
+  const [editContent, setEditContent] = useState('');
+  const [editTags, setEditTags] = useState('');
+
+  // Comment edit states
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState('');
+
   // Load posts from localStorage or seed
   useEffect(() => {
     try {
@@ -152,16 +98,23 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
       console.error(e);
     }
 
-    const savedPosts = localStorage.getItem('leetmaster_discussions');
-    if (savedPosts) {
-      try {
-        setPosts(JSON.parse(savedPosts));
-      } catch (e) {
-        setPosts(DEFAULT_POSTS);
-      }
+    // Force clear any old preloaded default posts to make sure board is clean initially
+    const hasBeenCleared = localStorage.getItem('leetmaster_discussions_cleared_empty_v2');
+    if (!hasBeenCleared) {
+      localStorage.setItem('leetmaster_discussions', '[]');
+      localStorage.setItem('leetmaster_discussions_cleared_empty_v2', 'true');
+      setPosts([]);
     } else {
-      setPosts(DEFAULT_POSTS);
-      localStorage.setItem('leetmaster_discussions', JSON.stringify(DEFAULT_POSTS));
+      const savedPosts = localStorage.getItem('leetmaster_discussions');
+      if (savedPosts) {
+        try {
+          setPosts(JSON.parse(savedPosts));
+        } catch (e) {
+          setPosts([]);
+        }
+      } else {
+        setPosts([]);
+      }
     }
   }, []);
 
@@ -188,8 +141,8 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
       role: 'Student Member',
       timestamp: 'Just now',
       content: newContent,
-      reactions: { thumbsUp: 1, heart: 0, fire: 0, insightful: 0 },
-      userReactions: { thumbsUp: true, heart: false, fire: false, insightful: false },
+      reactions: { thumbsUp: 0, heart: 0, fire: 0, insightful: 0 },
+      userReactions: { thumbsUp: false, heart: false, fire: false, insightful: false },
       tags: tagsArray.length > 0 ? tagsArray : ['General'],
       comments: []
     };
@@ -203,6 +156,98 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
     setNewTags('');
     setNewCategory('General Discussion');
     setIsNewPostOpen(false);
+  };
+
+  const handleOpenEditPost = (post: DiscussionPost, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingPostId(post.id);
+    setEditTitle(post.title);
+    setEditCategory(post.category);
+    setEditContent(post.content);
+    setEditTags(post.tags.join(', '));
+    setIsEditPostOpen(true);
+  };
+
+  const handleUpdatePost = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTitle.trim() || !editContent.trim()) return;
+
+    const tagsArray = editTags
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
+
+    const updated = posts.map(post => {
+      if (post.id === editingPostId) {
+        return {
+          ...post,
+          title: editTitle,
+          category: editCategory,
+          content: editContent,
+          tags: tagsArray.length > 0 ? tagsArray : ['General']
+        };
+      }
+      return post;
+    });
+
+    savePosts(updated);
+    setIsEditPostOpen(false);
+    setEditingPostId(null);
+  };
+
+  const handleDeletePost = (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this discussion post?')) {
+      const updated = posts.filter(post => post.id !== postId);
+      savePosts(updated);
+      if (selectedPostId === postId) {
+        setSelectedPostId(null);
+      }
+    }
+  };
+
+  const handleStartEditComment = (commentId: string, text: string) => {
+    setEditingCommentId(commentId);
+    setEditCommentText(text);
+  };
+
+  const handleUpdateComment = (postId: string, commentId: string) => {
+    if (!editCommentText.trim()) return;
+
+    const updated = posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          comments: post.comments.map(c => {
+            if (c.id === commentId) {
+              return { ...c, text: editCommentText.trim() };
+            }
+            return c;
+          })
+        };
+      }
+      return post;
+    });
+
+    savePosts(updated);
+    setEditingCommentId(null);
+    setEditCommentText('');
+  };
+
+  const handleDeleteComment = (postId: string, commentId: string) => {
+    if (window.confirm('Are you sure you want to delete this comment?')) {
+      const updated = posts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            comments: post.comments.filter(c => c.id !== commentId)
+          };
+        }
+        return post;
+      });
+
+      savePosts(updated);
+    }
   };
 
   const handleReaction = (postId: string, reactionType: keyof DiscussionPost['reactions'], e?: React.MouseEvent) => {
@@ -295,31 +340,52 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
           {/* Full Post Layout */}
           <div className="bg-white dark:bg-stone-900 border border-stone-200/60 dark:border-stone-850 rounded-xl p-5 sm:p-6 shadow-sm">
             {/* Header info */}
-            <div className="flex items-center gap-3 mb-4">
-              <img
-                src={selectedPost.avatar}
-                alt={selectedPost.author}
-                referrerPolicy="no-referrer"
-                className="w-12 h-12 rounded-full border border-stone-200 dark:border-stone-800 object-cover"
-              />
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
-                    {selectedPost.author}
-                  </span>
-                  {selectedPost.role && (
-                    <span className="px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-[9px] font-semibold text-stone-500 dark:text-stone-400 uppercase">
-                      {selectedPost.role}
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedPost.avatar}
+                  alt={selectedPost.author}
+                  referrerPolicy="no-referrer"
+                  className="w-12 h-12 rounded-full border border-stone-200 dark:border-stone-800 object-cover"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                      {selectedPost.author}
                     </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-stone-400">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{selectedPost.timestamp}</span>
-                  <span>•</span>
-                  <span className="text-[#ff6b2b] font-medium">{selectedPost.category}</span>
+                    {selectedPost.role && (
+                      <span className="px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-[9px] font-semibold text-stone-500 dark:text-stone-400 uppercase">
+                        {selectedPost.role}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-stone-400">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{selectedPost.timestamp}</span>
+                    <span>•</span>
+                    <span className="text-[#ff6b2b] font-medium">{selectedPost.category}</span>
+                  </div>
                 </div>
               </div>
+
+              {selectedPost.author === userName && (
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button
+                    onClick={(e) => handleOpenEditPost(selectedPost, e)}
+                    className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg text-stone-400 hover:text-[#ff6b2b] transition-colors cursor-pointer"
+                    title="Edit Post"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => handleDeletePost(selectedPost.id, e)}
+                    className="p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
+                    title="Delete Post"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Title & Body */}
@@ -421,13 +487,62 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
                         <span className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-100">
                           {comment.author}
                         </span>
-                        <span className="text-[10px] text-stone-400 font-mono">
-                          {comment.timestamp}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-stone-400 font-mono">
+                            {comment.timestamp}
+                          </span>
+                          {comment.author === userName && (
+                            <div className="flex items-center gap-1.5 ml-1">
+                              <button
+                                onClick={() => handleStartEditComment(comment.id, comment.text)}
+                                className="text-stone-400 hover:text-[#ff6b2b] transition-colors p-0.5 rounded cursor-pointer"
+                                title="Edit Comment"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteComment(selectedPost.id, comment.id)}
+                                className="text-stone-400 hover:text-red-500 transition-colors p-0.5 rounded cursor-pointer"
+                                title="Delete Comment"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-stone-700 dark:text-stone-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                        {comment.text}
-                      </p>
+
+                      {editingCommentId === comment.id ? (
+                        <div className="space-y-2 mt-1">
+                          <textarea
+                            value={editCommentText}
+                            onChange={(e) => setEditCommentText(e.target.value)}
+                            rows={2}
+                            className="w-full p-2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg text-xs font-bold text-stone-850 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#ff6b2b] resize-none"
+                          />
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              onClick={() => {
+                                setEditingCommentId(null);
+                                setEditCommentText('');
+                              }}
+                              className="px-2.5 py-1 text-[10px] font-bold text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-750 rounded transition-colors cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleUpdateComment(selectedPost.id, comment.id)}
+                              className="px-2.5 py-1 text-[10px] font-bold text-white bg-[#ff6b2b] hover:bg-[#e0561a] rounded transition-colors cursor-pointer"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-stone-700 dark:text-stone-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                          {comment.text}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -612,6 +727,25 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
                         </div>
                       </div>
                     </div>
+
+                    {post.author === userName && (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={(e) => handleOpenEditPost(post, e)}
+                          className="p-1 hover:bg-stone-100 dark:hover:bg-stone-800 rounded text-stone-400 hover:text-[#ff6b2b] transition-colors cursor-pointer"
+                          title="Edit Post"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeletePost(post.id, e)}
+                          className="p-1 hover:bg-stone-100 dark:hover:bg-stone-800 rounded text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
+                          title="Delete Post"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Post Content */}
@@ -809,6 +943,127 @@ export default function Discuss({ darkMode }: { darkMode: boolean }) {
                     className="px-4 py-2 bg-[#ff6b2b] hover:bg-[#e0561a] text-white rounded-lg text-xs font-bold transition-all cursor-pointer"
                   >
                     Publish Post
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Post Dialog Modal */}
+      <AnimatePresence>
+        {isEditPostOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setIsEditPostOpen(false);
+                setEditingPostId(null);
+              }}
+              className="absolute inset-0 bg-stone-900/60 backdrop-blur-xs"
+            />
+
+            {/* Content box */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              className="relative w-full max-w-lg bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xl overflow-hidden z-10"
+            >
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-stone-100 dark:border-stone-850 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-[#ff6b2b]/10 text-[#ff6b2b]">
+                    <Edit2 className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-bold text-stone-900 dark:text-white">Edit Discussion Post</h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setIsEditPostOpen(false);
+                    setEditingPostId(null);
+                  }}
+                  className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 rounded-full hover:bg-stone-50 dark:hover:bg-stone-850 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleUpdatePost} className="p-5 space-y-4">
+                {/* Title */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">Discussion Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="e.g., Python vs Javascript: Best Language for Backend?"
+                    className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-lg text-xs sm:text-sm text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-[#ff6b2b]"
+                  />
+                </div>
+
+                {/* Category & Tags Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">Category</label>
+                    <select
+                      value={editCategory}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                      className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-lg text-xs sm:text-sm text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-[#ff6b2b]"
+                    >
+                      {CATEGORIES.slice(1).map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">Tags (Comma Separated)</label>
+                    <input
+                      type="text"
+                      value={editTags}
+                      onChange={(e) => setEditTags(e.target.value)}
+                      placeholder="e.g., Python, Backend, FastAPI"
+                      className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-lg text-xs sm:text-sm text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-[#ff6b2b]"
+                    />
+                  </div>
+                </div>
+
+                {/* Content Body */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">Discussion Details</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    placeholder="Elaborate your ideas, ask questions, explain code snippets..."
+                    className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-lg text-xs sm:text-sm text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-[#ff6b2b] resize-none"
+                  />
+                </div>
+
+                {/* Submit Actions */}
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-stone-850">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditPostOpen(false);
+                      setEditingPostId(null);
+                    }}
+                    className="px-4 py-2 bg-stone-50 hover:bg-stone-100 dark:bg-stone-950 dark:hover:bg-stone-850 text-stone-600 dark:text-stone-300 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[#ff6b2b] hover:bg-[#e0561a] text-white rounded-lg text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Save Changes
                   </button>
                 </div>
               </form>

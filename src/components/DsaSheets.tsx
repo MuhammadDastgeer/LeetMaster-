@@ -1277,7 +1277,25 @@ function runJavaScriptCode(userCode: string, problem: DsaProblem) {
 }
 
 export default function DsaSheets() {
-  const [sheets, setSheets] = useState<DsaSheet[]>(INITIAL_SHEETS);
+  const [sheets, setSheets] = useState<DsaSheet[]>(() => {
+    const saved = localStorage.getItem('leetmaster_dsa_sheets_v1');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error parsing DSA sheets from localStorage:', e);
+      }
+    }
+    return INITIAL_SHEETS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('leetmaster_dsa_sheets_v1', JSON.stringify(sheets));
+  }, [sheets]);
+
   const [selectedSheetId, setSelectedSheetId] = useState<string | null>(null);
   const [selectedProblemId, setSelectedProblemId] = useState<string | null>(null);
   const [isSolving, setIsSolving] = useState(false);
