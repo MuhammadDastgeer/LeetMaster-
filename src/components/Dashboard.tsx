@@ -9,7 +9,7 @@ import {
   Brain, BarChart2, TrendingUp, Shield, HelpCircle, Menu, X
 } from 'lucide-react';
 import { Blog, Project, Hackathon, Event } from '../types';
-import TownHalls from './TownHalls';
+import Discuss from './Discuss';
 import ProfessionalProfile from './ProfessionalProfile';
 import DsaSheets from './DsaSheets';
 import DsaProblems from './DsaProblems';
@@ -33,9 +33,10 @@ interface DashboardProps {
 const pathToTab: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/desboard': 'Dashboard',
-  '/townhall': 'Town Halls',
-  '/town-hall': 'Town Halls',
-  '/town-halls': 'Town Halls',
+  '/townhall': 'Discuss',
+  '/town-hall': 'Discuss',
+  '/town-halls': 'Discuss',
+  '/discuss': 'Discuss',
   '/blogs': 'Blogs',
   '/blog': 'Blogs',
   '/projects': 'Projects',
@@ -60,7 +61,7 @@ const pathToTab: Record<string, string> = {
 
 const tabToPath: Record<string, string> = {
   'Dashboard': '/dashboard',
-  'Town Halls': '/town-hall',
+  'Discuss': '/discuss',
   'Blogs': '/blogs',
   'Projects': '/projects',
   'Events': '/events',
@@ -156,7 +157,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
   // Sidebar navigation configuration
   const sidebarItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
-    { name: 'Town Halls', icon: Users, beta: true },
+    { name: 'Discuss', icon: MessageSquare, beta: true },
     { name: 'Blogs', icon: FileText },
     { name: 'Projects', icon: Folder },
     { name: 'Events', icon: Calendar },
@@ -386,7 +387,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
       </aside>
 
       {/* Right Canvas Main scrollable contents */}
-      <main className={`flex-1 flex flex-col h-screen ${activeTab === 'Town Halls' ? 'p-0 overflow-hidden' : 'overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10'}`}>
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10">
         
         {/* Mobile Header Top Bar (only visible on mobile/tablet) */}
         <div className="md:hidden bg-white dark:bg-stone-900 border-b border-stone-200/60 dark:border-stone-800 px-4 py-3 flex items-center justify-between flex-shrink-0 z-30 sticky top-0">
@@ -418,7 +419,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
         </div>
         
         {/* Dynamic header row with Title, Notice Board & Split theme toggle */}
-        {activeTab !== 'Town Halls' && (
+        {activeTab !== 'Discuss' && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200/60 dark:border-stone-850 pb-6 mb-8 flex-shrink-0">
             <div>
               <h1 className="text-3xl font-extrabold font-sans text-stone-900 dark:text-white tracking-tight">
@@ -886,16 +887,16 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
             </motion.div>
           )}
 
-          {/* Town Halls Section */}
-          {activeTab === 'Town Halls' && (
+          {/* Discuss Section */}
+          {activeTab === 'Discuss' && (
             <motion.div
-              key="town-halls-tab"
+              key="discuss-tab"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               className="w-full"
             >
-              <TownHalls darkMode={darkMode} />
+              <Discuss darkMode={darkMode} />
             </motion.div>
           )}
 
@@ -1051,12 +1052,12 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
               exit={{ opacity: 0, y: -10 }}
               className="w-full"
             >
-              <Achievements />
+              <Achievements onNavigate={onNavigate} />
             </motion.div>
           )}
 
           {/* Placeholders/Sub-integrations for other Sidebar tabs */}
-          {activeTab !== 'Dashboard' && activeTab !== 'Town Halls' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && activeTab !== 'Events' && activeTab !== 'Projects' && activeTab !== 'Report Card' && activeTab !== 'Courses' && activeTab !== 'Achievements' && (
+          {activeTab !== 'Dashboard' && activeTab !== 'Discuss' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && activeTab !== 'Events' && activeTab !== 'Projects' && activeTab !== 'Report Card' && activeTab !== 'Courses' && activeTab !== 'Achievements' && (
             <motion.div
               key="fallback-tabs"
               initial={{ opacity: 0 }}

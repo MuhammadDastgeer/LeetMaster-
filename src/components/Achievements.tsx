@@ -4,7 +4,7 @@ import {
   Trophy, Lock, Unlock, Flame, Target, User, Sparkles, Code, 
   Briefcase, Award, GraduationCap, FolderGit, Github, Linkedin, 
   Globe, CheckCircle2, Brain, BookOpen, Zap, Star, ShieldAlert,
-  PlayCircle, Share2, Copy, Check, Twitter, X
+  PlayCircle, Share2, Copy, Check, Twitter, X, ArrowRight
 } from 'lucide-react';
 import { getPresetQuizzes } from '../data/quizDatabase';
 
@@ -30,7 +30,11 @@ interface Profile {
   educationCount: number;
 }
 
-export default function Achievements() {
+interface AchievementsProps {
+  onNavigate?: (path: string) => void;
+}
+
+export default function Achievements({ onNavigate }: AchievementsProps = {}) {
   const [loading, setLoading] = useState(true);
   const [statusTab, setStatusTab] = useState<'Unlocked' | 'Locked'>('Unlocked');
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
@@ -153,7 +157,7 @@ export default function Achievements() {
         }
 
         // 6. Load Courses from localStorage
-        const coursesRaw = localStorage.getItem('leetmaster_courses_state');
+        const coursesRaw = localStorage.getItem('sab_tech_courses_state_v3') || localStorage.getItem('leetmaster_courses_state');
         if (coursesRaw) {
           try {
             const parsed = JSON.parse(coursesRaw);
@@ -325,7 +329,13 @@ export default function Achievements() {
     { name: 'Framework Expert', desc: 'Completed 14 lessons. Overcoming deep frontend blocks.', req: 'Complete 14 lessons in any course.', icon: Code, ribbon: 'EXPERT', type: 'lesson', target: 14 },
     { name: 'Curriculum King', desc: 'Completed 15 lessons. Finished extensive structured coursework.', req: 'Complete 15 lessons in any course.', icon: Sparkles, ribbon: 'KING', type: 'lesson', target: 15 },
     { name: 'First Graduate', desc: 'Graduated from 1 specialized course with 100% progress.', req: 'Complete 1 course with 100% progress.', icon: GraduationCap, ribbon: 'GRADUATE', type: 'grad', target: 1 },
-    { name: 'Master Alumnus', desc: 'Graduated from multiple courses on LeetMaster.', req: 'Complete 2 courses with 100% progress.', icon: GraduationCap, ribbon: 'ALUMNUS', type: 'grad', target: 2 }
+    { name: 'Master Alumnus', desc: 'Graduated from multiple courses on LeetMaster.', req: 'Complete 2 courses with 100% progress.', icon: GraduationCap, ribbon: 'ALUMNUS', type: 'grad', target: 2 },
+    { name: 'Programming Pioneer', desc: 'Completed "Intro to Programming" with full 100% marks.', req: 'Complete "Intro to Programming" with 100% progress.', icon: Code, ribbon: 'PIONEER', type: 'specific-course', courseId: 'intro-to-programming' },
+    { name: 'Web Design Crafter', desc: 'Completed "Intro to HTML & CSS" with full 100% marks.', req: 'Complete "Intro to HTML & CSS" with 100% progress.', icon: BookOpen, ribbon: 'CRAFTSMAN', type: 'specific-course', courseId: 'intro-html-css' },
+    { name: 'HTML5 SEO Architect', desc: 'Completed "HTML (Semantic & Structuring)" with full 100% marks.', req: 'Complete "HTML (Semantic & Structuring)" with 100% progress.', icon: Award, ribbon: 'ARCHITECT', type: 'specific-course', courseId: 'html-advanced' },
+    { name: 'Responsive Grid Artist', desc: 'Completed "CSS (Flexbox, Grid & Responsive)" with full 100% marks.', req: 'Complete "CSS (Flexbox, Grid & Responsive)" with 100% progress.', icon: Sparkles, ribbon: 'ARTIST', type: 'specific-course', courseId: 'css-layouts' },
+    { name: 'Lightweight W3 Master', desc: 'Completed "W3.CSS (Lightweight UI)" with full 100% marks.', req: 'Complete "W3.CSS (Lightweight UI)" with 100% progress.', icon: Star, ribbon: 'W3MASTER', type: 'specific-course', courseId: 'w3css-framework' },
+    { name: 'Sass Preprocessing Lead', desc: 'Completed "Sass (Syntactically Awesome Style Sheets)" with full 100% marks.', req: 'Complete "Sass (Syntactically Awesome Style Sheets)" with 100% progress.', icon: Zap, ribbon: 'SASSLEAD', type: 'specific-course', courseId: 'sass-preprocessor' }
   ];
 
   const profileTemplates = [
@@ -438,7 +448,7 @@ export default function Achievements() {
   });
 
   const courseBadges = courseTemplates.map((t, index) => {
-    const targetVal = t.target;
+    const targetVal = t.target || 1;
     let isUnlocked = false;
     let progressCurrent = 0;
 
@@ -452,6 +462,10 @@ export default function Achievements() {
       const fullGradCount = (courses || []).filter(c => c && c.enrolled && c.progress === 100).length;
       isUnlocked = fullGradCount >= targetVal;
       progressCurrent = fullGradCount;
+    } else if (t.type === 'specific-course') {
+      const course = (courses || []).find(c => c && c.id === t.courseId);
+      isUnlocked = !!(course && course.enrolled && course.progress === 100);
+      progressCurrent = course ? (course.progress === 100 ? 1 : 0) : 0;
     }
 
     return {
@@ -931,7 +945,7 @@ export default function Achievements() {
                       ? `0 6px 16px -4px ${badge.color}15, 0 4px 8px -5px ${badge.color}10` 
                       : `0 4px 12px -5px rgba(0,0,0,0.02)`
                   }}
-                  onClick={() => badge.unlocked && handleShareBadge(badge)}
+                  onClick={() => handleShareBadge(badge)}
                 >
                   {/* Inner Subtle Grid Pattern Overlay mirroring DSA Sheets */}
                   <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[radial-gradient(#111111_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
@@ -1046,89 +1060,175 @@ export default function Achievements() {
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="space-y-4 pt-2">
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider font-mono">
-                  <CheckCircle2 className="w-3 h-3" /> VERIFIED CREDENTIAL
-                </div>
+              {activeShareBadge.unlocked ? (
+                <div className="space-y-4 pt-2">
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider font-mono">
+                    <CheckCircle2 className="w-3 h-3" /> VERIFIED CREDENTIAL
+                  </div>
 
-                {/* Badge SVG representation in full scale */}
-                <div className="py-2">
-                  {renderHexagonBadge(activeShareBadge.color, true, activeShareBadge.icon)}
-                </div>
+                  {/* Badge SVG representation in full scale */}
+                  <div className="py-2">
+                    {renderHexagonBadge(activeShareBadge.color, true, activeShareBadge.icon)}
+                  </div>
 
-                <div className="space-y-1">
-                  <h3 className="text-xl font-black text-stone-900 dark:text-white">
-                    {activeShareBadge.name}
-                  </h3>
-                  <p className="text-xs font-extrabold uppercase tracking-widest text-stone-400 dark:text-stone-500">
-                    {activeShareBadge.category} AWARD
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-black text-stone-900 dark:text-white">
+                      {activeShareBadge.name}
+                    </h3>
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-stone-400 dark:text-stone-500">
+                      {activeShareBadge.category} AWARD
+                    </p>
+                  </div>
+
+                  <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed px-4">
+                    {activeShareBadge.description}
                   </p>
-                </div>
 
-                <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed px-4">
-                  {activeShareBadge.description}
-                </p>
-
-                <div className="p-3 bg-stone-50 dark:bg-stone-950 border border-stone-150 dark:border-stone-850 rounded-2xl flex items-center justify-between text-xs font-semibold text-stone-500 dark:text-stone-400 text-left">
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] text-stone-400 block font-bold font-mono">EARNED REWARD</span>
-                    <span className="text-stone-800 dark:text-stone-200 font-extrabold">{activeShareBadge.reward} Credentials XP</span>
-                  </div>
-                  <div className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 font-black font-mono">
-                    VALIDATED
+                  <div className="p-3 bg-stone-50 dark:bg-stone-950 border border-stone-150 dark:border-stone-850 rounded-2xl flex items-center justify-between text-xs font-semibold text-stone-500 dark:text-stone-400 text-left">
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-stone-400 block font-bold font-mono">EARNED REWARD</span>
+                      <span className="text-stone-800 dark:text-stone-200 font-extrabold">{activeShareBadge.reward} Credentials XP</span>
+                    </div>
+                    <div className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 font-black font-mono">
+                      VALIDATED
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4 pt-2">
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-wider font-mono">
+                    <Lock className="w-3 h-3" /> LOCKED CREDENTIAL
+                  </div>
 
-              {/* Share Channels */}
-              <div className="space-y-3 pt-2">
-                <div className="text-[10px] font-black text-stone-400 tracking-wider uppercase">
-                  SHARE CREDENTIALS TO NETWORKS
+                  {/* Badge SVG representation in full scale */}
+                  <div className="py-2">
+                    {renderHexagonBadge(activeShareBadge.color, false, activeShareBadge.icon)}
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-black text-stone-900 dark:text-white">
+                      {activeShareBadge.name}
+                    </h3>
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-stone-400 dark:text-stone-500">
+                      {activeShareBadge.category} CHALLENGE
+                    </p>
+                  </div>
+
+                  <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed px-4">
+                    {activeShareBadge.description}
+                  </p>
+
+                  {/* Locked Requirement Box */}
+                  <div className="p-4 bg-stone-50 dark:bg-stone-950 border border-stone-150 dark:border-stone-850 rounded-2xl text-left space-y-3">
+                    <div className="text-[10px] font-bold text-stone-400 font-mono uppercase">Requirements to Unlock</div>
+                    <p className="text-xs font-semibold text-stone-850 dark:text-stone-200">{activeShareBadge.requirement}</p>
+                    <div className="flex justify-between items-center text-[10px] font-bold font-mono text-stone-400 pt-1">
+                      <span>PROGRESS</span>
+                      <span className="text-[#ff6b2b]">{activeShareBadge.progressCurrent} / {activeShareBadge.progressMax}</span>
+                    </div>
+                    <div className="h-1.5 bg-stone-200 dark:bg-stone-800 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-300"
+                        style={{ 
+                          width: `${Math.round((activeShareBadge.progressCurrent / activeShareBadge.progressMax) * 100)}%`,
+                          backgroundColor: activeShareBadge.color
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  {/* LinkedIn Mock */}
-                  <a
-                    href="https://linkedin.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-stone-200 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 transition-colors"
-                  >
-                    <Linkedin className="w-4 h-4 text-[#0a66c2]" />
-                    <span>LinkedIn</span>
-                  </a>
+              )}
+
+              {/* Share/Action section */}
+              {activeShareBadge.unlocked ? (
+                <div className="space-y-3 pt-2">
+                  <div className="text-[10px] font-black text-stone-400 tracking-wider uppercase">
+                    SHARE CREDENTIALS TO NETWORKS
+                  </div>
                   
-                  {/* Twitter Mock */}
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-stone-200 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 transition-colors"
-                  >
-                    <Twitter className="w-4 h-4 text-[#1da1f2]" />
-                    <span>Twitter</span>
-                  </a>
-                </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* LinkedIn Mock */}
+                    <a
+                      href="https://linkedin.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-stone-200 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 transition-colors"
+                    >
+                      <Linkedin className="w-4 h-4 text-[#0a66c2]" />
+                      <span>LinkedIn</span>
+                    </a>
+                    
+                    {/* Twitter Mock */}
+                    <a
+                      href="https://twitter.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-stone-200 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 transition-colors"
+                    >
+                      <Twitter className="w-4 h-4 text-[#1da1f2]" />
+                      <span>Twitter</span>
+                    </a>
+                  </div>
 
-                {/* Copy Text snippet */}
-                <button
-                  type="button"
-                  onClick={() => copyShareLink(activeShareBadge)}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-stone-900 hover:bg-stone-850 dark:bg-white dark:hover:bg-stone-100 text-white dark:text-stone-900 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer focus:outline-none"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4 text-emerald-500" />
-                      <span>COPIED SNIPPET!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      <span>COPY SHARING SNIPPET</span>
-                    </>
-                  )}
-                </button>
-              </div>
+                  {/* Copy Text snippet */}
+                  <button
+                    type="button"
+                    onClick={() => copyShareLink(activeShareBadge)}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-stone-900 hover:bg-stone-850 dark:bg-white dark:hover:bg-stone-100 text-white dark:text-stone-900 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer focus:outline-none"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-500" />
+                        <span>COPIED SNIPPET!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        <span>COPY SHARING SNIPPET</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                /* Action redirection button for locked badges */
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveShareBadge(null);
+                      if (onNavigate) {
+                        let path = "/dashboard";
+                        if (activeShareBadge.category === "Algorithms") {
+                          path = "/dsa-sheets";
+                        } else if (activeShareBadge.category === "Quizzes") {
+                          path = "/quiz-tab";
+                        } else if (activeShareBadge.category === "Courses") {
+                          path = "/courses";
+                        } else if (activeShareBadge.category === "Profile") {
+                          path = "/professional-profile";
+                        } else if (activeShareBadge.category === "Blogs") {
+                          path = "/blogs";
+                        } else if (activeShareBadge.category === "Hackathons") {
+                          path = "/hackathons-dashboard";
+                        }
+                        onNavigate(path);
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-stone-900 hover:bg-stone-850 dark:bg-white dark:hover:bg-stone-100 text-white dark:text-stone-900 rounded-xl text-xs font-black tracking-wide transition-all cursor-pointer focus:outline-none shadow-sm"
+                  >
+                    <span>
+                      {activeShareBadge.category === "Algorithms" ? "Solve DSA Problems" :
+                       activeShareBadge.category === "Quizzes" ? "Take CS Assessment" :
+                       activeShareBadge.category === "Courses" ? "Open Course Curriculum" :
+                       activeShareBadge.category === "Profile" ? "Update Profile Portfolio" :
+                       activeShareBadge.category === "Blogs" ? "Write Engineering Blog" :
+                       activeShareBadge.category === "Hackathons" ? "Join Active Hackathons" :
+                       "Go to Workspace"}
+                    </span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}

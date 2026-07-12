@@ -193,11 +193,13 @@ export default function ProfessionalProfile() {
     phoneStr?: string;
     tshirtSizeStr?: string;
     avatarStr?: string;
-  } = {}) => {
+  } = {}, isAutoSave: boolean = false) => {
     try {
-      setSaving(true);
-      setSuccessMsg(null);
-      setErrorMsg(null);
+      if (!isAutoSave) {
+        setSaving(true);
+        setSuccessMsg(null);
+        setErrorMsg(null);
+      }
 
       const bodyData = {
         fullName: updatedFields.fullNameStr !== undefined ? updatedFields.fullNameStr : fullName,
@@ -239,16 +241,24 @@ export default function ProfessionalProfile() {
 
       const resData = await response.json();
       if (resData.success) {
-        setSuccessMsg("Professional Profile updated successfully!");
-        setTimeout(() => setSuccessMsg(null), 3000);
+        if (!isAutoSave) {
+          setSuccessMsg("Professional Profile updated successfully!");
+          setTimeout(() => setSuccessMsg(null), 3000);
+        }
       } else {
-        setErrorMsg("Error: " + (resData.error || "Could not save profile."));
+        if (!isAutoSave) {
+          setErrorMsg("Error: " + (resData.error || "Could not save profile."));
+        }
       }
     } catch (err: any) {
       console.error("Error saving profile:", err);
-      setErrorMsg("Failed to reach server to save. Please try again.");
+      if (!isAutoSave) {
+        setErrorMsg("Failed to reach server to save. Please try again.");
+      }
     } finally {
-      setSaving(false);
+      if (!isAutoSave) {
+        setSaving(false);
+      }
     }
   };
 
@@ -624,7 +634,11 @@ export default function ProfessionalProfile() {
           return (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              type="button"
+              onClick={() => {
+                setActiveTab(tab);
+                saveProfileData({}, true);
+              }}
               className={`px-5 py-3 font-semibold text-sm transition-all whitespace-nowrap border-b-2 -mb-px focus:outline-none cursor-pointer ${
                 isActive 
                   ? 'border-[#ff6b2b] text-[#ff6b2b] dark:text-[#ff804a]' 
@@ -656,6 +670,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     required
                     placeholder="Enter your name"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
@@ -671,6 +686,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     required
                     placeholder="Enter your username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
@@ -686,6 +702,7 @@ export default function ProfessionalProfile() {
                     type="text"
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Describe your learning goals"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -700,6 +717,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your company"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -714,6 +732,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={jobTitle}
                     onChange={(e) => setJobTitle(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your job title"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -728,6 +747,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="City, Country (e.g., Lahore, Pakistan)"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -742,6 +762,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={institution}
                     onChange={(e) => setInstitution(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your college/university"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -765,6 +786,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://example.com"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -777,6 +799,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={github}
                     onChange={(e) => setGithub(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://github.com/username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -789,6 +812,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={linkedin}
                     onChange={(e) => setLinkedin(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://linkedin.com/in/username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -801,6 +825,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={twitter}
                     onChange={(e) => setTwitter(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://twitter.com/username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -813,6 +838,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={youtube}
                     onChange={(e) => setYoutube(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://youtube.com/channel/username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -825,6 +851,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://instagram.com/username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -837,6 +864,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={leetcode}
                     onChange={(e) => setLeetcode(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://leetcode.com/username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -849,6 +877,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={medium}
                     onChange={(e) => setMedium(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://medium.com/@username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -861,6 +890,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={hashnode}
                     onChange={(e) => setHashnode(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://username.hashnode.dev"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -873,6 +903,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={peerlist}
                     onChange={(e) => setPeerlist(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="https://peerlist.io/username"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -896,6 +927,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={addressLine}
                     onChange={(e) => setAddressLine(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your address"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -908,6 +940,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your city"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -920,6 +953,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={state}
                     onChange={(e) => setState(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your state"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -932,6 +966,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={pinCode}
                     onChange={(e) => setPinCode(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your pin code"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -944,6 +979,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="Enter your phone"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b]"
                   />
@@ -954,7 +990,7 @@ export default function ProfessionalProfile() {
                   <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">T-Shirt Size</label>
                   <select 
                     value={tshirtSize}
-                    onChange={(e) => setTshirtSize(e.target.value)}
+                    onChange={(e) => { setTshirtSize(e.target.value); saveProfileData({ tshirtSizeStr: e.target.value }, true); }}
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/20 focus:border-[#ff6b2b] cursor-pointer"
                   >
                     <option value="S">S</option>
@@ -1053,6 +1089,7 @@ export default function ProfessionalProfile() {
                     min="0"
                     value={professional.yearsOfExperience}
                     onChange={(e) => setProfessional(prev => ({ ...prev, yearsOfExperience: e.target.value }))}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="0"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none"
                   />
@@ -1065,6 +1102,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={professional.targetRole}
                     onChange={(e) => setProfessional(prev => ({ ...prev, targetRole: e.target.value }))}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="e.g. Senior ML Architect"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none"
                   />
@@ -1075,7 +1113,11 @@ export default function ProfessionalProfile() {
                   <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">Preferred Work Mode</label>
                   <select 
                     value={professional.workMode}
-                    onChange={(e) => setProfessional(prev => ({ ...prev, workMode: e.target.value }))}
+                    onChange={(e) => {
+                      const updated = { ...professional, workMode: e.target.value };
+                      setProfessional(updated);
+                      saveProfileData({ professionalData: updated }, true);
+                    }}
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white cursor-pointer"
                   >
                     <option value="Remote">Remote</option>
@@ -1091,6 +1133,7 @@ export default function ProfessionalProfile() {
                     type="text" 
                     value={professional.ctc}
                     onChange={(e) => setProfessional(prev => ({ ...prev, ctc: e.target.value }))}
+                    onBlur={() => saveProfileData({}, true)}
                     placeholder="e.g. $120,000 / yr"
                     className="w-full bg-[#faf9f6] dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 dark:text-white focus:outline-none"
                   />
@@ -1616,6 +1659,7 @@ export default function ProfessionalProfile() {
               const nextIdx = (curIdx + 1) % tabs.length;
               setActiveTab(tabs[nextIdx]);
               window.scrollTo({ top: 0, behavior: 'smooth' });
+              saveProfileData({}, true);
             }}
             className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 text-sm font-bold px-6 py-3.5 rounded-full transition-all cursor-pointer"
           >

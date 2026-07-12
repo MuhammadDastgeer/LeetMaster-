@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import CommunityConsistency from './components/CommunityConsistency';
 import AssignmentEvaluation from './components/AssignmentEvaluation';
-import TownHall from './components/TownHall';
+import CommunityDiscuss from './components/CommunityDiscuss';
 import DsaSheets from './components/DsaSheets';
 import MobileContests from './components/MobileContests';
 import HackathonsAI from './components/HackathonsAI';
@@ -136,7 +136,7 @@ export default function App() {
       }
 
       // 5. Load Courses from localStorage
-      const coursesRaw = localStorage.getItem('leetmaster_courses_state');
+      const coursesRaw = localStorage.getItem('sab_tech_courses_state_v3') || localStorage.getItem('leetmaster_courses_state');
       if (coursesRaw) {
         try {
           const parsed = JSON.parse(coursesRaw);
@@ -411,6 +411,7 @@ export default function App() {
   const isDashboardPath = [
     '/dashboard', '/desboard', 
     '/townhall', '/town-hall', '/town-halls',
+    '/discuss',
     '/blogs', '/blog',
     '/projects', '/project',
     '/peerreviews', '/peer-reviews',
@@ -459,8 +460,8 @@ export default function App() {
           {/* Assignment Evaluation Section */}
           <AssignmentEvaluation />
 
-          {/* Discord/Slack style Town Hall Section */}
-          <TownHall />
+          {/* Community Discuss Section */}
+          <CommunityDiscuss onNavigate={navigateTo} />
 
           {/* DSA Sheet Code Editor Section */}
           <CuratedSheetsLanding onNavigate={navigateTo} />
@@ -814,8 +815,8 @@ export default function App() {
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => navigateTo('/town-hall')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
-                    Town Halls
+                  <button onClick={() => navigateTo('/discuss')} className="hover:text-[#ff6b2b] transition-colors cursor-pointer text-left focus:outline-none">
+                    Discuss Board
                   </button>
                 </li>
               </ul>
