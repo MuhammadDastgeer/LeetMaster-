@@ -18,7 +18,40 @@ export default function Courses() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          // Merge to ensure newly added modules and lessons from INITIAL_COURSES are loaded!
+          return INITIAL_COURSES.map(initialCourse => {
+            const savedCourse = parsed.find(c => c.id === initialCourse.id);
+            if (!savedCourse) return initialCourse;
+            
+            // Re-build modules to incorporate any new lessons
+            const mergedModules = initialCourse.modules.map(initialModule => {
+              const savedModule = savedCourse.modules?.find((m: any) => m.id === initialModule.id);
+              if (!savedModule) return initialModule;
+              
+              const mergedLessons = initialModule.lessons.map(initialLesson => {
+                const savedLesson = savedModule.lessons?.find((l: any) => l.id === initialLesson.id);
+                if (!savedLesson) return initialLesson;
+                return { ...initialLesson, completed: savedLesson.completed };
+              });
+              
+              return { ...initialModule, lessons: mergedLessons };
+            });
+            
+            // Recalculate progress based on new total of lessons
+            const totalLessons = mergedModules.flatMap(m => m.lessons).length;
+            const completedLessons = mergedModules.flatMap(m => m.lessons).filter(l => l.completed).length;
+            const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+            
+            return {
+              ...savedCourse,
+              modules: mergedModules,
+              progress,
+              title: initialCourse.title,
+              description: initialCourse.description,
+              duration: initialCourse.duration,
+              tags: initialCourse.tags
+            };
+          });
         }
       } catch (e) {
         console.error('Error loading initial courses state:', e);

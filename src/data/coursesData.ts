@@ -237,74 +237,736 @@ Browser server ko request send karta hai aur response mein HTML/CSS fetch karta 
     id: 'html-advanced',
     title: '3. HTML (Semantic & Structuring)',
     category: 'Web Fundamentals',
-    description: 'Semantic tags, interactive forms, tables, media elements aur SEO-friendly structural layouts banana seekhein.',
+    description: 'Semantic tags, interactive forms, tables, media elements, style guides aur HTML elements ka complete handbook scratch se seekhein.',
     instructor: 'Ali Raza',
     instructorTitle: 'Frontend Architect',
-    duration: '8 hrs',
-    rating: 4.7,
+    duration: '18 hrs',
+    rating: 4.8,
     difficulty: 'Beginner',
     enrolled: false,
     progress: 0,
-    tags: ['HTML5', 'Semantic Web', 'SEO'],
+    tags: ['HTML5', 'Semantic Web', 'SEO', 'W3Schools Standard'],
     modules: [
       {
         id: 'html-m1',
-        title: 'Module 1: Semantic Tags & SEO',
-        duration: '4 hrs',
+        title: 'Module 1: HTML Basics & Setup',
+        duration: '3 hrs',
         lessons: [
           {
             id: 'html-l1',
-            title: '1.1 Semantic Tags Layout',
-            duration: '120m',
+            title: '1.1 HTML HOME',
+            duration: '45m',
             completed: false,
             type: 'video',
-            content: `### Semantic Elements
-Semantic tags browser aur search engine crawlers ko content ka clear meaning batate hain.
+            content: `### Welcome to HTML Home!
+HTML (HyperText Markup Language) web pages design karne ki standard language hai.
 
-### Semantic Layout Example:
+### Key Highlights:
+1. **Easy to Learn**: HTML simple English tags use karta hai.
+2. **Platform Independent**: Kisi bhi browser (Chrome, Edge, Safari) par run hota hai.
+
 \`\`\`html
-<header>
-    <nav>
-        <a href="#home">Home</a> | <a href="#courses">Courses</a>
-    </nav>
-</header>
-
-<main>
-    <article>
-        <h2>HTML Semantic Layouts</h2>
-        <p>Using header, section, article, nav and footer tag makes markup highly SEO friendly.</p>
-    </article>
-</main>
-
-<footer>
-    <p>&copy; 2026 Sab Technologies. All Rights Reserved.</p>
-</footer>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HTML Home</title>
+  </head>
+  <body>
+    <h1>HTML Home Tutorial mein Khushamdeed!</h1>
+  </body>
+</html>
 \`\`\``
           },
           {
             id: 'html-l2',
-            title: '1.2 Advanced Forms & Accessibility',
-            duration: '120m',
+            title: '1.2 HTML Introduction',
+            duration: '45m',
+            completed: false,
+            type: 'video',
+            content: `### HTML Introduction
+HTML browser ko batata hai ke web page ka content kis tarah dikhana hai.
+
+### Tags vs Elements:
+- **Tag**: \`<p>\` (opening tag), \`</p>\` (closing tag).
+- **Element**: Opening tag se lekar closing tag tak ka poora content block.
+
+\`\`\`html
+<p>Yeh ek HTML paragraph element hai.</p>
+\`\`\``
+          },
+          {
+            id: 'html-l3',
+            title: '1.3 HTML Editors',
+            duration: '45m',
             completed: false,
             type: 'coding',
-            content: `### Modern HTML5 Forms
-User validation aur elements jo high accessible hon.
+            content: `### HTML Editors
+Aap HTML code kisi bhi plain text editor mein likh sakte hain, jaise VS Code, Notepad (Windows), ya TextEdit (Mac).
 
-### Code Example:
+### Setup Practice:
+1. Open VS Code or Notepad.
+2. Code likhein aur file ko \`.html\` ya \`.htm\` extension ke sath save karein (e.g., \`index.html\`).
+3. Save karne ke baad browser mein open karein.`
+          },
+          {
+            id: 'html-l4',
+            title: '1.4 HTML Basic',
+            duration: '45m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Basic Structure
+Har HTML document ka ek base skeleton hota hai jo is tarah se dikhta hai:
+
 \`\`\`html
-<form action="/submit-profile" method="POST">
-    <fieldset>
-        <legend>Contact Information</legend>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required aria-required="true" placeholder="Enter name">
-        
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        
-        <button type="submit">Submit Form</button>
-    </fieldset>
-</form>
+<!DOCTYPE html> <!-- Document type declaration -->
+<html> <!-- Root element -->
+<head>
+    <title>Basic HTML Page</title>
+</head>
+<body>
+    <h1>My First Heading</h1>
+    <p>My first paragraph.</p>
+</body>
+</html>
 \`\`\``
+          }
+        ]
+      },
+      {
+        id: 'html-m2',
+        title: 'Module 2: Elements, Attributes & Formatting',
+        duration: '4 hrs',
+        lessons: [
+          {
+            id: 'html-l5',
+            title: '2.1 HTML Elements',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Elements Deep Dive
+Nested elements standard tree structure banate hain.
+
+### Key Rules:
+- Hamesha closing tags add karein.
+- Empty elements (jaise \`<br>\`, \`<img>\`) ka koi closing tag nahi hota.
+
+\`\`\`html
+<p>Hum paragraph ke andar <b>bold text</b> use kar rahe hain.</p>
+\`\`\``
+          },
+          {
+            id: 'html-l6',
+            title: '2.2 HTML Attributes',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Attributes
+Attributes HTML elements ko supplementary settings and values faraham karte hain.
+
+### Examples:
+- \`href\` attribute inside \`<a>\` (Link URL)
+- \`src\` and \`alt\` inside \`<img>\`
+
+\`\`\`html
+<a href="https://leetmaster-app.live" target="_blank">Visit LeetMaster</a>
+\`\`\``
+          },
+          {
+            id: 'html-l7',
+            title: '2.3 HTML Headings',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Headings
+HTML headings \`<h1>\` se \`<h6>\` tak standard levels define karti hain.
+
+\`\`\`html
+<h1>Heading 1 (Main Heading)</h1>
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<h5>Heading 5</h5>
+<h6>Heading 6 (Smallest)</h6>
+\`\`\``
+          },
+          {
+            id: 'html-l8',
+            title: '2.4 HTML Paragraphs',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Paragraphs
+Paragraphs define karne ke liye \`<p>\` tag ka use kiya jata hai.
+
+### Whitespace Behavior:
+Browser multiple consecutive white spaces ko automatically skip kar deta hai. Line breaks ke liye \`<br>\` use karein.
+
+\`\`\`html
+<p>Line complete.<br>Nayi line start ho gayi.</p>
+\`\`\``
+          },
+          {
+            id: 'html-l9',
+            title: '2.5 HTML Styles',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### Inline Styles (CSS)
+Inline styles ke zariye element ko direct visual features diye jate hain.
+
+\`\`\`html
+<h1 style="color: #ff6b2b; text-align: center;">Orange Centered Title</h1>
+<p style="font-family: monospace; background-color: #f5f5f5;">Code background look.</p>
+\`\`\``
+          },
+          {
+            id: 'html-l10',
+            title: '2.6 HTML Formatting',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Formatting Elements
+Text formatting tags text ka style define karte hain:
+
+- \`<b>\` - Bold text
+- \`<strong>\` - Important text
+- \`<i>\` - Italic text
+- \`<em>\` - Emphasized text
+- \`<mark>\` - Highlighted text
+- \`<small>\` - Smaller text
+- \`<del>\` - Deleted (strikethrough) text
+- \`<ins>\` - Inserted text
+- \`<sub>\` - Subscript
+- \`<sup>\` - Superscript`
+          },
+          {
+            id: 'html-l11',
+            title: '2.7 HTML Quotations',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### Quotations in HTML
+Quotations aur citations display karne ke liye specialised tags:
+
+- \`<blockquote>\`: External source se section block quote karne ke liye.
+- \`<q>\`: Short inline double quotation marks ke liye.
+- \`<abbr>\`: Abbreviations handle karne ke liye (tooltip show karta hai).
+
+\`\`\`html
+<p>Einstein ne farmaya tha: <q>E = mc²</q></p>
+\`\`\``
+          },
+          {
+            id: 'html-l12',
+            title: '2.8 HTML Comments',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Comments
+Comments developer ke notes ke liye hote hain aur user ko display nahi hote.
+
+### Syntax:
+\`\`\`html
+<!-- Yeh ek single or multi-line comment hai -->
+<p>Active display line.</p>
+\`\`\``
+          }
+        ]
+      },
+      {
+        id: 'html-m3',
+        title: 'Module 3: Visuals, CSS, Links & Images',
+        duration: '3 hrs',
+        lessons: [
+          {
+            id: 'html-l13',
+            title: '3.1 HTML Colors',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Colors
+Colors dynamically select karne ke teen tarike:
+
+1. **Color Names**: Red, Orange, Tomato, SlateGray
+2. **Hex Values**: #ff6b2b, #ffffff
+3. **RGB Values**: rgb(255, 107, 43)
+
+\`\`\`html
+<div style="background-color: #ff6b2b; color: white; padding: 10px;">
+    Sab Technologies Orange Block
+</div>
+\`\`\``
+          },
+          {
+            id: 'html-l14',
+            title: '3.2 HTML CSS',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### Adding CSS to HTML
+Styling teen methods se apply ki ja sakti hai:
+
+- **Inline CSS**: Element ke andar direct style attribute se.
+- **Internal CSS**: Head section mein \`<style>\` tag ke zariye.
+- **External CSS**: Alag file (.css) link karke.
+
+\`\`\`html
+<link rel="stylesheet" href="style.css">
+\`\`\``
+          },
+          {
+            id: 'html-l15',
+            title: '3.3 HTML Links',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Hyperlinks
+Links create karne ke liye anchor (\`<a>\`) tag use hota hai.
+
+### Attributes:
+- \`href\`: Destination target URL.
+- \`target="_blank"\`: Link ko naye window/tab mein open karne ke liye.
+
+\`\`\`html
+<a href="https://leetmaster-app.live" target="_blank">Open App</a>
+\`\`\``
+          },
+          {
+            id: 'html-l16',
+            title: '3.4 HTML Images',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Images
+Web pages par images display karne ke liye \`<img>\` tag use kiya jata hai.
+
+### Important:
+- **src**: Path pointer or image URL.
+- **alt**: Alternative description jo text form mein load hoti hai agar image fail ho jaye.
+
+\`\`\`html
+<img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12" alt="Web Layout Design" style="width: 100%; max-width: 400px; border-radius: 8px;">
+\`\`\``
+          },
+          {
+            id: 'html-l17',
+            title: '3.5 HTML Project',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### Creating your First HTML Project
+Ek basic landing page project structure generate karein:
+
+\`\`\`html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My First Landing Page</title>
+</head>
+<body>
+    <h1>Welcome to My Portfolios</h1>
+    <p>Creating functional designs with simple markup structure.</p>
+</body>
+</html>
+\`\`\``
+          },
+          {
+            id: 'html-l18',
+            title: '3.6 HTML Favicon',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### Favicons in HTML
+Favicon ek choti image hoti hai jo browser tab mein title ke sath show hoti hai.
+
+### Setup Code:
+\`\`\`html
+<head>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+\`\`\``
+          },
+          {
+            id: 'html-l19',
+            title: '3.7 HTML Page Title',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Page Title
+\`<title>\` tag head segment mein page ka title name define karta hai jo tab browser display karta hai aur SEO rank index karta hai.
+
+\`\`\`html
+<head>
+    <title>Mastering HTML 41 Topics</title>
+</head>
+\`\`\``
+          }
+        ]
+      },
+      {
+        id: 'html-m4',
+        title: 'Module 4: Tables, Lists & Blocks',
+        duration: '3 hrs',
+        lessons: [
+          {
+            id: 'html-l20',
+            title: '4.1 HTML Tables',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Tables
+Tables vertical rows and columns data management ke liye define hoti hain.
+
+- \`<table>\`: Container element.
+- \`<tr>\`: Table Row.
+- \`<th>\`: Table Header (Bold, Centered).
+- \`<td>\`: Table Cell Data.
+
+\`\`\`html
+<table border="1" style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <th>Topic</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>HTML Elements</td>
+    <td>Completed</td>
+  </tr>
+</table>
+\`\`\``
+          },
+          {
+            id: 'html-l21',
+            title: '4.2 HTML Lists',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Lists
+Information points render karne ke liye lists:
+
+1. **Unordered Lists (\`<ul>\`)**: Bullet markers create hote hain.
+2. **Ordered Lists (\`<ol>\`)**: Number/Alphabet sequences design hote hain.
+
+\`\`\`html
+<ul>
+  <li>HTML HOME</li>
+  <li>HTML Introduction</li>
+</ul>
+\`\`\``
+          },
+          {
+            id: 'html-l22',
+            title: '4.3 HTML Block & Inline',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### Block vs Inline Elements
+Layout structure elements do divisions mein split hote hain:
+
+- **Block Elements**: Nayi line se start hote hain aur complete row space consume karte hain. Examples: \`<div>\`, \`<p>\`, \`<h1>-<h6>\`.
+- **Inline Elements**: Nayi line se start nahi hote aur sirf target content width cover karte hain. Examples: \`<span>\`, \`<a>\`, \`<strong>\`.`
+          },
+          {
+            id: 'html-l23',
+            title: '4.4 HTML Div',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Div Container
+\`<div>\` ek multipurpose generic block division container hai, jo sub-sections ki styling aur management ke liye use hota hai.
+
+\`\`\`html
+<div style="background-color: #f9f9f9; border-left: 4px solid #ff6b2b; padding: 10px;">
+    <h3>Sidebar Alert</h3>
+    <p>Always practice code templates!</p>
+</div>
+\`\`\``
+          },
+          {
+            id: 'html-l24',
+            title: '4.5 HTML Classes',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Class Attribute
+Class attribute generic identity groups create karne ke liye use hota hai. Multiple elements ek jaisi class share kar sakte hain.
+
+\`\`\`html
+<style>
+  .card-item { background: #fff; padding: 15px; border-radius: 8px; }
+</style>
+
+<div class="card-item">Topic 1</div>
+<div class="card-item">Topic 2</div>
+\`\`\``
+          },
+          {
+            id: 'html-l25',
+            title: '4.6 HTML Id',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Id Attribute
+Id pure HTML code page mein single unique identity define karne ke liye target hoti hai. Ek page par ek id sirf ek hi element ki ho sakti hai.
+
+\`\`\`html
+<div id="main-navigation-bar">
+    <p>Nav Content</p>
+</div>
+\`\`\``
+          },
+          {
+            id: 'html-l26',
+            title: '4.7 HTML Buttons',
+            duration: '30m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Button Elements
+Click actions performance trigger links standard setup:
+
+\`\`\`html
+<button onclick="alert('Congratulations!')" style="background: #ff6b2b; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">
+  Click Me ✓
+</button>
+\`\`\``
+          }
+        ]
+      },
+      {
+        id: 'html-m5',
+        title: 'Module 5: Advanced & Interactive HTML',
+        duration: '2.5 hrs',
+        lessons: [
+          {
+            id: 'html-l27',
+            title: '5.1 HTML Iframes',
+            duration: '25m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Iframes
+Iframes current web screen ke andr dusra independent sub page load karne ke liye embed tools offer karte hain.
+
+\`\`\`html
+<iframe src="https://leetmaster-app.live" width="100%" height="300" style="border: 1px solid #ddd; border-radius: 8px;"></iframe>
+\`\`\``
+          },
+          {
+            id: 'html-l28',
+            title: '5.2 HTML JavaScript',
+            duration: '25m',
+            completed: false,
+            type: 'coding',
+            content: `### JavaScript Integration
+\`<script>\` tag client script animations and logical handlers dynamic connections links render karta hai.
+
+\`\`\`html
+<button onclick="changeText()">Click</button>
+<p id="demo">Old Text</p>
+
+<script>
+function changeText() {
+    document.getElementById("demo").innerHTML = "Interactive JS works!";
+}
+</script>
+\`\`\``
+          },
+          {
+            id: 'html-l29',
+            title: '5.3 HTML File Paths',
+            duration: '25m',
+            completed: false,
+            type: 'coding',
+            content: `### File Path Rules
+Files sources link folders location references guides:
+
+1. **Absolute Paths**: Complete external links (e.g., \`https://google.com/icon.png\`)
+2. **Relative Paths**: Current working project location indexes (e.g., \`./images/profile.jpg\` or \`../index.html\`)`
+          },
+          {
+            id: 'html-l30',
+            title: '5.4 HTML Head',
+            duration: '25m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Head Section
+Head block browser properties aur styles load data manage karta hai:
+
+- \`<meta>\`: Character sets, author details, dynamic mobile responsive scales.
+- \`<link>\`: Stylesheets paths integration.
+- \`<script>\`: Functional libraries integration.`
+          },
+          {
+            id: 'html-l31',
+            title: '5.5 HTML Layout',
+            duration: '25m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Structural Layouts
+Semantic grid sections code management readable templates generate karte hain:
+
+\`\`\`html
+<header>My Web Banner Header</header>
+<nav>My Navigation Menu Links</nav>
+<main>
+  <article>Primary Article Content</article>
+</main>
+<footer>Standard Footer Details</footer>
+\`\`\``
+          },
+          {
+            id: 'html-l32',
+            title: '5.6 HTML Responsive',
+            duration: '25m',
+            completed: false,
+            type: 'coding',
+            content: `### Responsive Layout design
+Web pages display configurations screen size ke mutabiq load elements maintain rules:
+
+\`\`\`html
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+\`\`\`
+
+Is element ke zariye user devices mobile vertical widths adjust rules execute standard layout formats scale down correctly.`
+          }
+        ]
+      },
+      {
+        id: 'html-m6',
+        title: 'Module 6: Code, Semantics, Standards & References',
+        duration: '2.5 hrs',
+        lessons: [
+          {
+            id: 'html-l33',
+            title: '6.1 HTML Computercode',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### Technical Code Elements
+Code snippets standard design monospaced format rendering layout guides:
+
+- \`<code>\`: Single code values inline display formatting.
+- \`<pre>\`: Preserves whitespace, indentation levels exactly matching text editors source styles.
+
+\`\`\`html
+<pre>
+function hello() {
+    console.log("Urdu Coding tutorials");
+}
+</pre>
+\`\`\``
+          },
+          {
+            id: 'html-l34',
+            title: '6.2 HTML Semantics',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### Semantic Elements
+Semantic tags page modules blocks ka real, meaningful structure clarify karte hain jo screen readers aur SEO systems parse rules evaluate index standard performance support karte hain.
+
+Examples: \`<article>\`, \`<aside>\`, \`<details>\`, \`<figcaption>\`, \`<figure>\`, \`<footer>\`, \`<header>\`, \`<main>\`, \`<mark>\`, \`<nav>\`, \`<section>\`, \`<summary>\`, \`<time>\`.`
+          },
+          {
+            id: 'html-l35',
+            title: '6.3 HTML Style Guide',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### Style Guide and Best Practices
+Beautiful standards follow-ups clean formatting:
+
+1. **Lower Case Tags**: Hamesha lowercase tags use karein (\`<body>\` over \`<BODY>\`).
+2. **Double Quotes**: Attributes values ke gird hamesha quotes lagayein (\`class="item"\`).
+3. **Indentation**: Standard spaces tab nested files code structure management maintain.`
+          },
+          {
+            id: 'html-l36',
+            title: '6.4 HTML Entities',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Entities
+HTML elements character symbols print solutions. Browser reserved symbols parse syntax compile karke conflicts reduce karta hai.
+
+- \`&lt;\`: Less than tag symbol (\`<\`)
+- \`&gt;\`: Greater than tag symbol (\`>\`)
+- \`&amp;\`: Ampersand symbol (\`&\`)
+- \`&nbsp;\`: Non-breaking single space spacing layout block.
+
+\`\`\`html
+<p>Syntax of bold text is: &lt;b&gt;Text&lt;/b&gt;</p>
+\`\`\``
+          },
+          {
+            id: 'html-l37',
+            title: '6.5 HTML Symbols',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Symbols
+Standard math equations symbols configurations:
+
+- \`&forall;\`: For all symbol (\`∀\`)
+- \`&part;\`: Partial differential (\`∂\`)
+- \`&euro;\`: Euro currency symbol (\`€\`)
+
+\`\`\`html
+<p>Euro Symbol is: &euro;</p>
+\`\`\``
+          },
+          {
+            id: 'html-l38',
+            title: '6.6 HTML Emojis',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Emojis
+Emojis unicode points display structures. Server meta standard tags correct UTF-8 configure karne ke baad display rules render details:
+
+- Happy smile code: \`&#128512;\` (😀)
+- Computer icon code: \`&#128187;\` (💻)
+
+\`\`\`html
+<p>Keep smiling &#128512; and code!</p>
+\`\`\``
+          },
+          {
+            id: 'html-l39',
+            title: '6.7 HTML Charsets',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML Character Sets
+Browser documents characters data read render standards identify setups:
+
+\`\`\`html
+<meta charset="UTF-8">
+\`\`\`
+
+UTF-8 standard setup almost globally sare characters symbols and letters complete languages sets mapping print support provides.`
+          },
+          {
+            id: 'html-l40',
+            title: '6.8 HTML URL Encode',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### URL Encoding
+URL query strings parameters data security conversions structures. Browser values safety conversions standard URLs convert rules trigger.
+
+For example, dynamic spaces convert to \`%\` standard numeric configurations rules safely.`
+          },
+          {
+            id: 'html-l41',
+            title: '6.9 HTML vs. XHTML',
+            duration: '15m',
+            completed: false,
+            type: 'coding',
+            content: `### HTML vs XHTML comparisons
+Differences between standard HTML layouts vs XML parse standard definitions strict markup rule sets:
+
+- **Strict Validation**: XHTML tags nested matching cases uppercase errors crash page loads instantly.
+- **Tag Closure**: Har single element explicitly self-closed standard required syntax properties configurations follow (e.g., \`<br />\`).`
           }
         ]
       }
