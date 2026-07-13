@@ -7,6 +7,12 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "Playfair Display", serif;
+  --color-stone-150: #eae8e6;
+  --color-stone-250: #dedcdb;
+  --color-stone-350: #bfbab7;
+  --color-stone-450: #908985;
+  --color-stone-550: #67625e;
+  --color-stone-750: #363230;
   --color-stone-850: #221f1d;
 }
 

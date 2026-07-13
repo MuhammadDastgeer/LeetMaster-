@@ -42,7 +42,7 @@ export const COURSE_CATEGORIES = [
   'Tools & DSA'
 ];
 
-export const INITIAL_COURSES: Course[] = [
+const RAW_INITIAL_COURSES: Course[] = [
   // --- CATEGORY 1: WEB FUNDAMENTALS ---
   {
     id: 'intro-to-programming',
@@ -3431,3 +3431,9 @@ int solveKnapsack(int W, const vector<int>& wt, const vector<int>& val, int n) {
     ]
   }
 ];
+
+export const INITIAL_COURSES: Course[] = RAW_INITIAL_COURSES.map(course => ({
+  ...course,
+  instructor: 'LeetMaster'
+}));
+

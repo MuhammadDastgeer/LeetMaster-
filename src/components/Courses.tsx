@@ -49,7 +49,9 @@ export default function Courses() {
               title: initialCourse.title,
               description: initialCourse.description,
               duration: initialCourse.duration,
-              tags: initialCourse.tags
+              tags: initialCourse.tags,
+              instructor: initialCourse.instructor,
+              instructorTitle: initialCourse.instructorTitle
             };
           });
         }
@@ -788,7 +790,7 @@ export default function Courses() {
                         >
                           {course.title}
                         </h3>
-                        <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed line-clamp-2">
+                        <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed line-clamp-2">
                           {course.description}
                         </p>
                       </div>
