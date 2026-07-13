@@ -225,13 +225,13 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
   // Handle checking/unchecking a lesson from the dynamic Syllabus Checklist drape
   const handleToggleSyllabusLesson = (courseId: string, moduleId: string, lessonId: string) => {
     const updatedCourses = coursesList.map(c => {
-      if (c.id === courseId) {
-        const updatedModules = c.modules.map((mod: any) => {
-          if (mod.id === moduleId) {
+      if (c && c.id === courseId) {
+        const updatedModules = (c.modules || []).map((mod: any) => {
+          if (mod && mod.id === moduleId) {
             return {
               ...mod,
-              lessons: mod.lessons.map((les: any) => {
-                if (les.id === lessonId) {
+              lessons: (mod.lessons || []).map((les: any) => {
+                if (les && les.id === lessonId) {
                   return { ...les, completed: !les.completed };
                 }
                 return les;
@@ -241,8 +241,8 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
           return mod;
         });
 
-        const allLessons = updatedModules.flatMap((m: any) => m.lessons);
-        const completedCount = allLessons.filter((l: any) => l.completed).length;
+        const allLessons = updatedModules.flatMap((m: any) => m && m.lessons ? m.lessons : []);
+        const completedCount = allLessons.filter((l: any) => l && l.completed).length;
         const totalCount = allLessons.length;
         const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
@@ -1472,11 +1472,11 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                         
                         {/* Modules & Lessons */}
                         <div className="space-y-4 mt-3">
-                          {course.modules?.map((mod: any) => (
+                          {(course.modules || []).filter((mod: any) => mod).map((mod: any) => (
                             <div key={mod.id} className="space-y-1.5">
                               <h5 className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-wider font-mono">{mod.title}</h5>
                               <div className="space-y-1 pl-1">
-                                {mod.lessons?.map((lesson: any) => (
+                                {(mod.lessons || []).filter((lesson: any) => lesson).map((lesson: any) => (
                                   <div 
                                     key={lesson.id} 
                                     onClick={() => handleToggleSyllabusLesson(course.id, mod.id, lesson.id)}

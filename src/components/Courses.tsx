@@ -20,26 +20,30 @@ export default function Courses() {
         if (Array.isArray(parsed) && parsed.length > 0) {
           // Merge to ensure newly added modules and lessons from INITIAL_COURSES are loaded!
           return INITIAL_COURSES.map(initialCourse => {
-            const savedCourse = parsed.find(c => c.id === initialCourse.id);
+            const savedCourse = parsed.find(c => c && c.id === initialCourse.id);
             if (!savedCourse) return initialCourse;
             
             // Re-build modules to incorporate any new lessons
-            const mergedModules = initialCourse.modules.map(initialModule => {
-              const savedModule = savedCourse.modules?.find((m: any) => m.id === initialModule.id);
+            const mergedModules = (initialCourse.modules || []).map(initialModule => {
+              const savedModule = (savedCourse && Array.isArray(savedCourse.modules))
+                ? savedCourse.modules.find((m: any) => m && m.id === initialModule.id)
+                : null;
               if (!savedModule) return initialModule;
               
-              const mergedLessons = initialModule.lessons.map(initialLesson => {
-                const savedLesson = savedModule.lessons?.find((l: any) => l.id === initialLesson.id);
+              const mergedLessons = (initialModule.lessons || []).map(initialLesson => {
+                const savedLesson = (savedModule && Array.isArray(savedModule.lessons))
+                  ? savedModule.lessons.find((l: any) => l && l.id === initialLesson.id)
+                  : null;
                 if (!savedLesson) return initialLesson;
-                return { ...initialLesson, completed: savedLesson.completed };
+                return { ...initialLesson, completed: !!savedLesson.completed };
               });
               
               return { ...initialModule, lessons: mergedLessons };
             });
             
             // Recalculate progress based on new total of lessons
-            const totalLessons = mergedModules.flatMap(m => m.lessons).length;
-            const completedLessons = mergedModules.flatMap(m => m.lessons).filter(l => l.completed).length;
+            const totalLessons = mergedModules.flatMap(m => m.lessons || []).length;
+            const completedLessons = mergedModules.flatMap(m => m.lessons || []).filter(l => l.completed).length;
             const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
             
             return {
@@ -93,7 +97,7 @@ export default function Courses() {
   useEffect(() => {
     if (activeCourseId) {
       const course = courses.find(c => c.id === activeCourseId);
-      if (course && course.modules.length > 0) {
+      if (course && Array.isArray(course.modules) && course.modules.length > 0 && course.modules[0]) {
         setExpandedModules(prev => ({
           ...prev,
           [course.modules[0].id]: true
@@ -139,7 +143,9 @@ export default function Courses() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           courseTitle: activeCourse?.title || '',
-          moduleTitle: activeCourse?.modules.find(m => m.lessons.some(l => l.id === lesson.id))?.title || '',
+          moduleTitle: (activeCourse && Array.isArray(activeCourse.modules))
+            ? activeCourse.modules.find(m => m && Array.isArray(m.lessons) && m.lessons.some(l => l && l.id === lesson.id))?.title || ''
+            : '',
           lessonTitle: lesson.title,
           lessonContent: lesson.content,
         })
@@ -382,7 +388,7 @@ export default function Courses() {
     const course = courses.find(c => c.id === courseId);
     if (!course) return;
 
-    const lessonsList = course.modules.flatMap(m => m.lessons);
+    const lessonsList = (course.modules || []).flatMap(m => m && Array.isArray(m.lessons) ? m.lessons : []);
     let willBeCompleted = false;
 
     if (lessonsList.length > 0) {
@@ -410,12 +416,12 @@ export default function Courses() {
     setCompleteError(null);
     setCourses(prev => prev.map(c => {
       if (c.id === courseId) {
-        const updatedModules = c.modules.map(mod => {
-          if (mod.id === moduleId) {
+        const updatedModules = (c.modules || []).map(mod => {
+          if (mod && mod.id === moduleId) {
             return {
               ...mod,
-              lessons: mod.lessons.map(les => {
-                if (les.id === lessonId) {
+              lessons: (mod.lessons || []).map(les => {
+                if (les && les.id === lessonId) {
                   return { ...les, completed: !les.completed };
                 }
                 return les;
@@ -425,7 +431,7 @@ export default function Courses() {
           return mod;
         });
 
-        const allLessons = updatedModules.flatMap(m => m.lessons);
+        const allLessons = updatedModules.flatMap(m => m && Array.isArray(m.lessons) ? m.lessons : []);
         const completedCount = allLessons.filter(l => l.completed).length;
         const totalCount = allLessons.length;
         const newProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -456,12 +462,18 @@ export default function Courses() {
   };
 
   // Filtering Logic
-  const filteredCourses = courses.filter(c => {
+  const filteredCourses = (courses || []).filter(c => {
+    if (!c) return false;
+    const title = c.title || '';
+    const description = c.description || '';
+    const instructor = c.instructor || '';
+    const tags = Array.isArray(c.tags) ? c.tags : [];
+    
     const matchesCategory = selectedCategory === 'All' || c.category === selectedCategory;
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          c.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          c.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          tags.some(t => t && t.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
@@ -469,7 +481,7 @@ export default function Courses() {
 
   // Lesson traversal list inside active course
   const courseLessonsList = activeCourse 
-    ? activeCourse.modules.flatMap(m => m.lessons.map(l => ({ ...l, moduleId: m.id }))) 
+    ? (activeCourse.modules || []).flatMap(m => m && Array.isArray(m.lessons) ? m.lessons.map(l => ({ ...l, moduleId: m.id })) : []) 
     : [];
 
   const currentLessonIndex = activeCourseId && activeLessonId 
@@ -679,7 +691,7 @@ export default function Courses() {
           </p>
         </div>
 
-        {activeCourseId && (
+        {activeCourseId && activeCourse && (
           <button
             type="button"
             onClick={() => {
@@ -694,7 +706,7 @@ export default function Courses() {
       </div>
 
       <AnimatePresence mode="wait">
-        {!activeCourseId ? (
+        {!activeCourseId || !activeCourse ? (
           <motion.div
             key="catalog-list-view"
             initial={{ opacity: 0, y: 10 }}
@@ -928,10 +940,10 @@ export default function Courses() {
                 </div>
 
                 <div className="space-y-3">
-                  {activeCourse.modules.map((mod: CourseModule) => {
+                  {(activeCourse.modules || []).filter(m => m).map((mod: CourseModule) => {
                     const isExpanded = !!expandedModules[mod.id];
-                    const completedInMod = mod.lessons.filter(l => l.completed).length;
-                    const totalInMod = mod.lessons.length;
+                    const completedInMod = (mod.lessons || []).filter(l => l && l.completed).length;
+                    const totalInMod = (mod.lessons || []).length;
 
                     return (
                       <div 
@@ -977,7 +989,7 @@ export default function Courses() {
                               transition={{ duration: 0.15 }}
                               className="border-t border-stone-100 dark:border-stone-850 divide-y divide-stone-50 dark:divide-stone-850/60 bg-stone-50/30 dark:bg-stone-950/10"
                             >
-                              {mod.lessons.map((les: Lesson) => {
+                              {(mod.lessons || []).filter(l => l).map((les: Lesson) => {
                                 const isLessonActive = activeLessonId === les.id;
                                 return (
                                   <div
@@ -1091,8 +1103,8 @@ export default function Courses() {
                       <button
                         type="button"
                         onClick={() => {
-                          const activeModuleId = activeCourse.modules.find(m => 
-                            m.lessons.some(l => l.id === activeLesson.id)
+                          const activeModuleId = (activeCourse.modules || []).find(m => 
+                            m && Array.isArray(m.lessons) && m.lessons.some(l => l && l.id === activeLesson.id)
                           )?.id;
                           if (activeModuleId) {
                             handleToggleLesson(activeCourse.id, activeModuleId, activeLesson.id);

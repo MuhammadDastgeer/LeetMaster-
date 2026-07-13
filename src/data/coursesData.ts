@@ -3432,8 +3432,302 @@ int solveKnapsack(int W, const vector<int>& wt, const vector<int>& val, int n) {
   }
 ];
 
-export const INITIAL_COURSES: Course[] = RAW_INITIAL_COURSES.map(course => ({
-  ...course,
-  instructor: 'LeetMaster'
-}));
+function getModuleTitle(courseTitle: string, moduleIndex: number): string {
+  const title = courseTitle.toLowerCase();
+  
+  if (title.includes('programming') || title.includes('javascript') || title.includes('python') || title.includes('java ') || title.includes('c-programming') || title.includes('cpp') || title.includes('csharp') || title.includes('go-') || title.includes('rust') || title.includes('kotlin') || title.includes('swift') || title.includes('r-data')) {
+    const modules = [
+      "Module 1: Introduction, Setup & Language Essentials",
+      "Module 2: Variables, Data Types & Operations",
+      "Module 3: Control Flow & Conditionals",
+      "Module 4: Repetitive Statements & Loops",
+      "Module 5: Functions, Parameters & Return values",
+      "Module 6: Scope, Closures & Memory Mechanics",
+      "Module 7: Complex Data Structures & Algorithms",
+      "Module 8: Object-Oriented Design & Classes",
+      "Module 9: Error Handling, File I/O & Modules",
+      "Module 10: Capstone Project & Production Optimization"
+    ];
+    return modules[moduleIndex - 1];
+  }
+  
+  if (title.includes('database') || title.includes('sql') || title.includes('mysql') || title.includes('postgresql') || title.includes('mongodb') || title.includes('nosql')) {
+    const modules = [
+      "Module 1: Database Concepts & Data Modeling",
+      "Module 2: Server Setup & Client Tools",
+      "Module 3: Basic Querying, SELECT & Operators",
+      "Module 4: Filtering, Sorting & Null Handling",
+      "Module 5: Aggregation, GROUP BY & Functions",
+      "Module 6: Relational Algebra & Multi-Table Joins",
+      "Module 7: Subqueries, CTEs & Advanced Window Functions",
+      "Module 8: Data Definition (DDL) & Schema Alterations",
+      "Module 9: Data Manipulation (DML) & Integrity Rules",
+      "Module 10: Transactions, Indexes & Database Tuning"
+    ];
+    return modules[moduleIndex - 1];
+  }
+  
+  if (title.includes('html') || title.includes('css') || title.includes('bootstrap') || title.includes('sass') || title.includes('tailwindcss') || title.includes('react') || title.includes('vue') || title.includes('angular') || title.includes('nodejs') || title.includes('django') || title.includes('asp') || title.includes('php') || title.includes('web')) {
+    const modules = [
+      "Module 1: Architecture, Protocols & Environment Setup",
+      "Module 2: Core Document Structure & Elements",
+      "Module 3: Typography & Text Layout Styles",
+      "Module 4: Responsive Layouts & Positioning Mechanics",
+      "Module 5: Flexbox, Grid & Modern Framework Utilities",
+      "Module 6: User Interactivity, Events & Forms",
+      "Module 7: Stateful Applications & Component Lifecycles",
+      "Module 8: API Integration & Data Fetching Schemes",
+      "Module 9: Routing, Auth & State Management Hooks",
+      "Module 10: Production Bundling & Cloud Hosting Strategies"
+    ];
+    return modules[moduleIndex - 1];
+  }
+  
+  const modules = [
+    "Module 1: Fundamental Concepts & History",
+    "Module 2: Setup, Tools & Workspace Design",
+    "Module 3: Core Operations & Syntax Rules",
+    "Module 4: Structuring Logic & Clean Code",
+    "Module 5: Real-World Applications & Use Cases",
+    "Module 6: Intermediate Optimizations",
+    "Module 7: Advanced Architectural Design",
+    "Module 8: Performance Analysis & Benchmarking",
+    "Module 9: Security Guidelines & Debugging",
+    "Module 10: Final Industry Capstone Project"
+  ];
+  return modules[moduleIndex - 1];
+}
+
+function getCourseSubject(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes('html')) return 'HTML';
+  if (t.includes('css')) return 'CSS';
+  if (t.includes('javascript') || t.includes('js')) return 'JavaScript';
+  if (t.includes('python')) return 'Python';
+  if (t.includes('java ') || t.includes('java core')) return 'Java';
+  if (t.includes('c++') || t.includes('cpp')) return 'C++';
+  if (t.includes('c-programming') || t.includes('c programming')) return 'C';
+  if (t.includes('csharp') || t.includes('c#')) return 'C#';
+  if (t.includes('php')) return 'PHP';
+  if (t.includes('go-') || t.includes('go ')) return 'Go';
+  if (t.includes('rust')) return 'Rust';
+  if (t.includes('kotlin')) return 'Kotlin';
+  if (t.includes('swift')) return 'Swift';
+  if (t.includes('sql') || t.includes('mysql') || t.includes('postgresql')) return 'SQL';
+  if (t.includes('mongodb')) return 'MongoDB';
+  if (t.includes('react')) return 'React';
+  if (t.includes('angular')) return 'Angular';
+  if (t.includes('vue')) return 'Vue';
+  if (t.includes('nodejs') || t.includes('node')) return 'Node.js';
+  if (t.includes('django')) return 'Django';
+  if (t.includes('git')) return 'Git';
+  if (t.includes('dsa')) return 'DSA';
+  if (t.includes('machine learning') || t.includes('ai')) return 'AI/ML';
+  if (t.includes('data science')) return 'Data Science';
+  return 'Programming';
+}
+
+function getLessonTitle(subject: string, moduleIndex: number, lessonIndex: number): string {
+  const lessonNum = `${moduleIndex}.${lessonIndex}`;
+  
+  if (subject === 'HTML' || subject === 'CSS' || subject === 'React' || subject === 'Angular' || subject === 'Vue' || subject === 'Node.js' || subject === 'Django' || subject === 'Git') {
+    const topics: Record<number, string[]> = {
+      1: ["History and Core Engine", "First Setup & Terminal Tools", "Directory Configuration", "Initial Scaffolding", "CLI Command Guides", "Basic File Formats", "First Hello World Render", "Understanding Compilers/Browsers", "Modern DevTools Inspection", "Troubleshooting Common Setup Issues"],
+      2: ["Core Syntax & Base Tags", "Document Metadata Structure", "Configuring Global Schemas", "Attributes and Properties", "Working with text elements", "Injecting external links", "Image and media loading", "Embedding inline elements", "Layout containers & division", "Validating standards & compliance"],
+      3: ["Basic Typography styles", "Web Fonts Integration", "Alignment & line-height spacing", "Color theory & palette choices", "Theme declarations & presets", "Text decoration & shadows", "Managing negative space", "Grouping lists & items", "Flow layouts & readability", "Design guidelines for typography"],
+      4: ["Visual Box Model rules", "Margin vs Padding spacing", "Border designs & curves", "Sizing elements (width/height)", "Position values (relative/absolute)", "Z-index layer mechanics", "Floating & clearing elements", "Display properties (inline/block)", "Overflow strategies", "Responsive layout break-points"],
+      5: ["Introduction to Flexbox flow", "Justifying flex containers", "Aligning flex items", "Flex wrap & ordering", "Grid Layout fundamentals", "Configuring grid tracks", "Placing grid items", "Grid template areas", "Gap spacing & auto-fits", "Combining Flex & Grid systems"],
+      6: ["Interactive UI features", "Triggering DOM/Style events", "Creating input fields", "Developing rich forms", "Form validations & feedback", "Working with buttons & labels", "Configuring focus outlines", "Accessibility (ARIA) guidelines", "Keyboard navigation support", "Designing intuitive controls"],
+      7: ["State and lifecycle concepts", "Creating reusable elements", "Component nesting strategies", "Property passing & rendering", "Local state management hooks", "Updating view templates", "Dynamic list rendering", "Conditional blocks in layout", "Refactoring into sub-components", "Optimal performance updates"],
+      8: ["Understanding HTTP & REST", "Data Fetching essentials", "JSON parsing techniques", "Async/Await API structures", "Displaying loaded data", "Handling loading indicators", "Managing API errors", "Optimizing data cache", "Pagination & infinite scroll", "Real-time updates with APIs"],
+      9: ["Designing multi-page routing", "Dynamic route parameters", "Protecting private paths", "State distribution models", "Global state store hooks", "User authentication flow", "Saving login sessions", "Optimizing state updates", "Reducers and actions patterns", "Syncing state with LocalStorage"],
+      10: ["Building optimized assets", "Production minification", "Code splitting & lazy loading", "Environment configurations", "Configuring hosting servers", "Setting up continuous delivery", "Speed diagnostics & scores", "SEO optimizations", "Security vulnerability checks", "Final project showcase & review"]
+    };
+    const list = topics[moduleIndex] || topics[1];
+    return `${lessonNum} ${list[lessonIndex - 1]}`;
+  }
+  
+  if (subject === 'SQL' || subject === 'MongoDB') {
+    const topics: Record<number, string[]> = {
+      1: ["Introduction to Data Modeling", "Relational vs Document concepts", "ER Diagram foundations", "Designing robust schemas", "Primary & Foreign keys", "One-to-Many configurations", "Many-to-Many design patterns", "Data normalization rules", "Understanding Denormalization", "Schema design best practices"],
+      2: ["Database engine installation", "Configuring local ports & users", "Command-line clients guide", "Interactive GUI dashboards", "Connection strings syntax", "Establishing remote sessions", "Database creation scripts", "Securing access credentials", "Troubleshooting initial boots", "Admin monitoring consoles"],
+      3: ["First SELECT Query syntax", "Retrieving precise columns", "Renaming output with Aliases", "Eliminating duplicates with DISTINCT", "Basic arithmetic operations", "Handling system functions", "Concatenating output values", "Conditional expression logic", "Working with date/time outputs", "Query formatting standards"],
+      4: ["Filtering with WHERE constraints", "Logical operators AND & OR", "Range selections with BETWEEN", "Value lists with IN filters", "Wildcard matches with LIKE", "Filtering empty NULL values", "Sorting results with ORDER BY", "Limiting outputs with LIMIT", "Skipping rows with OFFSET", "Writing clean search criteria"],
+      5: ["COUNT aggregation syntax", "Calculating totals with SUM", "Finding averages with AVG", "Retrieving extremes (MIN/MAX)", "Grouping with GROUP BY", "Filtering groups with HAVING", "Counting distinct occurrences", "Combining multiple aggregations", "Grouping across date ranges", "Aggregating nested structures"],
+      6: ["Relational Algebra basics", "Mastering INNER JOIN", "Using LEFT outer joins", "Leveraging RIGHT outer joins", "Complete FULL OUTER JOIN", "Self Joins concepts", "Cross Joins & Cartesian results", "Combining multiple table links", "Filtering joined table values", "Alias rules for clean Joins"],
+      7: ["Understanding Subqueries", "Nested SELECT statements", "Correlated subqueries", "EXISTS and NOT EXISTS", "Introduction to CTEs", "Recursive CTE designs", "Window function basics", "Partitioning results with OVER", "Ranking with ROW_NUMBER", "Running totals & averages"],
+      8: ["CREATE TABLE instructions", "Configuring data constraints", "ALTER TABLE operations", "DROP and TRUNCATE differences", "Managing data indexes", "Configuring unique indexes", "Foreign Key integrity constraints", "Creating virtual VIEWS", "Designing system schemas", "DDL script organization"],
+      9: ["INSERT INTO statements", "Bulk loading data records", "UPDATE commands guidelines", "Safe updating with filters", "DELETE FROM procedures", "Upsert operations (Merge)", "Bulk import from CSV files", "Exporting data schemas", "Validating raw data inputs", "Managing data anomalies"],
+      10: ["ACID transaction properties", "START TRANSACTION commands", "Saving changes with COMMIT", "Reverting with ROLLBACK", "Understanding locks & deadlocks", "Query plan analysis", "Index optimization strategies", "Database backup procedures", "Restoring from system backups", "Final database tuning checklist"]
+    };
+    const list = topics[moduleIndex] || topics[1];
+    return `${lessonNum} ${list[lessonIndex - 1]}`;
+  }
+
+  const topics: Record<number, string[]> = {
+    1: ["History and environment setup", "CLI commands & Compilation", "Your first Hello World", "Outputting data to console", "Comments and documentation", "Syntax rules & semicolons", "IDE shortcuts and plugins", "Troubleshooting basic build errors", "Working with interpreter/compiler", "Memory allocation basics"],
+    2: ["Declaring variables properly", "Integer & Float data types", "Character & String data types", "Boolean flag variables", "Type conversion (casting)", "Arithmetic operators", "Relational and logic operators", "Bitwise operators in action", "Operator precedence guides", "Constant values & immutability"],
+    3: ["If and Else statements", "Else-If ladder configurations", "Nested conditional checks", "Logical operators in conditions", "Switch/Match case statements", "Ternary operator syntax", "Short-circuit evaluation rules", "Designing decision flow charts", "Handling boundary comparisons", "Conditional optimization guides"],
+    4: ["Understanding loop mechanics", "Designing For Loops", "Iterating with While Loops", "Do-While loop configurations", "Infinite loops & prevention", "Breaking loops with break", "Skipping loops with continue", "Nested loop configurations", "Looping through text arrays", "Performance of loops in memory"],
+    5: ["Declaring reusable functions", "Parameters and arguments", "Pass-by-value vs Reference", "Returning single output values", "Returning multiple values", "Default parameter definitions", "Overloading function names", "Inline and lambda helpers", "Recursion basic concepts", "Designing clean modular code"],
+    6: ["Understanding memory stacks", "Global vs Local variables", "Block scope boundaries", "Variable lifetime rules", "Understanding Closures", "Pass-by-reference memory", "Pointer basics introduction", "Garbage collection mechanics", "Memory leak diagnostic tools", "Optimizing scope references"],
+    7: ["Intro to lists & arrays", "Dynamic resizing arrays", "Two-dimensional matrices", "Stack data structure basics", "Queue data structure basics", "Singly Linked List concepts", "Key-Value dictionaries/maps", "Set elements & uniqueness", "Searching values in arrays", "Basic sorting algorithms"],
+    8: ["Introduction to OOP design", "Defining custom Classes", "Instantiating new Objects", "Encapsulation & Private fields", "Constructor initialization", "Implementing Inheritance", "Polymorphism & Method overrides", "Abstract classes & Interfaces", "Static methods and properties", "Object-oriented best practices"],
+    9: ["Catching runtime Exceptions", "Using Try, Catch & Finally", "Throwing custom errors", "Validating input parameters", "Reading external text files", "Writing data to disk files", "Importing system libraries", "Creating custom packages", "Asset paths configuration", "Logging error diagnostics"],
+    10: ["Designing modular projects", "System requirements analysis", "Structuring project modules", "Writing clean automated tests", "Debugging techniques with breakpoints", "Time complexity analysis (Big O)", "Optimizing memory footprints", "Building executable packages", "Code reviews and best guidelines", "Final capstone project review"]
+  };
+  const list = topics[moduleIndex] || topics[1];
+  return `${lessonNum} ${list[lessonIndex - 1]}`;
+}
+
+function generateLessonContent(subject: string, courseTitle: string, moduleTitle: string, lessonTitle: string, index: number): string {
+  let lang = 'javascript';
+  if (subject === 'Python' || subject === 'AI/ML' || subject === 'Data Science') lang = 'python';
+  else if (subject === 'SQL') lang = 'sql';
+  else if (subject === 'HTML') lang = 'html';
+  else if (subject === 'CSS') lang = 'css';
+  else if (subject === 'C++') lang = 'cpp';
+  else if (subject === 'C') lang = 'c';
+  else if (subject === 'Java') lang = 'java';
+  else if (subject === 'C#') lang = 'csharp';
+  else if (subject === 'PHP') lang = 'php';
+  else if (subject === 'Go') lang = 'go';
+  else if (subject === 'Rust') lang = 'rust';
+  else if (subject === 'Kotlin') lang = 'kotlin';
+  else if (subject === 'Swift') lang = 'swift';
+  else if (subject === 'Bash') lang = 'bash';
+
+  let code = '';
+  if (lang === 'javascript') {
+    code = `// ${lessonTitle}\n// Sab Technologies Roadmap\n\nconsole.log("Starting Lesson: ${lessonTitle}");\n\nlet topicActive = true;\nlet lessonRank = ${index};\n\nif (topicActive) {\n    console.log("Sabaq " + lessonRank + " bilkul live chal rha hai!");\n    console.log("LeetMaster is coaching you step-by-step!");\n}\n`;
+  } else if (lang === 'python') {
+    code = `# ${lessonTitle}\n# Sab Technologies Roadmap\n\nprint("Starting Lesson: ${lessonTitle}")\n\ntopic_active = True\nlesson_rank = ${index}\n\nif topic_active:\n    print(f"Sabaq {lesson_rank} bilkul live chal rha hai!")\n    print("LeetMaster is coaching you step-by-step!")\n`;
+  } else if (lang === 'sql') {
+    code = `-- ${lessonTitle}\n-- Sab Technologies Database Tutorial\n\nSELECT 'Welcome to ${lessonTitle}' AS introduction;\n\n-- Dummy table simulation query\nSELECT * FROM courses_record WHERE lesson_id = ${index};\n`;
+  } else if (lang === 'html') {
+    code = `<!-- ${lessonTitle} -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>${lessonTitle}</title>\n  <style>\n    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #faf9f6; padding: 20px; }\n    h1 { color: #ff6b2b; }\n  </style>\n</head>\n<body>\n  <h1>Welcome to ${lessonTitle}</h1>\n  <p>Practice HTML elements in the Live Preview stage!</p>\n</body>\n</html>\n`;
+  } else if (lang === 'css') {
+    code = `/* ${lessonTitle} styles */\n\nbody {\n  background-color: #faf9f6;\n  font-family: 'Plus Jakarta Sans', sans-serif;\n  color: #221f1d;\n}\n\n.course-lesson-header {\n  color: #ff6b2b;\n  font-size: 24px;\n  font-weight: 900;\n}\n`;
+  } else if (lang === 'cpp') {
+    code = `// ${lessonTitle}\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Starting Lesson: ${lessonTitle}" << endl;\n    cout << "Sabaq number " << ${index} << " is loaded!" << endl;\n    return 0;\n}\n`;
+  } else if (lang === 'c') {
+    code = `// ${lessonTitle}\n#include <stdio.h>\n\nint main() {\n    printf("Starting Lesson: ${lessonTitle}\\n");\n    printf("Sabaq number %d is loaded!\\n", ${index});\n    return 0;\n}\n`;
+  } else if (lang === 'java') {
+    code = `// ${lessonTitle}\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Starting Lesson: ${lessonTitle}");\n        System.out.println("Sabaq number " + ${index} + " is loaded!");\n    }\n}\n`;
+  } else if (lang === 'csharp') {
+    code = `// ${lessonTitle}\nusing System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Starting Lesson: ${lessonTitle}");\n        Console.WriteLine("Sabaq number " + ${index} + " is loaded!");\n    }\n}\n`;
+  } else if (lang === 'php') {
+    code = `<?php\n// ${lessonTitle}\n\necho "Starting Lesson: ${lessonTitle}\\n";\necho "Sabaq number " . ${index} . " is loaded!\\n";\n`;
+  } else if (lang === 'go') {
+    code = `// ${lessonTitle}\npackage main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Starting Lesson: ${lessonTitle}")\n    fmt.Printf("Sabaq number %d is loaded!\\n", ${index})\n}\n`;
+  } else if (lang === 'rust') {
+    code = `// ${lessonTitle}\nfn main() {\n    println!("Starting Lesson: ${lessonTitle}");\n    println!("Sabaq number {} is loaded!", ${index});\n}\n`;
+  } else {
+    code = `// ${lessonTitle}\n// Sab Technologies Roadmap\nconsole.log("Starting Lesson: ${lessonTitle}");\n`;
+  }
+
+  return `### ${lessonTitle} Tutorial
+
+Is lesson mein hum **${lessonTitle}** ke baare mein theory aur code concepts ko detail mein cover karenge. Yeh lecture hamari comprehensive roadmap ka hissa hai jis ka maqsad aap ko basic se lekar industry-level execution tak seekhana hai.
+
+### 🌟 Core Theory (بنیادی اصول)
+1. **Introduction & Importance**: Modern software development mein high-quality architecture design karne ke liye ye concept nihayat zaroori hai.
+2. **Key Parameters**: Is topic ko samajhne ke liye variables, structures, aur design principles ka coordinate hona zaroori hai.
+3. **Best Practice Guidance**: Hamesha code ko clean aur commented rakhein taake maintenance aasan ho.
+
+### 💻 Code Example (عملی کوڈ)
+Niche diye gaye code snippet ko dekhein aur is ke logic ko samjhein. Aap is code ko copy karke browser ke live Code Sandbox mein run aur test bhi kar sakte hain!
+
+\`\`\`${lang}
+${code}\`\`\`
+
+### 🎯 Interactive AI Help (اے آئی ٹیوٹر madad)
+Agar aap is topic ki mazeed **Roman-Urdu** ya detail mein line-by-line explanation, real-world examples, aur interview questions chahte hain, to tab par click karke **AI Tutor (Gemini)** se fori guidance haasil karein!`;
+}
+
+export const INITIAL_COURSES: Course[] = RAW_INITIAL_COURSES.map((course, cIdx) => {
+  const subject = getCourseSubject(course.title);
+  
+  let originalModules: CourseModule[] = [];
+
+  if (cIdx >= 0 && cIdx <= 44) {
+    // Course 1 to 45: generate exactly 30 topics (3 modules * 10 lessons)
+    for (let mIdx = 1; mIdx <= 3; mIdx++) {
+      const modTitle = getModuleTitle(course.title, mIdx);
+      const lessons: Lesson[] = [];
+      
+      for (let lIdx = 1; lIdx <= 10; lIdx++) {
+        const lessonSeq = (mIdx - 1) * 10 + lIdx;
+        const lessonTitle = getLessonTitle(subject, mIdx, lIdx);
+        const lessonId = `${course.id}-m${mIdx}-l${lIdx}`;
+        
+        // Find if we have an existing lesson in RAW_INITIAL_COURSES
+        const allOriginalLessons = (course.modules || []).flatMap(m => m && m.lessons ? m.lessons : []);
+        const existingLesson = allOriginalLessons[lessonSeq - 1];
+        
+        if (existingLesson) {
+          lessons.push({
+            id: lessonId,
+            title: existingLesson.title,
+            duration: existingLesson.duration || `${30 + (lessonSeq % 3) * 15}m`,
+            completed: !!existingLesson.completed,
+            type: existingLesson.type || (lessonSeq % 2 === 0 ? 'coding' : 'video'),
+            content: existingLesson.content || generateLessonContent(subject, course.title, modTitle, lessonTitle, lessonSeq)
+          });
+        } else {
+          const content = generateLessonContent(subject, course.title, modTitle, lessonTitle, lessonSeq);
+          lessons.push({
+            id: lessonId,
+            title: lessonTitle,
+            duration: `${30 + (lessonSeq % 3) * 15}m`,
+            completed: false,
+            type: lessonSeq % 2 === 0 ? 'coding' : 'video',
+            content: content
+          });
+        }
+      }
+      
+      originalModules.push({
+        id: `${course.id}-mod-${mIdx}`,
+        title: modTitle,
+        duration: '5 hrs',
+        lessons: lessons
+      });
+    }
+  } else {
+    // Other courses: use predefined modules
+    originalModules = (course.modules || []).map((mod, mIdx) => {
+      const lessons = (mod.lessons || []).map((lesson, lIdx) => {
+        const lessonSeq = (mIdx * 10) + lIdx + 1;
+        const lessonId = lesson.id || `${course.id}-m${mIdx + 1}-l${lIdx + 1}`;
+        const content = lesson.content || generateLessonContent(subject, course.title, mod.title || `Module ${mIdx + 1}`, lesson.title, lessonSeq);
+        
+        return {
+          id: lessonId,
+          title: lesson.title,
+          duration: lesson.duration || `${30 + (lessonSeq % 3) * 15}m`,
+          completed: !!lesson.completed,
+          type: lesson.type || (lessonSeq % 2 === 0 ? 'coding' : 'video'),
+          content: content
+        };
+      });
+      
+      return {
+        id: mod.id || `${course.id}-mod-${mIdx + 1}`,
+        title: mod.title || `Module ${mIdx + 1}`,
+        duration: mod.duration || '5 hrs',
+        lessons: lessons
+      };
+    });
+  }
+
+  return {
+    ...course,
+    instructor: 'LeetMaster',
+    instructorTitle: 'Sab Technologies Coach',
+    duration: (cIdx >= 0 && cIdx <= 44) ? '15 hrs' : (course.duration || '10 hrs'),
+    modules: originalModules,
+    progress: course.progress || 0
+  };
+});
 
