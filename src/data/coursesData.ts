@@ -48,7 +48,7 @@ const RAW_INITIAL_COURSES: Course[] = [
     id: 'intro-to-programming',
     title: '1. Intro to Programming',
     category: 'Web Fundamentals',
-    description: 'Programming fundamentals seekhein bilkul scratch se. Variables, Loop, Functions aur Logic building concepts Urdu aur step-by-step guide ke sath.',
+    description: 'Master programming fundamentals from absolute scratch. Learn variable operations, loops, conditional controls, functions, and basic logical building patterns step-by-step.',
     instructor: 'M. Sab',
     instructorTitle: 'Sab Technologies Lead',
     duration: '6 hrs',
@@ -187,7 +187,7 @@ console.log("Tax is: " + myTax); // Out: 150
     id: 'intro-html-css',
     title: '2. Intro to HTML & CSS',
     category: 'Web Fundamentals',
-    description: 'Web development ka pehla qadam. HTML skeleton banana aur CSS styling se elements ko khubsurat design karna seekhein.',
+    description: 'Your first step into professional web development. Learn to build modern semantic document skeletons and style elements with beautiful CSS properties.',
     instructor: 'Ayesha Khan',
     instructorTitle: 'Senior UI/UX Engineer',
     duration: '5 hrs',
@@ -237,7 +237,7 @@ Browser server ko request send karta hai aur response mein HTML/CSS fetch karta 
     id: 'html-advanced',
     title: '3. HTML (Semantic & Structuring)',
     category: 'Web Fundamentals',
-    description: 'Semantic tags, interactive forms, tables, media elements, style guides aur HTML elements ka complete handbook scratch se seekhein.',
+    description: 'Dive deep into HTML5 semantics, comprehensive document layouts, interactive user input forms, custom table structures, and SEO accessibility guidelines.',
     instructor: 'Ali Raza',
     instructorTitle: 'Frontend Architect',
     duration: '18 hrs',
@@ -976,7 +976,7 @@ Differences between standard HTML layouts vs XML parse standard definitions stri
     id: 'css-layouts',
     title: '4. CSS (Flexbox, Grid & Responsive)',
     category: 'Web Fundamentals',
-    description: 'Styling ke advanced tools: CSS Grid, Flexbox, media queries aur clean modern keyframe animations.',
+    description: 'Master CSS3 advanced layouts including CSS Flexbox systems, Grid frameworks, responsive media queries, and clean visual transitions.',
     instructor: 'Zainab Jamil',
     instructorTitle: 'CSS specialist',
     duration: '12 hrs',
@@ -1055,7 +1055,7 @@ Grid ek 2-Dimensional layout system hai (Rows and Columns dono ek sath).
     id: 'w3css-framework',
     title: '5. W3.CSS (Lightweight UI)',
     category: 'Web Fundamentals',
-    description: 'W3.CSS framework ka use karke fast, lightweight aur high-contrast responsive interfaces design karein.',
+    description: 'Learn to design extremely fast, lightweight, and high-contrast responsive web interfaces using the modern W3.CSS stylesheet library.',
     instructor: 'Asim Baig',
     instructorTitle: 'Frontend Dev',
     duration: '4 hrs',
@@ -1110,7 +1110,7 @@ W3.CSS ek lightweight CSS framework hai jo pure CSS utilities ke sath responsive
     id: 'sass-preprocessor',
     title: '6. Sass (Syntactically Awesome Style Sheets)',
     category: 'Web Fundamentals',
-    description: 'Sass variables, nesting blocks, mixins reusable codes, partial templates aur dynamic custom compilation tools.',
+    description: 'Optimize your style workflow with Sass preprocessor variables, nesting hierarchies, partial styling files, reusable mixins, and extending schemes.',
     instructor: 'Zara Ahmed',
     instructorTitle: 'CSS Preprocessor Architect',
     duration: '6 hrs',
@@ -1172,7 +1172,7 @@ $bg-dark: #121212;
     id: 'bootstrap-framework',
     title: '7. Bootstrap (Responsive Framework)',
     category: 'Web Fundamentals',
-    description: 'Bootstrap 5 framework. 12-column grid structure, navbar responsive elements, modals aur utility layouts.',
+    description: 'Build responsive and mobile-first websites swiftly using Bootstrap 5. Learn the 12-column flex grid, navbars, cards, and interactive modal dialogs.',
     instructor: 'Hassan Jamil',
     instructorTitle: 'Lead Product Developer',
     duration: '7 hrs',
@@ -1221,7 +1221,7 @@ Grid rows aur columns (xs, sm, md, lg, xl, xxl) ke combination se responsive lay
     id: 'javascript-mastery',
     title: '8. JavaScript (ES6+ & Async)',
     category: 'Programming Languages',
-    description: 'Modern JavaScript depth se seekhein. Async/Await, Promises, Closures, Scopes aur Core Engines deep technical understanding.',
+    description: 'Explore modern JavaScript in absolute depth. Master closure scopes, prototypal inheritance, JS engine runtimes, Promises, and Async/Await paradigms.',
     instructor: 'Daniyal Sheikh',
     instructorTitle: 'Core Node Contributor',
     duration: '15 hrs',
@@ -1358,7 +1358,7 @@ print(complex_data_loop())
     id: 'java-core',
     title: '10. Java (OOP, Collections & Multithreading)',
     category: 'Programming Languages',
-    description: 'Java programming language complete depth guide. Collections framework, Exception Handling, Multithreading aur Build systems.',
+    description: 'Complete advanced guide to Java development. Master robust Object-Oriented design, the Collections Framework, Exception Handling, and Multithreading.',
     instructor: 'Sohail Abbas',
     instructorTitle: 'Enterprise Systems Dev',
     duration: '16 hrs',
@@ -3599,50 +3599,92 @@ function generateLessonContent(subject: string, courseTitle: string, moduleTitle
 
   let code = '';
   if (lang === 'javascript') {
-    code = `// ${lessonTitle}\n// Sab Technologies Roadmap\n\nconsole.log("Starting Lesson: ${lessonTitle}");\n\nlet topicActive = true;\nlet lessonRank = ${index};\n\nif (topicActive) {\n    console.log("Sabaq " + lessonRank + " bilkul live chal rha hai!");\n    console.log("LeetMaster is coaching you step-by-step!");\n}\n`;
+    code = `// ${lessonTitle}\n// Sab Technologies Roadmap\n\nconsole.log("Starting Lesson: ${lessonTitle}");\n\nlet topicActive = true;\nlet lessonRank = ${index};\n\nif (topicActive) {\n    console.log("Lesson " + lessonRank + " is fully loaded and active!");\n    console.log("Mastering the topic step-by-step with LeetMaster!");\n}\n`;
   } else if (lang === 'python') {
-    code = `# ${lessonTitle}\n# Sab Technologies Roadmap\n\nprint("Starting Lesson: ${lessonTitle}")\n\ntopic_active = True\nlesson_rank = ${index}\n\nif topic_active:\n    print(f"Sabaq {lesson_rank} bilkul live chal rha hai!")\n    print("LeetMaster is coaching you step-by-step!")\n`;
+    code = `# ${lessonTitle}\n# Sab Technologies Roadmap\n\nprint("Starting Lesson: ${lessonTitle}")\n\ntopic_active = True\nlesson_rank = ${index}\n\nif topic_active:\n    print(f"Lesson {lesson_rank} is fully loaded and active!")\n    print("Mastering the topic step-by-step with LeetMaster!")\n`;
   } else if (lang === 'sql') {
-    code = `-- ${lessonTitle}\n-- Sab Technologies Database Tutorial\n\nSELECT 'Welcome to ${lessonTitle}' AS introduction;\n\n-- Dummy table simulation query\nSELECT * FROM courses_record WHERE lesson_id = ${index};\n`;
+    code = `-- ${lessonTitle}\n-- Sab Technologies Database Tutorial\n\nSELECT 'Welcome to ${lessonTitle}' AS introduction;\n\n-- Database query simulation\nSELECT * FROM courses_record WHERE lesson_id = ${index};\n`;
   } else if (lang === 'html') {
     code = `<!-- ${lessonTitle} -->\n<!DOCTYPE html>\n<html>\n<head>\n  <title>${lessonTitle}</title>\n  <style>\n    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #faf9f6; padding: 20px; }\n    h1 { color: #ff6b2b; }\n  </style>\n</head>\n<body>\n  <h1>Welcome to ${lessonTitle}</h1>\n  <p>Practice HTML elements in the Live Preview stage!</p>\n</body>\n</html>\n`;
   } else if (lang === 'css') {
     code = `/* ${lessonTitle} styles */\n\nbody {\n  background-color: #faf9f6;\n  font-family: 'Plus Jakarta Sans', sans-serif;\n  color: #221f1d;\n}\n\n.course-lesson-header {\n  color: #ff6b2b;\n  font-size: 24px;\n  font-weight: 900;\n}\n`;
   } else if (lang === 'cpp') {
-    code = `// ${lessonTitle}\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Starting Lesson: ${lessonTitle}" << endl;\n    cout << "Sabaq number " << ${index} << " is loaded!" << endl;\n    return 0;\n}\n`;
+    code = `// ${lessonTitle}\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Starting Lesson: ${lessonTitle}" << endl;\n    cout << "Lesson number " << ${index} << " is successfully loaded!" << endl;\n    return 0;\n}\n`;
   } else if (lang === 'c') {
-    code = `// ${lessonTitle}\n#include <stdio.h>\n\nint main() {\n    printf("Starting Lesson: ${lessonTitle}\\n");\n    printf("Sabaq number %d is loaded!\\n", ${index});\n    return 0;\n}\n`;
+    code = `// ${lessonTitle}\n#include <stdio.h>\n\nint main() {\n    printf("Starting Lesson: ${lessonTitle}\\n");\n    printf("Lesson number %d is successfully loaded!\\n", ${index});\n    return 0;\n}\n`;
   } else if (lang === 'java') {
-    code = `// ${lessonTitle}\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Starting Lesson: ${lessonTitle}");\n        System.out.println("Sabaq number " + ${index} + " is loaded!");\n    }\n}\n`;
+    code = `// ${lessonTitle}\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Starting Lesson: ${lessonTitle}");\n        System.out.println("Lesson number " + ${index} + " is successfully loaded!");\n    }\n}\n`;
   } else if (lang === 'csharp') {
-    code = `// ${lessonTitle}\nusing System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Starting Lesson: ${lessonTitle}");\n        Console.WriteLine("Sabaq number " + ${index} + " is loaded!");\n    }\n}\n`;
+    code = `// ${lessonTitle}\nusing System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Starting Lesson: ${lessonTitle}");\n        Console.WriteLine("Lesson number " + ${index} + " is successfully loaded!");\n    }\n}\n`;
   } else if (lang === 'php') {
-    code = `<?php\n// ${lessonTitle}\n\necho "Starting Lesson: ${lessonTitle}\\n";\necho "Sabaq number " . ${index} . " is loaded!\\n";\n`;
+    code = `<?php\n// ${lessonTitle}\n\necho "Starting Lesson: ${lessonTitle}\\n";\necho "Lesson number " . ${index} . " is successfully loaded!\\n";\n`;
   } else if (lang === 'go') {
-    code = `// ${lessonTitle}\npackage main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Starting Lesson: ${lessonTitle}")\n    fmt.Printf("Sabaq number %d is loaded!\\n", ${index})\n}\n`;
+    code = `// ${lessonTitle}\npackage main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Starting Lesson: ${lessonTitle}")\n    fmt.Printf("Lesson number %d is successfully loaded!\\n", ${index})\n}\n`;
   } else if (lang === 'rust') {
-    code = `// ${lessonTitle}\nfn main() {\n    println!("Starting Lesson: ${lessonTitle}");\n    println!("Sabaq number {} is loaded!", ${index});\n}\n`;
+    code = `// ${lessonTitle}\nfn main() {\n    println!("Starting Lesson: ${lessonTitle}");\n    println!("Lesson number {} is successfully loaded!", ${index});\n}\n`;
   } else {
     code = `// ${lessonTitle}\n// Sab Technologies Roadmap\nconsole.log("Starting Lesson: ${lessonTitle}");\n`;
   }
 
-  return `### ${lessonTitle} Tutorial
+  return `### 📚 ${lessonTitle} - Complete Guide
 
-Is lesson mein hum **${lessonTitle}** ke baare mein theory aur code concepts ko detail mein cover karenge. Yeh lecture hamari comprehensive roadmap ka hissa hai jis ka maqsad aap ko basic se lekar industry-level execution tak seekhana hai.
+Welcome to the comprehensive module on **${lessonTitle}** as part of the **${courseTitle}** course. This lesson is carefully structured to guide you from absolute fundamentals to advanced, production-grade applications.
 
-### 🌟 Core Theory (بنیادی اصول)
-1. **Introduction & Importance**: Modern software development mein high-quality architecture design karne ke liye ye concept nihayat zaroori hai.
-2. **Key Parameters**: Is topic ko samajhne ke liye variables, structures, aur design principles ka coordinate hona zaroori hai.
-3. **Best Practice Guidance**: Hamesha code ko clean aur commented rakhein taake maintenance aasan ho.
+---
 
-### 💻 Code Example (عملی کوڈ)
-Niche diye gaye code snippet ko dekhein aur is ke logic ko samjhein. Aap is code ko copy karke browser ke live Code Sandbox mein run aur test bhi kar sakte hain!
+### 🌟 Core Architectural Theory
+
+Understanding the fundamental concepts is crucial before diving into the code. Let's analyze the core mechanics:
+
+1. **Foundational Principles**:
+   Every engineering pattern has underlying principles. For **${lessonTitle}**, we focus on modularity, clean separation of concerns, and efficient system utilization.
+2. **Advanced Structural Integrity**:
+   Moving beyond basic syntax, advanced usage requires careful planning of data lifecycle, memory allocation, and performance metrics.
+3. **Real-world Industry Relevance**:
+   In modern development pipelines, mastering **${lessonTitle}** ensures robust, scalable applications that are easy to debug, test, and maintain.
+
+---
+
+### ⚙️ Deep-Dive Technical Explanation & Mechanics
+
+Let's break down the technical specifications of **${lessonTitle}**:
+- **Execution Flow**: When a system handles this concept, it initializes environment-level contexts, parses declarative statements, and schedules thread-level execution blocks.
+- **Resource Management**: Optimal utilization of memory cycles, network requests, or database connections prevents bottlenecks.
+- **Security & Integrity**: Always validate raw inputs, protect session scopes, and implement robust permission-bound validation layers.
+
+---
+
+### 💻 Production-Ready Code Implementation
+
+Review the interactive code block below. You can copy this code and run it directly in your workspace sandbox or local environment:
 
 \`\`\`${lang}
 ${code}\`\`\`
 
-### 🎯 Interactive AI Help (اے آئی ٹیوٹر madad)
-Agar aap is topic ki mazeed **Roman-Urdu** ya detail mein line-by-line explanation, real-world examples, aur interview questions chahte hain, to tab par click karke **AI Tutor (Gemini)** se fori guidance haasil karein!`;
+---
+
+### 💡 Modern Best Practices & Guidelines
+
+- **Keep Code Self-Documenting**: Use descriptive naming conventions and clear annotations for complex architectural patterns.
+- **Implement Robust Handling**: Never assume inputs or environmental states are always ideal. Implement fallback mechanisms and descriptive logging.
+- **Perform Static Analysis**: Always run linters and compilers to catch syntax issues, type mismatches, or code smells early in the development lifecycle.
+
+---
+
+### ❓ Crucial Interview Questions & Professional Answers
+
+#### Q1: What are the primary design patterns associated with ${lessonTitle}, and how do they scale?
+**Answer**:
+The core design patterns center on loose coupling and high cohesion. By decoupling implementation details from the interface, we can swap or extend capabilities without disrupting downstream dependencies. Scaling involves stateless execution, memory caching, and distributed query processing.
+
+#### Q2: How do you identify and resolve performance bottlenecks when using ${lessonTitle}?
+**Answer**:
+Bottlenecks are identified using profiling tools (like Chrome DevTools, Python profiler, or database EXPLAIN plans). Resolution techniques include optimizing algorithms from $O(N^2)$ to $O(N \\log N)$, implementing lazy loading, utilizing debouncing/throttling, and maintaining efficient index hierarchies.
+
+---
+
+### 🎯 Interactive AI Tutor Assistance
+If you need further personalized line-by-line code reviews, interactive practice tasks, or mock interview prep for **${lessonTitle}**, click on the **AI Tutor (Gemini)** tab to receive instant, tailored English explanations!`;
 }
 
 export const INITIAL_COURSES: Course[] = RAW_INITIAL_COURSES.map((course, cIdx) => {
@@ -3651,8 +3693,10 @@ export const INITIAL_COURSES: Course[] = RAW_INITIAL_COURSES.map((course, cIdx) 
   let originalModules: CourseModule[] = [];
 
   if (cIdx >= 0 && cIdx <= 44) {
-    // Course 1 to 45: generate exactly 30 topics (3 modules * 10 lessons)
-    for (let mIdx = 1; mIdx <= 3; mIdx++) {
+    // Course 1 to 40: generate all 10 modules (100 lessons) for complete basic to advanced topics
+    // Course 41 to 45: generate exactly 30 topics (3 modules * 10 lessons)
+    const maxModules = (cIdx >= 0 && cIdx <= 39) ? 10 : 3;
+    for (let mIdx = 1; mIdx <= maxModules; mIdx++) {
       const modTitle = getModuleTitle(course.title, mIdx);
       const lessons: Lesson[] = [];
       
@@ -3662,15 +3706,20 @@ export const INITIAL_COURSES: Course[] = RAW_INITIAL_COURSES.map((course, cIdx) 
         const lessonId = `${course.id}-m${mIdx}-l${lIdx}`;
         
         // Find if we have an existing lesson in RAW_INITIAL_COURSES
-        const allOriginalLessons = (course.modules || []).flatMap(m => m && m.lessons ? m.lessons : []);
+        const allOriginalLessons = (course.modules || [])
+          .filter(Boolean)
+          .flatMap(m => m && Array.isArray(m.lessons) ? m.lessons.filter(Boolean) : []);
         const existingLesson = allOriginalLessons[lessonSeq - 1];
         
-        if (existingLesson) {
+        // For Courses 1 to 10 (cIdx 0 to 9), do not use existing incomplete raw lessons to ensure full English curriculum
+        const useExisting = existingLesson && cIdx > 9;
+        
+        if (useExisting) {
           lessons.push({
             id: lessonId,
             title: existingLesson.title,
             duration: existingLesson.duration || `${30 + (lessonSeq % 3) * 15}m`,
-            completed: !!existingLesson.completed,
+            completed: false, // Ensure completed is false as requested
             type: existingLesson.type || (lessonSeq % 2 === 0 ? 'coding' : 'video'),
             content: existingLesson.content || generateLessonContent(subject, course.title, modTitle, lessonTitle, lessonSeq)
           });
@@ -3725,9 +3774,10 @@ export const INITIAL_COURSES: Course[] = RAW_INITIAL_COURSES.map((course, cIdx) 
     ...course,
     instructor: 'LeetMaster',
     instructorTitle: 'Sab Technologies Coach',
-    duration: (cIdx >= 0 && cIdx <= 44) ? '15 hrs' : (course.duration || '10 hrs'),
+    duration: (cIdx >= 0 && cIdx <= 39) ? '50 hrs' : ((cIdx >= 40 && cIdx <= 44) ? '15 hrs' : (course.duration || '10 hrs')),
     modules: originalModules,
-    progress: course.progress || 0
+    progress: course.progress || 0,
+    enrolled: course.enrolled
   };
 });
 

@@ -2,7 +2,8 @@ import { motion } from 'motion/react';
 import mascotImage from '../assets/images/leetmaster_mascot_1783434307641.jpg';
 import { 
   Trophy, Brain, FileText, GraduationCap, ArrowRight, Sparkles, 
-  Flame, Award, Star, ShieldCheck, Users, Code, Monitor, BookOpen
+  Flame, Award, Star, ShieldCheck, Users, Code, Monitor, BookOpen,
+  MessageSquare
 } from 'lucide-react';
 
 interface HeroProps {
@@ -314,34 +315,34 @@ export default function Hero({ onNavigate }: HeroProps) {
               </div>
             </div>
 
-            {/* HUB CARD 4: COURSES (ACADEMY STAYS) */}
+            {/* HUB CARD 4: COMMUNITY DISCUSSION */}
             <div
-              onClick={() => handleRedirect('/courses')}
+              onClick={() => handleRedirect('/discuss')}
               className="group cursor-pointer p-6 rounded-3xl border border-stone-200/90 dark:border-stone-800/80 bg-white dark:bg-stone-900 hover:border-[#ff6b2b] hover:shadow-xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-[195px] hover:scale-[1.01]"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
               
               <div className="space-y-3.5 relative z-10">
                 <div className="w-10 h-10 rounded-2xl bg-orange-50 dark:bg-orange-950/20 flex items-center justify-center text-[#ff6b2b] group-hover:bg-[#ff6b2b] group-hover:text-white transition-colors">
-                  <GraduationCap className="w-5 h-5" />
+                  <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-black text-stone-900 dark:text-white tracking-tight group-hover:text-[#ff6b2b] transition-colors">
-                    Cohort Academy
+                    Discussion Forum
                   </h3>
                   <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                    Structured cohorts designed for advanced sharding, concurrent loops, and interview readiness.
+                    Ask technical queries, share code blocks, ask career questions, and interact with peers.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2.5 border-t border-stone-100 dark:border-stone-850">
                 <span className="text-[10px] font-black text-[#ff6b2b] uppercase font-mono group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-                  <span>View Syllabus</span>
+                  <span>Join Discussion</span>
                   <span>&rarr;</span>
                 </span>
-                <span className="text-[9px] font-bold bg-amber-100 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-mono">
-                  ★ Premium
+                <span className="text-[9px] font-bold bg-[#ff6b2b]/10 text-[#ff6b2b] px-2.5 py-0.5 rounded-full font-mono">
+                  ● Active
                 </span>
               </div>
             </div>

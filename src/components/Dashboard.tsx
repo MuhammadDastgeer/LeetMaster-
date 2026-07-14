@@ -19,8 +19,9 @@ import HackathonsDashboard from './HackathonsDashboard';
 import EventsDashboard from './EventsDashboard';
 import ProjectsDashboard from './ProjectsDashboard';
 import ReportCard from './ReportCard';
-import Courses from './Courses';
 import Achievements from './Achievements';
+import { INITIAL_COURSES, Course, CourseModule, Lesson } from '../data/coursesData';
+import { getPresetQuizzes } from '../data/quizDatabase';
 
 interface DashboardProps {
   darkMode: boolean;
@@ -139,6 +140,9 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
   const [dsaSheetsSolved, setDsaSheetsSolved] = useState(0);
   const [quizzesCompletedCount, setQuizzesCompletedCount] = useState(0);
   const [quizzesHighScoreCount, setQuizzesHighScoreCount] = useState(0);
+  const [totalDiscussions, setTotalDiscussions] = useState(12);
+  const [yourDiscussions, setYourDiscussions] = useState(2);
+  const [totalReplies, setTotalReplies] = useState(28);
 
   // UI state for drapes (sliding drawers)
   const [isStreakDrapeOpen, setIsStreakDrapeOpen] = useState(false);
@@ -154,26 +158,72 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
   // Sync state stats from localStorage
   useEffect(() => {
     // 1. Courses progress and enrollment counts
-    const coursesRaw = localStorage.getItem('sab_tech_courses_state_v3');
+    const coursesRaw = localStorage.getItem('sab_tech_courses_state_v4') || localStorage.getItem('sab_tech_courses_state_v3');
+    let parsed: Course[] = [];
     if (coursesRaw) {
       try {
-        const parsed = JSON.parse(coursesRaw);
-        if (Array.isArray(parsed)) {
-          setCoursesList(parsed);
-          const enrolled = parsed.filter(c => c && c.enrolled).length;
-          const completed = parsed.filter(c => c && c.enrolled && c.progress === 100).length;
-          setEnrolledCount(enrolled);
-          setCompletedCoursesCount(completed);
-          setOngoingCoursesCount(enrolled - completed);
+        const rawList = JSON.parse(coursesRaw);
+        if (Array.isArray(rawList) && rawList.length > 0) {
+          const sanitizedRaw = rawList.filter(c => c && typeof c === 'object' && c.id);
+          if (sanitizedRaw.length > 0) {
+            parsed = INITIAL_COURSES.map((initialCourse, cIdx) => {
+              const savedCourse = sanitizedRaw.find(c => c.id === initialCourse.id);
+              if (!savedCourse) return initialCourse;
+              
+              // Re-build modules to incorporate any new lessons
+              const mergedModules = (initialCourse.modules || []).map(initialModule => {
+                if (!initialModule) return null;
+                const savedModule = (savedCourse && Array.isArray(savedCourse.modules))
+                  ? savedCourse.modules.find((m: any) => m && m.id === initialModule.id)
+                  : null;
+                if (!savedModule) return initialModule;
+                
+                const mergedLessons = (initialModule.lessons || []).map(initialLesson => {
+                  if (!initialLesson) return null;
+                  const savedLesson = (savedModule && Array.isArray(savedModule.lessons))
+                    ? savedModule.lessons.find((l: any) => l && l.id === initialLesson.id)
+                    : null;
+                  
+                  // Reset completed to false for Courses 1 to 40 (cIdx 0 to 39) as requested by the user
+                  if (cIdx >= 0 && cIdx <= 39) {
+                    return { ...initialLesson, completed: false };
+                  }
+                  
+                  if (!savedLesson) return initialLesson;
+                  return { ...initialLesson, completed: !!savedLesson.completed };
+                }).filter(Boolean) as Lesson[];
+                
+                return { ...initialModule, lessons: mergedLessons };
+              }).filter(Boolean) as CourseModule[];
+              
+              const totalLessons = mergedModules.flatMap(m => m.lessons || []).length;
+              const completedLessons = mergedModules.flatMap(m => m.lessons || []).filter(l => l.completed).length;
+              const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+              
+              return {
+                ...initialCourse,
+                enrolled: (cIdx >= 0 && cIdx <= 39) ? false : !!savedCourse.enrolled,
+                modules: mergedModules,
+                progress,
+              };
+            });
+          }
         }
       } catch (e) {
         console.error('Error reading courses state in dashboard:', e);
       }
-    } else {
-      setEnrolledCount(1);
-      setCompletedCoursesCount(0);
-      setOngoingCoursesCount(1);
     }
+    
+    if (parsed.length === 0) {
+      parsed = INITIAL_COURSES;
+    }
+    
+    setCoursesList(parsed);
+    const enrolled = parsed.filter(c => c && c.enrolled).length;
+    const completed = parsed.filter(c => c && c.enrolled && c.progress === 100).length;
+    setEnrolledCount(enrolled);
+    setCompletedCoursesCount(completed);
+    setOngoingCoursesCount(enrolled - completed);
 
     // 2. DSA solved problems and sheets
     const sheetsRaw = localStorage.getItem('leetmaster_dsa_sheets_v1');
@@ -204,22 +254,85 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
     }
 
     // 3. Completed quizzes and high scores
+    const quizScoresRaw = localStorage.getItem('leetmaster_quiz_completed_scores');
     const savedQuizRaw = localStorage.getItem('leetmaster_quiz_completed');
-    if (savedQuizRaw) {
+    
+    let quizCountVal = 0;
+    let highScoresVal = 0;
+    let hasLoadedQuizzes = false;
+
+    if (quizScoresRaw) {
+      try {
+        const parsed = JSON.parse(quizScoresRaw);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const keys = Object.keys(parsed);
+          quizCountVal = keys.length;
+          
+          const presetQuizzes = getPresetQuizzes ? getPresetQuizzes() : [];
+          Object.entries(parsed).forEach(([id, correctCount]) => {
+            const q = presetQuizzes.find((pq: any) => pq && pq.id === id);
+            const totalQuestions = q ? q.questions.length : 15;
+            const ratio = (Number(correctCount) || 0) / totalQuestions;
+            if (ratio >= 0.8) {
+              highScoresVal++;
+            }
+          });
+          hasLoadedQuizzes = true;
+        }
+      } catch (e) {
+        console.error('Error reading quiz scores in dashboard:', e);
+      }
+    }
+
+    if (!hasLoadedQuizzes && savedQuizRaw) {
       try {
         const parsed = JSON.parse(savedQuizRaw);
         if (Array.isArray(parsed)) {
-          setQuizzesCompletedCount(parsed.length);
-          const highScores = parsed.filter((q: any) => q.score >= 80).length;
-          setQuizzesHighScoreCount(highScores);
+          quizCountVal = parsed.length;
+          highScoresVal = parsed.filter((q: any) => q && q.score >= 80).length;
+          hasLoadedQuizzes = true;
         }
       } catch (e) {
         console.error('Error reading quiz state in dashboard:', e);
       }
+    }
+
+    if (hasLoadedQuizzes) {
+      setQuizzesCompletedCount(quizCountVal);
+      setQuizzesHighScoreCount(highScoresVal);
     } else {
       setQuizzesCompletedCount(2);
       setQuizzesHighScoreCount(1);
     }
+
+    // 4. Discussions state and counts from localStorage
+    const discussionsRaw = localStorage.getItem('leetmaster_discussions');
+    let totalDisc = 12;
+    let yourDisc = 2;
+    let totalReps = 28;
+    if (discussionsRaw) {
+      try {
+        const parsed = JSON.parse(discussionsRaw);
+        if (Array.isArray(parsed)) {
+          totalDisc = parsed.length;
+          let userName = 'You';
+          const savedProfile = localStorage.getItem('leetmaster_user_profile');
+          if (savedProfile) {
+            try {
+              const u = JSON.parse(savedProfile);
+              if (u.name) userName = u.name;
+            } catch (e) {}
+          }
+          yourDisc = parsed.filter(p => p && (p.author === userName || p.author === 'You')).length;
+          totalReps = parsed.reduce((sum, p) => sum + (p.comments ? p.comments.length : 0), 0);
+        }
+      } catch (e) {
+        console.error('Error reading discussions state in dashboard:', e);
+      }
+    }
+    setTotalDiscussions(totalDisc);
+    setYourDiscussions(yourDisc);
+    setTotalReplies(totalReps);
   }, [activeTab, currentPath]);
 
   // Handle checking/unchecking a lesson from the dynamic Syllabus Checklist drape
@@ -256,7 +369,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
     });
 
     setCoursesList(updatedCourses);
-    localStorage.setItem('sab_tech_courses_state_v3', JSON.stringify(updatedCourses));
+    localStorage.setItem('sab_tech_courses_state_v4', JSON.stringify(updatedCourses));
     
     // Sync state metrics immediately in Dashboard
     const enrolled = updatedCourses.filter(c => c && c.enrolled).length;
@@ -295,7 +408,6 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
     { name: 'My Hackathons', icon: Award },
     { name: 'DSA Problems', icon: Code },
     { name: 'DSA Sheets', icon: FileSpreadsheet },
-    { name: 'Courses', icon: GraduationCap },
     { name: 'Quiz', icon: Brain },
     { name: 'Professional Profile', icon: User },
     { name: 'Achievements', icon: Trophy },
@@ -734,46 +846,49 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                       </div>
                     </div>
 
-                    {/* CARD 4: Courses */}
+                    {/* CARD 4: Discussions */}
                     <div 
-                      onClick={() => onNavigate('/courses')}
+                      onClick={() => onNavigate('/discuss')}
                       className="group cursor-pointer bg-white dark:bg-stone-900 border border-[#e7e5e4] dark:border-stone-800 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b]/60 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[220px]"
                     >
                       <div className="absolute top-0 right-0 w-16 h-16 bg-[#ff6b2b]/5 rounded-bl-full transition-transform group-hover:scale-110" />
                       <div>
                         <div className="flex items-start justify-between relative z-10">
-                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Courses</h3>
-                          <GraduationCap className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
+                          <h3 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#ff6b2b] transition-colors uppercase tracking-wider font-mono">Discussions</h3>
+                          <MessageSquare className="w-4 h-4 text-stone-400 group-hover:text-[#ff6b2b] transition-colors" />
                         </div>
                         <div className="mt-3 mb-4 relative z-10">
                           <span className="text-4xl font-black font-sans text-stone-900 dark:text-white group-hover:scale-105 transition-transform inline-block">
-                            {enrolledCount}
+                            {totalDiscussions}
                           </span>
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-850 text-[10px] font-bold text-stone-500 dark:text-stone-400">
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                            <Check className="w-3 h-3 stroke-[3]" />
-                            Completed
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b2b]" />
+                            💬 Replies
                           </span>
-                          <span className="font-mono text-stone-900 dark:text-white">{completedCoursesCount}</span>
+                          <span className="font-mono text-stone-900 dark:text-white">{totalReplies}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-rose-500 rounded-full" />
-                            Ongoing
+                          <span className="flex items-center gap-1 text-stone-400">
+                            👤 Your Threads
                           </span>
-                          <span className="font-mono text-stone-900 dark:text-white">{ongoingCoursesCount}</span>
+                          <span className="font-mono text-stone-900 dark:text-white">{yourDiscussions}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1 border-t border-dashed border-stone-200 dark:border-stone-800 text-[9px] text-[#ff6b2b]">
+                          <span>⚡ Forum Active</span>
+                          <span>+10 XP / post</span>
                         </div>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsSyllabusDrapeOpen(true);
                           }}
-                          className="w-full mt-1 text-center py-1 rounded bg-[#ff6b2b]/10 hover:bg-[#ff6b2b]/25 text-[#ff6b2b] font-black text-[9px] uppercase tracking-wider transition-colors cursor-pointer block"
+                          className="w-full mt-1.5 text-center py-1 rounded bg-[#ff6b2b]/10 hover:bg-[#ff6b2b]/25 text-[#ff6b2b] font-black text-[9px] uppercase tracking-wider transition-colors cursor-pointer block font-sans"
                         >
-                          Quick Syllabus &rarr;
+                          Categories & Guidelines &rarr;
                         </button>
                       </div>
                     </div>
@@ -1258,19 +1373,6 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
             </motion.div>
           )}
 
-          {/* Courses Section */}
-          {activeTab === 'Courses' && (
-            <motion.div
-              key="courses-tab-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="w-full"
-            >
-              <Courses />
-            </motion.div>
-          )}
-
           {/* Achievements Section */}
           {activeTab === 'Achievements' && (
             <motion.div
@@ -1285,7 +1387,7 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
           )}
 
           {/* Placeholders/Sub-integrations for other Sidebar tabs */}
-          {activeTab !== 'Dashboard' && activeTab !== 'Discuss' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && activeTab !== 'Events' && activeTab !== 'Projects' && activeTab !== 'Report Card' && activeTab !== 'Courses' && activeTab !== 'Achievements' && (
+          {activeTab !== 'Dashboard' && activeTab !== 'Discuss' && activeTab !== 'Professional Profile' && activeTab !== 'DSA Sheets' && activeTab !== 'DSA Problems' && activeTab !== 'Quiz' && activeTab !== 'Blogs' && activeTab !== 'Hackathons' && activeTab !== 'My Hackathons' && activeTab !== 'Events' && activeTab !== 'Projects' && activeTab !== 'Report Card' && activeTab !== 'Achievements' && (
             <motion.div
               key="fallback-tabs"
               initial={{ opacity: 0 }}
@@ -1431,8 +1533,8 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
               >
                 <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-850 pb-4 mb-6">
                   <div className="flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-orange-500" />
-                    <h3 className="font-black text-base text-stone-900 dark:text-white font-sans uppercase tracking-wider">Academic Syllabus Checklist</h3>
+                    <MessageSquare className="w-5 h-5 text-orange-500" />
+                    <h3 className="font-black text-base text-stone-900 dark:text-white font-sans uppercase tracking-wider">Discussion Forum Guide</h3>
                   </div>
                   <button 
                     onClick={() => setIsSyllabusDrapeOpen(false)}
@@ -1442,62 +1544,67 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
                   </button>
                 </div>
 
-                {coursesList.filter(c => c && c.enrolled).length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center py-12 px-4 h-full">
-                    <BookOpen className="w-12 h-12 text-stone-300 dark:text-stone-700 mb-3" />
-                    <h4 className="text-sm font-bold text-stone-800 dark:text-stone-200">No enrolled courses found</h4>
-                    <p className="text-xs text-stone-400 max-w-xs mt-1.5">You are not enrolled in any developer courses. Start your curriculum now!</p>
-                    <button 
-                      onClick={() => {
-                        setIsSyllabusDrapeOpen(false);
-                        onNavigate('/courses');
-                      }}
-                      className="mt-4 px-4 py-2 bg-[#ff6b2b] hover:bg-[#e0561a] text-white text-xs font-black rounded-lg transition-colors cursor-pointer"
-                    >
-                      Browse Courses
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-6 flex-1">
+                <div className="space-y-6 flex-1 flex flex-col justify-between">
+                  <div className="space-y-6">
                     <p className="text-xs font-medium text-stone-500 dark:text-stone-400">
-                      Check lessons off your syllabus below to study modules. Changes will instantly update your course metrics and ratings in real-time.
+                      Welcome to the LeetMaster developer discussion board. Connect with peers, post technical queries, ask about career prospects, and exchange feedback.
                     </p>
 
-                    {coursesList.filter(c => c && c.enrolled).map((course) => (
-                      <div key={course.id} className="border border-stone-200 dark:border-stone-800 rounded-2xl p-4 bg-stone-50/50 dark:bg-stone-950/20">
-                        <div className="flex justify-between items-start mb-3">
-                          <h4 className="text-sm font-black text-stone-900 dark:text-stone-100 line-clamp-1">{course.title}</h4>
-                          <span className="text-[10px] font-black font-mono text-[#ff6b2b] bg-orange-50 dark:bg-orange-950/20 px-2 py-0.5 rounded-full">{course.progress}%</span>
-                        </div>
-                        
-                        {/* Modules & Lessons */}
-                        <div className="space-y-4 mt-3">
-                          {(course.modules || []).filter((mod: any) => mod).map((mod: any) => (
-                            <div key={mod.id} className="space-y-1.5">
-                              <h5 className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-wider font-mono">{mod.title}</h5>
-                              <div className="space-y-1 pl-1">
-                                {(mod.lessons || []).filter((lesson: any) => lesson).map((lesson: any) => (
-                                  <div 
-                                    key={lesson.id} 
-                                    onClick={() => handleToggleSyllabusLesson(course.id, mod.id, lesson.id)}
-                                    className="flex items-center gap-2.5 p-2 bg-white dark:bg-stone-900 border border-stone-100 dark:border-stone-850 hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b] rounded-lg cursor-pointer transition-all"
-                                  >
-                                    <div className={`w-4 h-4 rounded-full flex items-center justify-center border transition-all ${lesson.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-stone-300 dark:border-stone-700 bg-transparent'}`}>
-                                      {lesson.completed && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                                    </div>
-                                    <span className={`text-[11px] font-bold select-none ${lesson.completed ? 'text-stone-400 line-through' : 'text-stone-700 dark:text-stone-300'}`}>
-                                      {lesson.title}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                    <div>
+                      <h4 className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-wider font-mono mb-2.5">Popular Discussion Rooms</h4>
+                      <div className="space-y-2">
+                        {[
+                          { name: 'General Discussion', desc: 'Ask anything, share updates, make friends' },
+                          { name: 'Backend Development', desc: 'Node.js, Express, databases, server queries' },
+                          { name: 'Frontend Development', desc: 'React, Tailwind CSS, Vite, UI design patterns' },
+                          { name: 'DSA Prep', desc: 'LeetCode, dynamic programming, tree algorithms' },
+                          { name: 'AI & Machine Learning', desc: 'LLMs, AI Studio, prompt engineering, Gemini SDK' },
+                          { name: 'Career Guidance', desc: 'Resume reviews, interview prep, cohort updates' }
+                        ].map((cat, idx) => (
+                          <div 
+                            key={idx}
+                            onClick={() => {
+                              setIsSyllabusDrapeOpen(false);
+                              onNavigate('/discuss');
+                            }}
+                            className="p-3 bg-[#fcfbf9] dark:bg-stone-950/40 border border-stone-100 dark:border-stone-850 hover:border-[#ff6b2b] dark:hover:border-[#ff6b2b] rounded-xl cursor-pointer transition-all group"
+                          >
+                            <span className="text-xs font-bold text-stone-800 dark:text-stone-200 group-hover:text-[#ff6b2b] transition-colors">{cat.name}</span>
+                            <p className="text-[10px] text-stone-400 mt-0.5">{cat.desc}</p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+
+                    <div>
+                      <h4 className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-wider font-mono mb-2.5">Forum Posting Guidelines</h4>
+                      <ul className="space-y-2 text-[11px] text-stone-600 dark:text-stone-400 font-medium">
+                        <li className="flex items-start gap-2">
+                          <span className="text-[#ff6b2b]">✦</span>
+                          <span><strong>Keep it clean:</strong> Be polite, helpful, and support your fellow developers in the cohort.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-[#ff6b2b]">✦</span>
+                          <span><strong>Use Code Blocks:</strong> Format code examples nicely to make debugging questions easy to read.</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-[#ff6b2b]">✦</span>
+                          <span><strong>Upvote Quality:</strong> Give thumbs up or hearts to insightful responses to reward creators.</span>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                )}
+
+                  <button 
+                    onClick={() => {
+                      setIsSyllabusDrapeOpen(false);
+                      onNavigate('/discuss');
+                    }}
+                    className="w-full py-3 bg-[#ff6b2b] hover:bg-[#e0561a] text-white text-xs font-black rounded-xl transition-all cursor-pointer text-center uppercase tracking-wider mt-6"
+                  >
+                    Enter Discussion Board &rarr;
+                  </button>
+                </div>
               </motion.div>
             </>
           )}

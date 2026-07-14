@@ -13,51 +13,57 @@ import {
 export default function Courses() {
   // Use v3 namespace to reset legacy pre-enrolled localStorage states
   const [courses, setCourses] = useState<Course[]>(() => {
-    const saved = localStorage.getItem('sab_tech_courses_state_v3');
+    const saved = localStorage.getItem('sab_tech_courses_state_v4') || localStorage.getItem('sab_tech_courses_state_v3');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge to ensure newly added modules and lessons from INITIAL_COURSES are loaded!
-          return INITIAL_COURSES.map(initialCourse => {
-            const savedCourse = parsed.find(c => c && c.id === initialCourse.id);
-            if (!savedCourse) return initialCourse;
-            
-            // Re-build modules to incorporate any new lessons
-            const mergedModules = (initialCourse.modules || []).map(initialModule => {
-              const savedModule = (savedCourse && Array.isArray(savedCourse.modules))
-                ? savedCourse.modules.find((m: any) => m && m.id === initialModule.id)
-                : null;
-              if (!savedModule) return initialModule;
+          const sanitizedParsed = parsed.filter(c => c && typeof c === 'object' && c.id);
+          if (sanitizedParsed.length > 0) {
+            // Merge to ensure newly added modules and lessons from INITIAL_COURSES are loaded!
+            return INITIAL_COURSES.map((initialCourse, cIdx) => {
+              const savedCourse = sanitizedParsed.find(c => c.id === initialCourse.id);
+              if (!savedCourse) return initialCourse;
               
-              const mergedLessons = (initialModule.lessons || []).map(initialLesson => {
-                const savedLesson = (savedModule && Array.isArray(savedModule.lessons))
-                  ? savedModule.lessons.find((l: any) => l && l.id === initialLesson.id)
+              // Re-build modules to incorporate any new lessons
+              const mergedModules = (initialCourse.modules || []).map(initialModule => {
+                if (!initialModule) return null;
+                const savedModule = (savedCourse && Array.isArray(savedCourse.modules))
+                  ? savedCourse.modules.find((m: any) => m && m.id === initialModule.id)
                   : null;
-                if (!savedLesson) return initialLesson;
-                return { ...initialLesson, completed: !!savedLesson.completed };
-              });
+                if (!savedModule) return initialModule;
+                
+                const mergedLessons = (initialModule.lessons || []).map(initialLesson => {
+                  if (!initialLesson) return null;
+                  const savedLesson = (savedModule && Array.isArray(savedModule.lessons))
+                    ? savedModule.lessons.find((l: any) => l && l.id === initialLesson.id)
+                    : null;
+                  
+                  // Reset completed to false for Courses 1 to 40 (cIdx 0 to 39) as requested by the user
+                  if (cIdx >= 0 && cIdx <= 39) {
+                    return { ...initialLesson, completed: false };
+                  }
+                  
+                  if (!savedLesson) return initialLesson;
+                  return { ...initialLesson, completed: !!savedLesson.completed };
+                }).filter(Boolean) as Lesson[];
+                
+                return { ...initialModule, lessons: mergedLessons };
+              }).filter(Boolean) as CourseModule[];
               
-              return { ...initialModule, lessons: mergedLessons };
+              // Recalculate progress based on new total of lessons
+              const totalLessons = mergedModules.flatMap(m => m.lessons || []).length;
+              const completedLessons = mergedModules.flatMap(m => m.lessons || []).filter(l => l.completed).length;
+              const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+              
+              return {
+                ...initialCourse,
+                enrolled: (cIdx >= 0 && cIdx <= 39) ? false : !!savedCourse.enrolled,
+                modules: mergedModules,
+                progress,
+              };
             });
-            
-            // Recalculate progress based on new total of lessons
-            const totalLessons = mergedModules.flatMap(m => m.lessons || []).length;
-            const completedLessons = mergedModules.flatMap(m => m.lessons || []).filter(l => l.completed).length;
-            const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-            
-            return {
-              ...savedCourse,
-              modules: mergedModules,
-              progress,
-              title: initialCourse.title,
-              description: initialCourse.description,
-              duration: initialCourse.duration,
-              tags: initialCourse.tags,
-              instructor: initialCourse.instructor,
-              instructorTitle: initialCourse.instructorTitle
-            };
-          });
+          }
         }
       } catch (e) {
         console.error('Error loading initial courses state:', e);
@@ -68,7 +74,7 @@ export default function Courses() {
 
   useEffect(() => {
     if (courses && courses.length > 0) {
-      localStorage.setItem('sab_tech_courses_state_v3', JSON.stringify(courses));
+      localStorage.setItem('sab_tech_courses_state_v4', JSON.stringify(courses));
     }
   }, [courses]);
 
@@ -377,7 +383,7 @@ export default function Courses() {
     
     // Automatically select the first lesson to start studying right away!
     const course = courses.find(c => c.id === courseId);
-    if (course && course.modules.length > 0 && course.modules[0].lessons.length > 0) {
+    if (course && Array.isArray(course.modules) && course.modules.length > 0 && course.modules[0]?.lessons?.length > 0) {
       setActiveCourseId(courseId);
       setActiveLessonId(course.modules[0].lessons[0].id);
     }
@@ -794,7 +800,7 @@ export default function Courses() {
                         <h3 
                           onClick={() => {
                             setActiveCourseId(course.id);
-                            if (course.enrolled && course.modules.length > 0 && course.modules[0].lessons.length > 0) {
+                            if (course.enrolled && Array.isArray(course.modules) && course.modules.length > 0 && course.modules[0]?.lessons?.length > 0) {
                               setActiveLessonId(course.modules[0].lessons[0].id);
                             }
                           }}
@@ -854,7 +860,7 @@ export default function Courses() {
                         onClick={() => {
                           if (course.enrolled) {
                             setActiveCourseId(course.id);
-                            if (course.modules.length > 0 && course.modules[0].lessons.length > 0) {
+                            if (Array.isArray(course.modules) && course.modules.length > 0 && course.modules[0]?.lessons?.length > 0) {
                               setActiveLessonId(course.modules[0].lessons[0].id);
                             }
                           } else {

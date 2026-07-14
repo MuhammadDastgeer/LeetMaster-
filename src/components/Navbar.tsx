@@ -14,8 +14,7 @@ export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavi
   const navItems = [
     { label: 'Hackathons', path: '/hackathons-dashboard' },
     { label: 'Quiz', path: '/quiz-tab' },
-    { label: 'Blogs', path: '/blogs' },
-    { label: 'Courses', path: '/courses' }
+    { label: 'Blogs', path: '/blogs' }
   ];
 
   return (

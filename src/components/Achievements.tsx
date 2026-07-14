@@ -60,6 +60,7 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
   const [courses, setCourses] = useState<any[]>([]);
   const [blogs, setBlogs] = useState<any[]>([]);
   const [hackathons, setHackathons] = useState<any[]>([]);
+  const [discussions, setDiscussions] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -157,7 +158,7 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
         }
 
         // 6. Load Courses from localStorage
-        const coursesRaw = localStorage.getItem('sab_tech_courses_state_v3') || localStorage.getItem('leetmaster_courses_state');
+        const coursesRaw = localStorage.getItem('sab_tech_courses_state_v4') || localStorage.getItem('sab_tech_courses_state_v3') || localStorage.getItem('leetmaster_courses_state');
         if (coursesRaw) {
           try {
             const parsed = JSON.parse(coursesRaw);
@@ -166,6 +167,19 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
             }
           } catch (e) {
             console.error('Error parsing courses state', e);
+          }
+        }
+
+        // 7. Load Discussions from localStorage
+        const discussionsRaw = localStorage.getItem('leetmaster_discussions');
+        if (discussionsRaw) {
+          try {
+            const parsed = JSON.parse(discussionsRaw);
+            if (Array.isArray(parsed)) {
+              setDiscussions(parsed);
+            }
+          } catch (e) {
+            console.error('Error parsing discussions state', e);
           }
         }
 
@@ -213,6 +227,22 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
     .filter(l => l && l.completed).length;
   
   const hasGraduate = (courses || []).some(c => c && c.enrolled && c.progress === 100);
+
+  // Discussions metrics calculation
+  let currentUserName = 'You';
+  const profileRawStr = localStorage.getItem('leetmaster_user_profile');
+  if (profileRawStr) {
+    try {
+      const u = JSON.parse(profileRawStr);
+      if (u.name) currentUserName = u.name;
+    } catch (e) {}
+  }
+  const userPostsCount = (discussions || []).filter(d => d && (d.author === currentUserName || d.author === 'You')).length;
+  const userCommentsCount = (discussions || []).reduce((sum, d) => {
+    if (!d || !Array.isArray(d.comments)) return sum;
+    const myComments = d.comments.filter((c: any) => c && (c.author === currentUserName || c.author === 'You')).length;
+    return sum + myComments;
+  }, 0);
   const hasProfileText = !!(
     profile && 
     typeof profile.fullName === 'string' && 
@@ -309,33 +339,13 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
     { name: 'Perfect Champion', desc: 'Earned 80%+ on 10 assessments. The final ultimate academic shield.', req: 'Get 80%+ on 10 quizzes.', icon: Trophy, ribbon: 'CHAMPION', hasHigh: true, highReq: 10 }
   ];
 
-  const courseTemplates = [
-    { name: 'Active Enroller', desc: 'Enrolled in 1 course. Charting a direct learning pathway.', req: 'Enroll in at least 1 course.', icon: BookOpen, ribbon: 'ENROLLER', type: 'enroll', target: 1 },
-    { name: 'Dual Curriculum', desc: 'Enrolled in 2 courses. Balancing multiple learning curriculums.', req: 'Enroll in at least 2 courses.', icon: BookOpen, ribbon: 'DUAL', type: 'enroll', target: 2 },
-    { name: 'Polymath Learner', desc: 'Enrolled in 3 courses. Seeking comprehensive full-stack expertise.', req: 'Enroll in at least 3 courses.', icon: Award, ribbon: 'POLYMATH', type: 'enroll', target: 3 },
-    { name: 'First Lecture', desc: 'Completed 1 lesson. Took your first steps in the curriculum.', req: 'Complete 1 lesson in any course.', icon: PlayCircle, ribbon: 'STUDENT', type: 'lesson', target: 1 },
-    { name: 'Double Student', desc: 'Completed 2 lessons. Consuming theory and working on exercises.', req: 'Complete 2 lessons in any course.', icon: PlayCircle, ribbon: 'DOUBLE', type: 'lesson', target: 2 },
-    { name: 'Trio Reader', desc: 'Completed 3 lessons. Building a healthy habit of learning.', req: 'Complete 3 lessons in any course.', icon: PlayCircle, ribbon: 'SEEKER', type: 'lesson', target: 3 },
-    { name: 'Module Adept', desc: 'Completed 4 lessons. Retaining complex coding instructions.', req: 'Complete 4 lessons in any course.', icon: PlayCircle, ribbon: 'ADEPT', type: 'lesson', target: 4 },
-    { name: 'Steady Progress', desc: 'Completed 5 lessons. Approaching midway milestone of studies.', req: 'Complete 5 lessons in any course.', icon: Target, ribbon: 'STEADY', type: 'lesson', target: 5 },
-    { name: 'Syllabus Explorer', desc: 'Completed 6 lessons. Well-versed with initial architectures.', req: 'Complete 6 lessons in any course.', icon: PlayCircle, ribbon: 'EXPLORER', type: 'lesson', target: 6 },
-    { name: 'Coding Cadet', desc: 'Completed 7 lessons. Synthesizing theoretical structures.', req: 'Complete 7 lessons in any course.', icon: Code, ribbon: 'CADET', type: 'lesson', target: 7 },
-    { name: 'Intellect Builder', desc: 'Completed 8 lessons. Learning advanced programming practices.', req: 'Complete 8 lessons in any course.', icon: Brain, ribbon: 'BUILDER', type: 'lesson', target: 8 },
-    { name: 'Dynamic Student', desc: 'Completed 9 lessons. Confidently moving through complex lessons.', req: 'Complete 9 lessons in any course.', icon: PlayCircle, ribbon: 'DYNAMIC', type: 'lesson', target: 9 },
-    { name: 'Syllabus Crusader', desc: 'Completed 10 lessons. Double digit lessons finished.', req: 'Complete 10 lessons in any course.', icon: Trophy, ribbon: 'CRUSADER', type: 'lesson', target: 10 },
-    { name: 'Knowledge Store', desc: 'Completed 11 lessons. Retaining state management and APIs.', req: 'Complete 11 lessons in any course.', icon: PlayCircle, ribbon: 'STORE', type: 'lesson', target: 11 },
-    { name: 'Lecture Devotee', desc: 'Completed 12 lessons. Excellent dedication toward studies.', req: 'Complete 12 lessons in any course.', icon: Award, ribbon: 'DEVOTEE', type: 'lesson', target: 12 },
-    { name: 'Study Leader', desc: 'Completed 13 lessons. Displaying top-tier commitment.', req: 'Complete 13 lessons in any course.', icon: Star, ribbon: 'LEADER', type: 'lesson', target: 13 },
-    { name: 'Framework Expert', desc: 'Completed 14 lessons. Overcoming deep frontend blocks.', req: 'Complete 14 lessons in any course.', icon: Code, ribbon: 'EXPERT', type: 'lesson', target: 14 },
-    { name: 'Curriculum King', desc: 'Completed 15 lessons. Finished extensive structured coursework.', req: 'Complete 15 lessons in any course.', icon: Sparkles, ribbon: 'KING', type: 'lesson', target: 15 },
-    { name: 'First Graduate', desc: 'Graduated from 1 specialized course with 100% progress.', req: 'Complete 1 course with 100% progress.', icon: GraduationCap, ribbon: 'GRADUATE', type: 'grad', target: 1 },
-    { name: 'Master Alumnus', desc: 'Graduated from multiple courses on LeetMaster.', req: 'Complete 2 courses with 100% progress.', icon: GraduationCap, ribbon: 'ALUMNUS', type: 'grad', target: 2 },
-    { name: 'Programming Pioneer', desc: 'Completed "Intro to Programming" with full 100% marks.', req: 'Complete "Intro to Programming" with 100% progress.', icon: Code, ribbon: 'PIONEER', type: 'specific-course', courseId: 'intro-to-programming' },
-    { name: 'Web Design Crafter', desc: 'Completed "Intro to HTML & CSS" with full 100% marks.', req: 'Complete "Intro to HTML & CSS" with 100% progress.', icon: BookOpen, ribbon: 'CRAFTSMAN', type: 'specific-course', courseId: 'intro-html-css' },
-    { name: 'HTML5 SEO Architect', desc: 'Completed "HTML (Semantic & Structuring)" with full 100% marks.', req: 'Complete "HTML (Semantic & Structuring)" with 100% progress.', icon: Award, ribbon: 'ARCHITECT', type: 'specific-course', courseId: 'html-advanced' },
-    { name: 'Responsive Grid Artist', desc: 'Completed "CSS (Flexbox, Grid & Responsive)" with full 100% marks.', req: 'Complete "CSS (Flexbox, Grid & Responsive)" with 100% progress.', icon: Sparkles, ribbon: 'ARTIST', type: 'specific-course', courseId: 'css-layouts' },
-    { name: 'Lightweight W3 Master', desc: 'Completed "W3.CSS (Lightweight UI)" with full 100% marks.', req: 'Complete "W3.CSS (Lightweight UI)" with 100% progress.', icon: Star, ribbon: 'W3MASTER', type: 'specific-course', courseId: 'w3css-framework' },
-    { name: 'Sass Preprocessing Lead', desc: 'Completed "Sass (Syntactically Awesome Style Sheets)" with full 100% marks.', req: 'Complete "Sass (Syntactically Awesome Style Sheets)" with 100% progress.', icon: Zap, ribbon: 'SASSLEAD', type: 'specific-course', courseId: 'sass-preprocessor' }
+  const discussionTemplates = [
+    { name: 'First Query', desc: 'Posted 1 thread. Started your first community thread.', req: 'Post 1 discussion thread.', icon: BookOpen, ribbon: 'START', type: 'post', target: 1 },
+    { name: 'Active Talker', desc: 'Posted 3 threads. Sparking peer interaction.', req: 'Post 3 discussion threads.', icon: BookOpen, ribbon: 'TALKER', type: 'post', target: 3 },
+    { name: 'Forum Explorer', desc: 'Posted 5 threads. Guiding cohort community discussions.', req: 'Post 5 discussion threads.', icon: Sparkles, ribbon: 'EXPLORER', type: 'post', target: 5 },
+    { name: 'Helpful Peer', desc: 'Wrote 1 comment. Left your first response on a query.', req: 'Write 1 comment/reply.', icon: PlayCircle, ribbon: 'PEER', type: 'comment', target: 1 },
+    { name: 'Cohort Contributor', desc: 'Wrote 3 comments. Offering helpful insight to others.', req: 'Write 3 comments/replies.', icon: PlayCircle, ribbon: 'CONTRIBUTOR', type: 'comment', target: 3 },
+    { name: 'Master Explainer', desc: 'Wrote 5 comments. Showing dedication to helping peers.', req: 'Write 5 comments/replies.', icon: Star, ribbon: 'EXPLAINER', type: 'comment', target: 5 }
   ];
 
   const profileTemplates = [
@@ -447,31 +457,23 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
     };
   });
 
-  const courseBadges = courseTemplates.map((t, index) => {
+  const discussionBadges = discussionTemplates.map((t, index) => {
     const targetVal = t.target || 1;
     let isUnlocked = false;
     let progressCurrent = 0;
 
-    if (t.type === 'enroll') {
-      isUnlocked = enrolledCount >= targetVal;
-      progressCurrent = enrolledCount;
-    } else if (t.type === 'lesson') {
-      isUnlocked = completedLessonsCount >= targetVal;
-      progressCurrent = completedLessonsCount;
-    } else if (t.type === 'grad') {
-      const fullGradCount = (courses || []).filter(c => c && c.enrolled && c.progress === 100).length;
-      isUnlocked = fullGradCount >= targetVal;
-      progressCurrent = fullGradCount;
-    } else if (t.type === 'specific-course') {
-      const course = (courses || []).find(c => c && c.id === t.courseId);
-      isUnlocked = !!(course && course.enrolled && course.progress === 100);
-      progressCurrent = course ? (course.progress === 100 ? 1 : 0) : 0;
+    if (t.type === 'post') {
+      isUnlocked = userPostsCount >= targetVal;
+      progressCurrent = userPostsCount;
+    } else if (t.type === 'comment') {
+      isUnlocked = userCommentsCount >= targetVal;
+      progressCurrent = userCommentsCount;
     }
 
     return {
-      id: `course-${index + 1}`,
+      id: `discussion-${index + 1}`,
       name: t.name,
-      category: 'Courses',
+      category: 'Discussions',
       description: t.desc,
       requirement: t.req,
       reward: `+${targetVal * 60} XP`,
@@ -479,7 +481,7 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
       progressMax: targetVal,
       progressCurrent: Math.min(targetVal, progressCurrent),
       icon: t.icon,
-      color: '#8b5cf6', // Violet
+      color: '#ff6b2b', // Deep orange accent
       ribbonText: t.ribbon
     };
   });
@@ -616,7 +618,7 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
   const achievementsList = [
     ...algoBadges,
     ...quizBadges,
-    ...courseBadges,
+    ...discussionBadges,
     ...profileBadges,
     ...blogBadges,
     ...hackBadges
@@ -635,7 +637,7 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
     { name: 'All', count: activeStatusList.length },
     { name: 'Algorithms', count: activeStatusList.filter(a => a.category === 'Algorithms').length },
     { name: 'Quizzes', count: activeStatusList.filter(a => a.category === 'Quizzes').length },
-    { name: 'Courses', count: activeStatusList.filter(a => a.category === 'Courses').length },
+    { name: 'Discussions', count: activeStatusList.filter(a => a.category === 'Discussions').length },
     { name: 'Profile', count: activeStatusList.filter(a => a.category === 'Profile').length },
     { name: 'Blogs & Hackathons', count: activeStatusList.filter(a => a.category === 'Blogs' || a.category === 'Hackathons').length }
   ];
@@ -917,7 +919,7 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
               </div>
               <h3 className="text-lg font-black text-stone-900 dark:text-white">No Matching Badges</h3>
               <p className="text-xs text-stone-500 dark:text-stone-400 max-w-sm mx-auto leading-relaxed">
-                We couldn't find any credentials matching your active search parameter. Change filters or complete courses, quizzes, and problem sets to earn awards!
+                We couldn't find any credentials matching your active search parameter. Change filters or participate in discussions, complete quizzes, and solve problem sets to earn awards!
               </p>
             </motion.div>
           ) : (
@@ -1202,8 +1204,8 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
                           path = "/dsa-sheets";
                         } else if (activeShareBadge.category === "Quizzes") {
                           path = "/quiz-tab";
-                        } else if (activeShareBadge.category === "Courses") {
-                          path = "/courses";
+                        } else if (activeShareBadge.category === "Discussions") {
+                          path = "/discuss";
                         } else if (activeShareBadge.category === "Profile") {
                           path = "/professional-profile";
                         } else if (activeShareBadge.category === "Blogs") {
@@ -1219,7 +1221,7 @@ export default function Achievements({ onNavigate }: AchievementsProps = {}) {
                     <span>
                       {activeShareBadge.category === "Algorithms" ? "Solve DSA Problems" :
                        activeShareBadge.category === "Quizzes" ? "Take CS Assessment" :
-                       activeShareBadge.category === "Courses" ? "Open Course Curriculum" :
+                       activeShareBadge.category === "Discussions" ? "Go to Discussion Forum" :
                        activeShareBadge.category === "Profile" ? "Update Profile Portfolio" :
                        activeShareBadge.category === "Blogs" ? "Write Engineering Blog" :
                        activeShareBadge.category === "Hackathons" ? "Join Active Hackathons" :
