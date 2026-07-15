@@ -140,9 +140,9 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
   const [dsaSheetsSolved, setDsaSheetsSolved] = useState(0);
   const [quizzesCompletedCount, setQuizzesCompletedCount] = useState(0);
   const [quizzesHighScoreCount, setQuizzesHighScoreCount] = useState(0);
-  const [totalDiscussions, setTotalDiscussions] = useState(12);
-  const [yourDiscussions, setYourDiscussions] = useState(2);
-  const [totalReplies, setTotalReplies] = useState(28);
+  const [totalDiscussions, setTotalDiscussions] = useState(0);
+  const [yourDiscussions, setYourDiscussions] = useState(0);
+  const [totalReplies, setTotalReplies] = useState(0);
 
   // UI state for drapes (sliding drawers)
   const [isStreakDrapeOpen, setIsStreakDrapeOpen] = useState(false);
@@ -249,8 +249,8 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
         console.error('Error reading DSA sheets state in dashboard:', e);
       }
     } else {
-      setDsaProblemsSolved(4);
-      setDsaSheetsSolved(1);
+      setDsaProblemsSolved(0);
+      setDsaSheetsSolved(0);
     }
 
     // 3. Completed quizzes and high scores
@@ -301,15 +301,15 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
       setQuizzesCompletedCount(quizCountVal);
       setQuizzesHighScoreCount(highScoresVal);
     } else {
-      setQuizzesCompletedCount(2);
-      setQuizzesHighScoreCount(1);
+      setQuizzesCompletedCount(0);
+      setQuizzesHighScoreCount(0);
     }
 
     // 4. Discussions state and counts from localStorage
     const discussionsRaw = localStorage.getItem('leetmaster_discussions');
-    let totalDisc = 12;
-    let yourDisc = 2;
-    let totalReps = 28;
+    let totalDisc = 0;
+    let yourDisc = 0;
+    let totalReps = 0;
     if (discussionsRaw) {
       try {
         const parsed = JSON.parse(discussionsRaw);
@@ -380,21 +380,21 @@ export default function Dashboard({ darkMode, onToggleDarkMode, onNavigate, onBa
   };
 
   // Computed values for Projects
-  const totalProjects = projects.length;
-  const publicProjects = projects.filter(p => p.status === 'scheduler' || p.status === 'public').length;
-  const privateProjects = projects.filter(p => p.status === 'private').length;
+  const totalProjects = projects.filter(p => p.isUserProject).length;
+  const publicProjects = projects.filter(p => p.isUserProject && (p.status === 'scheduler' || p.status === 'public')).length;
+  const privateProjects = projects.filter(p => p.isUserProject && p.status === 'private').length;
   const myProjects = projects.filter(p => p.isUserProject).length;
 
   // Computed values for Blogs
-  const totalBlogs = blogs.length;
-  const publicBlogs = blogs.filter(b => b.status === 'scheduler' || b.status === 'public').length;
-  const privateBlogs = blogs.filter(b => b.status === 'private').length;
+  const totalBlogs = blogs.filter(b => b.isUserBlog).length;
+  const publicBlogs = blogs.filter(b => b.isUserBlog && (b.status === 'scheduler' || b.status === 'public')).length;
+  const privateBlogs = blogs.filter(b => b.isUserBlog && b.status === 'private').length;
   const myBlogs = blogs.filter(b => b.isUserBlog).length;
 
   // Computed values for Hackathons
-  const totalHackathons = hackathons.length;
-  const publicHackathons = hackathons.filter(h => h.status === 'scheduler' || h.status === 'public').length;
-  const privateHackathons = hackathons.filter(h => h.status === 'private').length;
+  const totalHackathons = hackathons.filter(h => h.isUserHackathon).length;
+  const publicHackathons = hackathons.filter(h => h.isUserHackathon && (h.status === 'scheduler' || h.status === 'public')).length;
+  const privateHackathons = hackathons.filter(h => h.isUserHackathon && h.status === 'private').length;
   const myHackathons = hackathons.filter(h => h.isUserHackathon).length;
 
   // Sidebar navigation configuration

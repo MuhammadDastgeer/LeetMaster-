@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import MonthlyStreakCalendar from './components/MonthlyStreakCalendar';
 import CommunityConsistency from './components/CommunityConsistency';
 import AssignmentEvaluation from './components/AssignmentEvaluation';
 import CommunityDiscuss from './components/CommunityDiscuss';
@@ -453,6 +454,9 @@ export default function App() {
         <div>
           {/* Hero Section */}
           <Hero onNavigate={navigateTo} />
+
+          {/* Monthly Streak Calendar Widget */}
+          <MonthlyStreakCalendar />
 
           {/* Community & Consistency Section */}
           <CommunityConsistency />
