@@ -1,16 +1,14 @@
 import { useState } from 'react';
-import { Flame, Menu, X, Code2, Moon, Sun, LogOut, User } from 'lucide-react';
+import { Flame, Menu, X, Code2, Moon, Sun } from 'lucide-react';
 
 interface NavbarProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
   currentPath: string;
   onNavigate: (path: string) => void;
-  userSession: { email: string; fullName: string; id: string } | null;
-  onLogout: () => void;
 }
 
-export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavigate, userSession, onLogout }: NavbarProps) {
+export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavigate }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
@@ -71,39 +69,12 @@ export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavi
               <span>127 Day Streak</span>
             </div>
 
-            {userSession ? (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => onNavigate('/dashboard')}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-stone-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
-                >
-                  <User className="w-4 h-4 text-[#ff6b2b]" />
-                  <span>{userSession.fullName}</span>
-                </button>
-                <button
-                  onClick={onLogout}
-                  className="p-2 bg-stone-100 hover:bg-stone-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-stone-600 dark:text-zinc-300 rounded-full transition-all cursor-pointer"
-                  title="Log Out"
-                >
-                  <LogOut className="w-4 h-4 text-red-500" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onNavigate('/login')}
-                  className="text-stone-700 dark:text-zinc-300 hover:text-[#ff6b2b] px-4 py-2 rounded-full font-semibold text-sm transition-colors cursor-pointer"
-                >
-                  Log In
-                </button>
-                <button 
-                  onClick={() => onNavigate('/signup')}
-                  className="bg-black dark:bg-zinc-850 dark:hover:bg-[#ff6b2b] text-white px-5 py-2 rounded-full font-semibold text-sm hover:bg-[#ff6b2b] transition-all duration-300 hover:shadow-lg hover:shadow-[#ff6b2b]/10 cursor-pointer"
-                >
-                  Sign Up
-                </button>
-              </div>
-            )}
+            <button 
+              onClick={() => onNavigate('/dashboard')}
+              className="bg-black dark:bg-zinc-850 dark:hover:bg-[#ff6b2b] text-white px-5 py-2 rounded-full font-semibold text-sm hover:bg-[#ff6b2b] transition-all duration-300 hover:shadow-lg hover:shadow-[#ff6b2b]/10 cursor-pointer"
+            >
+              Start Learning
+            </button>
           </div>
 
           {/* Mobile menu button */}
@@ -146,54 +117,15 @@ export default function Navbar({ darkMode, onToggleDarkMode, currentPath, onNavi
             </button>
           ))}
           <div className="pt-4 border-t border-[#f2efe9] dark:border-zinc-800 flex flex-col gap-3">
-            {userSession ? (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 px-3 py-1 text-sm font-semibold text-stone-700 dark:text-zinc-300">
-                  <User className="w-4 h-4 text-[#ff6b2b]" />
-                  <span>{userSession.fullName}</span>
-                </div>
-                <button 
-                  onClick={() => {
-                    onNavigate('/dashboard');
-                    setIsOpen(false);
-                  }}
-                  className="w-full bg-stone-100 dark:bg-zinc-800 text-stone-850 dark:text-white py-2 rounded-full font-semibold text-sm text-center cursor-pointer"
-                >
-                  My Dashboard
-                </button>
-                <button 
-                  onClick={() => {
-                    onLogout();
-                    setIsOpen(false);
-                  }}
-                  className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-600 py-2 rounded-full font-semibold text-sm text-center cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Log Out</span>
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <button 
-                  onClick={() => {
-                    onNavigate('/login');
-                    setIsOpen(false);
-                  }}
-                  className="w-full bg-stone-100 dark:bg-zinc-800 text-stone-800 dark:text-white py-2.5 rounded-full font-semibold text-sm text-center cursor-pointer"
-                >
-                  Log In
-                </button>
-                <button 
-                  onClick={() => {
-                    onNavigate('/signup');
-                    setIsOpen(false);
-                  }}
-                  className="w-full bg-[#ff6b2b] text-white py-2.5 rounded-full font-semibold text-sm text-center cursor-pointer"
-                >
-                  Sign Up
-                </button>
-              </div>
-            )}
+            <button 
+              onClick={() => {
+                onNavigate('/dashboard');
+                setIsOpen(false);
+              }}
+              className="w-full bg-black dark:bg-zinc-800 text-white py-2.5 rounded-full font-semibold text-sm text-center cursor-pointer"
+            >
+              Start Learning
+            </button>
           </div>
         </div>
       )}

@@ -437,6 +437,7 @@ if (blogsCount === 0) {
 }
 
 // Insert default seed profile if not exists
+db.prepare("DELETE FROM profiles WHERE id = 'default'").run();
 const profileCheck = db.prepare("SELECT COUNT(*) as count FROM profiles WHERE id = 'default'");
 const { count: profileCount } = profileCheck.get() as { count: number };
 if (profileCount === 0) {
@@ -449,34 +450,34 @@ if (profileCount === 0) {
   `);
   insertProfile.run(
     'default',
-    'Dastgeer',
-    'dastgeerjutt8888_d2a00f46',
-    'Learning AI/ML, Deep Learning, NLP, Computer Vision & Generative AI | Python Enthusiast |',
     '',
     '',
     '',
     '',
-    'https://example.com',
-    'https://github.com/username',
-    'https://www.linkedin.com/in/muhammad-dastgeer/',
-    'https://twitter.com/username',
-    'https://youtube.com/channel/username',
-    'https://instagram.com/username',
-    'https://leetcode.com/username',
-    'https://medium.com/@username',
-    'https://username.hashnode.dev',
-    'https://peerlist.io/username',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
     '',
     '',
     '',
     '',
     '',
     'L',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop',
     JSON.stringify({
-      skills: ['ML', 'DL', 'CV', 'Agentic AI', 'Gen AI', 'Python', 'DSA'],
+      skills: [],
       yearsOfExperience: '0',
-      targetRole: 'AI Developer',
+      targetRole: '',
       workMode: 'Remote',
       ctc: ''
     }),

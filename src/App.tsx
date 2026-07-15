@@ -11,7 +11,6 @@ import MobileContests from './components/MobileContests';
 import HackathonsAI from './components/HackathonsAI';
 import Dashboard from './components/Dashboard';
 import CuratedSheetsLanding from './components/CuratedSheetsLanding';
-import AuthPage from './components/AuthPage';
 import { getPresetQuizzes } from './data/quizDatabase';
 import { 
   Code2, Flame, Heart, Github, Linkedin, ArrowUp, BookOpen, 
@@ -23,38 +22,6 @@ export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
-  
-  // Authenticated user session state
-  const [userSession, setUserSession] = useState<{ email: string; fullName: string; id: string } | null>(null);
-
-  // Load user session on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('leetmaster_user_session');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.email) {
-          setUserSession(parsed);
-          document.cookie = `leetmaster_user_email=${encodeURIComponent(parsed.email)}; path=/; max-age=31536000; SameSite=Lax`;
-        }
-      } catch (e) {
-        console.error("Error parsing user session:", e);
-      }
-    }
-  }, []);
-
-  const handleAuthSuccess = (session: { email: string; fullName: string; id: string }) => {
-    setUserSession(session);
-    navigateTo('/dashboard');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('leetmaster_user_session');
-    localStorage.removeItem('leetmaster_user_profile');
-    document.cookie = "leetmaster_user_email=; path=/; max-age=0; SameSite=Lax";
-    setUserSession(null);
-    navigateTo('/');
-  };
 
   // Simple state to store enrolled course IDs
   const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
@@ -73,54 +40,90 @@ export default function App() {
   const [userBlogsCount, setUserBlogsCount] = useState(0);
   const [userHackathonsCount, setUserHackathonsCount] = useState(0);
 
+  // Helper to fetch with retry and graceful fallback
+  const fetchWithRetry = async (url: string, retries = 3, delay = 500): Promise<Response> => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await fetch(url);
+        if (response.ok) return response;
+      } catch (err) {
+        if (i === retries - 1) throw err;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay * Math.pow(1.5, i)));
+    }
+    throw new Error(`Fetch failed for ${url} after ${retries} retries`);
+  };
+
   // Function to initialize/sync counts from APIs and localStorage
   const initializeCounts = async () => {
     try {
+      // Load cached counts if available
+      const cachedCounts = localStorage.getItem('leetmaster_cached_counts_fallback');
+      if (cachedCounts) {
+        try {
+          const parsed = JSON.parse(cachedCounts);
+          if (typeof parsed.solvedCount === 'number') setSolvedCount(parsed.solvedCount);
+          if (typeof parsed.userBlogsCount === 'number') setUserBlogsCount(parsed.userBlogsCount);
+          if (typeof parsed.userHackathonsCount === 'number') setUserHackathonsCount(parsed.userHackathonsCount);
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      let updatedSolved = null;
+      let updatedBlogs = null;
+      let updatedHacks = null;
+
       // 1. Fetch DSA submissions
       try {
-        const dsaRes = await fetch('/api/dsa/submissions');
-        if (dsaRes.ok) {
-          const dsaData = await dsaRes.json();
-          if (dsaData && dsaData.success && Array.isArray(dsaData.submissions)) {
-            const uniqueSolved = new Set(
-              dsaData.submissions
-                .filter((s: any) => s && s.status === 'Accepted' && s.problemId)
-                .map((s: any) => s.problemId)
-            );
-            setSolvedCount(uniqueSolved.size);
-          }
+        const dsaRes = await fetchWithRetry('/api/dsa/submissions');
+        const dsaData = await dsaRes.json();
+        if (dsaData && dsaData.success && Array.isArray(dsaData.submissions)) {
+          const uniqueSolved = new Set(
+            dsaData.submissions
+              .filter((s: any) => s && s.status === 'Accepted' && s.problemId)
+              .map((s: any) => s.problemId)
+          );
+          updatedSolved = uniqueSolved.size;
+          setSolvedCount(updatedSolved);
         }
       } catch (e) {
-        console.error('Error fetching DSA submissions for counts:', e);
+        console.warn('Could not fetch DSA submissions, using fallback or default:', e);
       }
 
       // 2. Fetch Blogs
       try {
-        const blogsRes = await fetch('/api/blogs');
-        if (blogsRes.ok) {
-          const blogsData = await blogsRes.json();
-          if (blogsData && blogsData.success && Array.isArray(blogsData.blogs)) {
-            const myBlogs = blogsData.blogs.filter((b: any) => b && b.isUserBlog).length;
-            setUserBlogsCount(myBlogs);
-          }
+        const blogsRes = await fetchWithRetry('/api/blogs');
+        const blogsData = await blogsRes.json();
+        if (blogsData && blogsData.success && Array.isArray(blogsData.blogs)) {
+          const myBlogs = blogsData.blogs.filter((b: any) => b && b.isUserBlog).length;
+          updatedBlogs = myBlogs;
+          setUserBlogsCount(updatedBlogs);
         }
       } catch (e) {
-        console.error('Error fetching blogs for counts:', e);
+        console.warn('Could not fetch blogs, using fallback or default:', e);
       }
 
       // 3. Fetch Hackathons
       try {
-        const hackathonsRes = await fetch('/api/hackathons');
-        if (hackathonsRes.ok) {
-          const hackathonsData = await hackathonsRes.json();
-          if (hackathonsData && hackathonsData.success && Array.isArray(hackathonsData.hackathons)) {
-            const myHacks = hackathonsData.hackathons.filter((h: any) => h && h.isUserHackathon).length;
-            setUserHackathonsCount(myHacks);
-          }
+        const hackathonsRes = await fetchWithRetry('/api/hackathons');
+        const hackathonsData = await hackathonsRes.json();
+        if (hackathonsData && hackathonsData.success && Array.isArray(hackathonsData.hackathons)) {
+          const myHacks = hackathonsData.hackathons.filter((h: any) => h && h.isUserHackathon).length;
+          updatedHacks = myHacks;
+          setUserHackathonsCount(updatedHacks);
         }
       } catch (e) {
-        console.error('Error fetching hackathons for counts:', e);
+        console.warn('Could not fetch hackathons, using fallback or default:', e);
       }
+
+      // Save any successful updates to cache
+      const nextCache = {
+        solvedCount: updatedSolved !== null ? updatedSolved : (solvedCount || 0),
+        userBlogsCount: updatedBlogs !== null ? updatedBlogs : (userBlogsCount || 0),
+        userHackathonsCount: updatedHacks !== null ? updatedHacks : (userHackathonsCount || 0)
+      };
+      localStorage.setItem('leetmaster_cached_counts_fallback', JSON.stringify(nextCache));
 
       // 4. Load Quizzes from localStorage
       const quizScoresRaw = localStorage.getItem('leetmaster_quiz_completed_scores');
@@ -479,49 +482,38 @@ export default function App() {
         onToggleDarkMode={() => setDarkMode(!darkMode)}
         currentPath={currentPath}
         onNavigate={navigateTo}
-        userSession={userSession}
-        onLogout={handleLogout}
       />
 
       <main className="relative">
         
-        {['/login', '/signup', '/forgot-password'].includes(currentPath) ? (
-          <AuthPage 
-            darkMode={darkMode}
-            onNavigate={navigateTo}
-            onAuthSuccess={handleAuthSuccess}
-            initialMode={currentPath === '/login' ? 'login' : currentPath === '/signup' ? 'signup' : 'forgot'}
-          />
-        ) : (
-          /* Render main single view by default */
-          <div>
-            {/* Hero Section */}
-            <Hero onNavigate={navigateTo} />
+        {/* Render main single view by default */}
+        <div>
+          {/* Hero Section */}
+          <Hero onNavigate={navigateTo} />
 
-            {/* Monthly Streak Calendar Widget */}
-            <MonthlyStreakCalendar />
+          {/* Monthly Streak Calendar Widget */}
+          <MonthlyStreakCalendar />
 
-            {/* Community & Consistency Section */}
-            <CommunityConsistency />
+          {/* Community & Consistency Section */}
+          <CommunityConsistency />
 
-            {/* Assignment Evaluation Section */}
-            <AssignmentEvaluation />
+          {/* Assignment Evaluation Section */}
+          <AssignmentEvaluation />
 
-            {/* Community Discuss Section */}
-            <CommunityDiscuss onNavigate={navigateTo} />
+          {/* Community Discuss Section */}
+          <CommunityDiscuss onNavigate={navigateTo} />
 
-            {/* DSA Sheet Code Editor Section */}
-            <CuratedSheetsLanding onNavigate={navigateTo} />
+          {/* DSA Sheet Code Editor Section */}
+          <CuratedSheetsLanding onNavigate={navigateTo} />
 
-            {/* Mobile Mockup Contests Section */}
-            <MobileContests />
+          {/* Mobile Mockup Contests Section */}
+          <MobileContests />
 
-            {/* Hackathon AI Grading Section */}
-            <div id="hackathons">
-              <HackathonsAI onGradingComplete={handleHackathonGradingComplete} />
-            </div>
+          {/* Hackathon AI Grading Section */}
+          <div id="hackathons">
+            <HackathonsAI onGradingComplete={handleHackathonGradingComplete} />
           </div>
-        )}
+        </div>
 
         {/* ======================================================= */}
         {/* POPUP / FULLSCREEN PREMIUM PATH OVERLAYS WITH STATE ACTIONS */}

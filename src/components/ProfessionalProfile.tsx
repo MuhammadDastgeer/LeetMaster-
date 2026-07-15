@@ -54,25 +54,25 @@ export default function ProfessionalProfile() {
   const [activeTab, setActiveTab] = useState<'Personal' | 'Professional' | 'Experience' | 'Certifications' | 'Education' | 'Projects'>('Personal');
 
   // Personal Fields
-  const [fullName, setFullName] = useState('Dastgeer');
-  const [username, setUsername] = useState('dastgeerjutt8888_d2a00f46');
-  const [bio, setBio] = useState('Learning AI/ML, Deep Learning, NLP, Computer Vision & Generative AI | Python Enthusiast |');
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
   const [company, setCompany] = useState('');
   const [jobTitle, setJobTitle] = useState('');
   const [location, setLocation] = useState('');
   const [institution, setInstitution] = useState('');
 
   // Social Links
-  const [website, setWebsite] = useState('https://example.com');
-  const [github, setGithub] = useState('https://github.com/username');
-  const [linkedin, setLinkedin] = useState('https://www.linkedin.com/in/muhammad-dastgeer/');
-  const [twitter, setTwitter] = useState('https://twitter.com/username');
-  const [youtube, setYoutube] = useState('https://youtube.com/channel/username');
-  const [instagram, setInstagram] = useState('https://instagram.com/username');
-  const [leetcode, setLeetcode] = useState('https://leetcode.com/username');
-  const [medium, setMedium] = useState('https://medium.com/@username');
-  const [hashnode, setHashnode] = useState('https://username.hashnode.dev');
-  const [peerlist, setPeerlist] = useState('https://peerlist.io/username');
+  const [website, setWebsite] = useState('');
+  const [github, setGithub] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [youtube, setYoutube] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [leetcode, setLeetcode] = useState('');
+  const [medium, setMedium] = useState('');
+  const [hashnode, setHashnode] = useState('');
+  const [peerlist, setPeerlist] = useState('');
 
   // Shipping details
   const [addressLine, setAddressLine] = useState('');
@@ -81,13 +81,13 @@ export default function ProfessionalProfile() {
   const [pinCode, setPinCode] = useState('');
   const [phone, setPhone] = useState('');
   const [tshirtSize, setTshirtSize] = useState('L');
-  const [avatar, setAvatar] = useState('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop');
+  const [avatar, setAvatar] = useState('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=128&auto=format&fit=crop');
 
   // Lists and Advanced States
   const [professional, setProfessional] = useState<ProfessionalData>({
-    skills: ['ML', 'DL', 'CV', 'Agentic AI', 'Gen AI', 'Python', 'DSA'],
-    yearsOfExperience: '1',
-    targetRole: 'Machine Learning Engineer',
+    skills: [],
+    yearsOfExperience: '0',
+    targetRole: '',
     workMode: 'Remote',
     ctc: ''
   });
@@ -1003,25 +1003,7 @@ export default function ProfessionalProfile() {
 
               </div>
 
-              {/* Account Controls Section */}
-              <div className="pt-6 border-t border-stone-100 dark:border-stone-800/50 space-y-4">
-                <div>
-                  <h3 className="text-base font-black text-rose-600 dark:text-rose-500 tracking-tight">
-                    Account Controls
-                  </h3>
-                  <p className="text-xs font-semibold text-stone-400 mt-1 leading-relaxed">
-                    You can request account deletion at any time. We will immediately disable access and your learning history will be anonymized. Contact support if you need manual assistance.
-                  </p>
-                </div>
 
-                <button 
-                  type="button"
-                  onClick={() => alert("To delete your account, please email support@leetmaster.co with your username details.")}
-                  className="bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/20 dark:hover:bg-red-900/20 text-xs font-black px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-850 transition-all cursor-pointer"
-                >
-                  Delete my account
-                </button>
-              </div>
 
             </div>
           </div>
