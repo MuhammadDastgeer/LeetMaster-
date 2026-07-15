@@ -314,6 +314,18 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    fullName TEXT NOT NULL,
+    securityQuestion TEXT NOT NULL,
+    securityAnswer TEXT NOT NULL,
+    createdAt TEXT NOT NULL
+  )
+`);
+
 // Clear dsa_submissions table to ensure 0 progress initially
 try {
   db.exec("DELETE FROM dsa_submissions");
@@ -823,10 +835,183 @@ What architectural patterns are you currently using or learning? Let's sketch so
 }
 
 // API Routes
+app.post("/api/auth/signup", (req, res) => {
+  try {
+    const { email, password, fullName } = req.body;
+    if (!email || !password || !fullName) {
+      return res.status(400).json({ success: false, error: "All fields are required" });
+    }
+
+    const emailCheck = db.prepare("SELECT * FROM users WHERE email = ?");
+    const existingUser = emailCheck.get(email.toLowerCase().trim());
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: "Email is already registered" });
+    }
+
+    const userId = "user_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+    const insertUser = db.prepare(`
+      INSERT INTO users (id, email, password, fullName, securityQuestion, securityAnswer, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    insertUser.run(
+      userId,
+      email.toLowerCase().trim(),
+      password,
+      fullName.trim(),
+      "", // empty securityQuestion
+      "", // empty securityAnswer
+      new Date().toISOString()
+    );
+
+    // Auto-create their profile too
+    const insertProfile = db.prepare(`
+      INSERT INTO profiles (
+        id, fullName, username, bio, company, jobTitle, location, institution,
+        website, github, linkedin, twitter, youtube, instagram, leetcode, medium, hashnode, peerlist,
+        addressLine, city, state, pinCode, phone, tshirtSize, avatar, professional, experience, certifications, education, projects
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    insertProfile.run(
+      email.toLowerCase().trim(),
+      fullName.trim(),
+      email.split('@')[0],
+      'Passionate learner on LeetMaster',
+      '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop',
+      '{}', '[]', '[]', '[]', '[]'
+    );
+
+    res.json({
+      success: true,
+      user: {
+        id: userId,
+        email: email.toLowerCase().trim(),
+        fullName: fullName.trim()
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/auth/login", (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: "Email and password are required" });
+    }
+
+    const userCheck = db.prepare("SELECT * FROM users WHERE email = ?");
+    const user = userCheck.get(email.toLowerCase().trim()) as any;
+    if (!user || user.password !== password) {
+      return res.status(400).json({ success: false, error: "Invalid email or password" });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/auth/forgot-password", (req, res) => {
+  try {
+    const { email, fullName, newPassword } = req.body;
+    if (!email || !fullName || !newPassword) {
+      return res.status(400).json({ success: false, error: "All fields are required" });
+    }
+
+    const userCheck = db.prepare("SELECT * FROM users WHERE email = ?");
+    const user = userCheck.get(email.toLowerCase().trim()) as any;
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User with this email not found" });
+    }
+
+    if (user.fullName.toLowerCase().trim() !== fullName.toLowerCase().trim()) {
+      return res.status(400).json({ success: false, error: "Registered Full Name is incorrect" });
+    }
+
+    const updatePassword = db.prepare("UPDATE users SET password = ? WHERE email = ?");
+    updatePassword.run(newPassword, email.toLowerCase().trim());
+
+    res.json({ success: true, message: "Password reset successfully! You can now log in." });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get("/api/auth/security-question", (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({ success: false, error: "Email is required" });
+    }
+    const userCheck = db.prepare("SELECT securityQuestion FROM users WHERE email = ?");
+    const user = userCheck.get((email as string).toLowerCase().trim()) as any;
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User with this email not found" });
+    }
+    res.json({ success: true, securityQuestion: user.securityQuestion });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+function getCookieValue(req: any, key: string): string | null {
+  try {
+    const cookieHeader = req.headers.cookie;
+    if (!cookieHeader) return null;
+    const match = cookieHeader.match(new RegExp('(^| )' + key + '=([^;]+)'));
+    if (match) return decodeURIComponent(match[2]);
+  } catch (e) {
+    console.error("Error reading cookie in backend:", e);
+  }
+  return null;
+}
+
 app.get("/api/profile", (req, res) => {
   try {
-    const stmt = db.prepare("SELECT * FROM profiles WHERE id = 'default'");
-    const profile = stmt.get() as any;
+    const userId = getCookieValue(req, "leetmaster_user_email") || (req.headers["x-user-email"] as string) || "default";
+    const stmt = db.prepare("SELECT * FROM profiles WHERE id = ?");
+    let profile = stmt.get(userId) as any;
+    
+    if (!profile && userId !== "default") {
+      // Auto create on demand if user exists but profile row doesn't
+      const userCheck = db.prepare("SELECT * FROM users WHERE email = ?").get(userId) as any;
+      if (userCheck) {
+        const insertProfile = db.prepare(`
+          INSERT INTO profiles (
+            id, fullName, username, bio, company, jobTitle, location, institution,
+            website, github, linkedin, twitter, youtube, instagram, leetcode, medium, hashnode, peerlist,
+            addressLine, city, state, pinCode, phone, tshirtSize, avatar, professional, experience, certifications, education, projects
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        insertProfile.run(
+          userId,
+          userCheck.fullName,
+          userId.split("@")[0],
+          "Passionate learner on LeetMaster",
+          "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop",
+          "{}", "[]", "[]", "[]", "[]"
+        );
+        profile = stmt.get(userId) as any;
+      }
+    }
+
+    // fallback to default
+    if (!profile) {
+      profile = stmt.get("default") as any;
+    }
+
     if (profile) {
       res.json({
         success: true,
@@ -849,6 +1034,7 @@ app.get("/api/profile", (req, res) => {
 
 app.post("/api/profile", (req, res) => {
   try {
+    const userId = getCookieValue(req, "leetmaster_user_email") || (req.headers["x-user-email"] as string) || "default";
     const {
       fullName, username, bio, company, jobTitle, location, institution,
       website, github, linkedin, twitter, youtube, instagram, leetcode, medium, hashnode, peerlist,
@@ -856,46 +1042,93 @@ app.post("/api/profile", (req, res) => {
       professional, experience, certifications, education, projects
     } = req.body;
 
-    const stmt = db.prepare(`
-      UPDATE profiles
-      SET fullName = ?, username = ?, bio = ?, company = ?, jobTitle = ?, location = ?, institution = ?,
-          website = ?, github = ?, linkedin = ?, twitter = ?, youtube = ?, instagram = ?, leetcode = ?, medium = ?, hashnode = ?, peerlist = ?,
-          addressLine = ?, city = ?, state = ?, pinCode = ?, phone = ?, tshirtSize = ?, avatar = ?,
-          professional = ?, experience = ?, certifications = ?, education = ?, projects = ?
-      WHERE id = 'default'
-    `);
+    // ensure profile exists first
+    const checkStmt = db.prepare("SELECT COUNT(*) as count FROM profiles WHERE id = ?");
+    const { count } = checkStmt.get(userId) as { count: number };
+    
+    if (count === 0) {
+      const insertProfile = db.prepare(`
+        INSERT INTO profiles (
+          id, fullName, username, bio, company, jobTitle, location, institution,
+          website, github, linkedin, twitter, youtube, instagram, leetcode, medium, hashnode, peerlist,
+          addressLine, city, state, pinCode, phone, tshirtSize, avatar, professional, experience, certifications, education, projects
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      insertProfile.run(
+        userId,
+        fullName || "",
+        username || userId.split("@")[0],
+        bio || "",
+        company || "",
+        jobTitle || "",
+        location || "",
+        institution || "",
+        website || "",
+        github || "",
+        linkedin || "",
+        twitter || "",
+        youtube || "",
+        instagram || "",
+        leetcode || "",
+        medium || "",
+        hashnode || "",
+        peerlist || "",
+        addressLine || "",
+        city || "",
+        state || "",
+        pinCode || "",
+        phone || "",
+        tshirtSize || "L",
+        avatar || "",
+        JSON.stringify(professional || {}),
+        JSON.stringify(experience || []),
+        JSON.stringify(certifications || []),
+        JSON.stringify(education || []),
+        JSON.stringify(projects || [])
+      );
+    } else {
+      const stmt = db.prepare(`
+        UPDATE profiles
+        SET fullName = ?, username = ?, bio = ?, company = ?, jobTitle = ?, location = ?, institution = ?,
+            website = ?, github = ?, linkedin = ?, twitter = ?, youtube = ?, instagram = ?, leetcode = ?, medium = ?, hashnode = ?, peerlist = ?,
+            addressLine = ?, city = ?, state = ?, pinCode = ?, phone = ?, tshirtSize = ?, avatar = ?,
+            professional = ?, experience = ?, certifications = ?, education = ?, projects = ?
+        WHERE id = ?
+      `);
 
-    stmt.run(
-      fullName || '',
-      username || '',
-      bio || '',
-      company || '',
-      jobTitle || '',
-      location || '',
-      institution || '',
-      website || '',
-      github || '',
-      linkedin || '',
-      twitter || '',
-      youtube || '',
-      instagram || '',
-      leetcode || '',
-      medium || '',
-      hashnode || '',
-      peerlist || '',
-      addressLine || '',
-      city || '',
-      state || '',
-      pinCode || '',
-      phone || '',
-      tshirtSize || 'L',
-      avatar || '',
-      JSON.stringify(professional || {}),
-      JSON.stringify(experience || []),
-      JSON.stringify(certifications || []),
-      JSON.stringify(education || []),
-      JSON.stringify(projects || [])
-    );
+      stmt.run(
+        fullName || '',
+        username || '',
+        bio || '',
+        company || '',
+        jobTitle || '',
+        location || '',
+        institution || '',
+        website || '',
+        github || '',
+        linkedin || '',
+        twitter || '',
+        youtube || '',
+        instagram || '',
+        leetcode || '',
+        medium || '',
+        hashnode || '',
+        peerlist || '',
+        addressLine || '',
+        city || '',
+        state || '',
+        pinCode || '',
+        phone || '',
+        tshirtSize || 'L',
+        avatar || '',
+        JSON.stringify(professional || {}),
+        JSON.stringify(experience || []),
+        JSON.stringify(certifications || []),
+        JSON.stringify(education || []),
+        JSON.stringify(projects || []),
+        userId
+      );
+    }
 
     res.json({ success: true, message: "Profile updated successfully" });
   } catch (error: any) {

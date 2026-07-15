@@ -11,6 +11,7 @@ import MobileContests from './components/MobileContests';
 import HackathonsAI from './components/HackathonsAI';
 import Dashboard from './components/Dashboard';
 import CuratedSheetsLanding from './components/CuratedSheetsLanding';
+import AuthPage from './components/AuthPage';
 import { getPresetQuizzes } from './data/quizDatabase';
 import { 
   Code2, Flame, Heart, Github, Linkedin, ArrowUp, BookOpen, 
@@ -22,6 +23,38 @@ export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  
+  // Authenticated user session state
+  const [userSession, setUserSession] = useState<{ email: string; fullName: string; id: string } | null>(null);
+
+  // Load user session on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('leetmaster_user_session');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.email) {
+          setUserSession(parsed);
+          document.cookie = `leetmaster_user_email=${encodeURIComponent(parsed.email)}; path=/; max-age=31536000; SameSite=Lax`;
+        }
+      } catch (e) {
+        console.error("Error parsing user session:", e);
+      }
+    }
+  }, []);
+
+  const handleAuthSuccess = (session: { email: string; fullName: string; id: string }) => {
+    setUserSession(session);
+    navigateTo('/dashboard');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('leetmaster_user_session');
+    localStorage.removeItem('leetmaster_user_profile');
+    document.cookie = "leetmaster_user_email=; path=/; max-age=0; SameSite=Lax";
+    setUserSession(null);
+    navigateTo('/');
+  };
 
   // Simple state to store enrolled course IDs
   const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
@@ -446,38 +479,49 @@ export default function App() {
         onToggleDarkMode={() => setDarkMode(!darkMode)}
         currentPath={currentPath}
         onNavigate={navigateTo}
+        userSession={userSession}
+        onLogout={handleLogout}
       />
 
       <main className="relative">
         
-        {/* Render main single view by default */}
-        <div>
-          {/* Hero Section */}
-          <Hero onNavigate={navigateTo} />
+        {['/login', '/signup', '/forgot-password'].includes(currentPath) ? (
+          <AuthPage 
+            darkMode={darkMode}
+            onNavigate={navigateTo}
+            onAuthSuccess={handleAuthSuccess}
+            initialMode={currentPath === '/login' ? 'login' : currentPath === '/signup' ? 'signup' : 'forgot'}
+          />
+        ) : (
+          /* Render main single view by default */
+          <div>
+            {/* Hero Section */}
+            <Hero onNavigate={navigateTo} />
 
-          {/* Monthly Streak Calendar Widget */}
-          <MonthlyStreakCalendar />
+            {/* Monthly Streak Calendar Widget */}
+            <MonthlyStreakCalendar />
 
-          {/* Community & Consistency Section */}
-          <CommunityConsistency />
+            {/* Community & Consistency Section */}
+            <CommunityConsistency />
 
-          {/* Assignment Evaluation Section */}
-          <AssignmentEvaluation />
+            {/* Assignment Evaluation Section */}
+            <AssignmentEvaluation />
 
-          {/* Community Discuss Section */}
-          <CommunityDiscuss onNavigate={navigateTo} />
+            {/* Community Discuss Section */}
+            <CommunityDiscuss onNavigate={navigateTo} />
 
-          {/* DSA Sheet Code Editor Section */}
-          <CuratedSheetsLanding onNavigate={navigateTo} />
+            {/* DSA Sheet Code Editor Section */}
+            <CuratedSheetsLanding onNavigate={navigateTo} />
 
-          {/* Mobile Mockup Contests Section */}
-          <MobileContests />
+            {/* Mobile Mockup Contests Section */}
+            <MobileContests />
 
-          {/* Hackathon AI Grading Section */}
-          <div id="hackathons">
-            <HackathonsAI onGradingComplete={handleHackathonGradingComplete} />
+            {/* Hackathon AI Grading Section */}
+            <div id="hackathons">
+              <HackathonsAI onGradingComplete={handleHackathonGradingComplete} />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ======================================================= */}
         {/* POPUP / FULLSCREEN PREMIUM PATH OVERLAYS WITH STATE ACTIONS */}
